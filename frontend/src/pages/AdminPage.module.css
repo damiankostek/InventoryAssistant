@@ -44,7 +44,7 @@ span.optionsButton a img {
     all: unset
 }
 
-.layoutButton{
+/* .layoutButton{
     all: unset;
     text-decoration: none;
     color: white;
@@ -54,7 +54,7 @@ span.optionsButton a img {
     font-weight: 500;
     margin: 1em;
     width: 6em;
-}
+} */
 
 .adminContent {
     background-color: rgba(255, 255, 255, 0.4);
@@ -78,17 +78,26 @@ span.optionsButton a img {
 }
 
 
-button {
+.layoutButton {
+    all: unset;
+    text-decoration: none;
+    color: white;
+    border: 2px solid white;
+    border-radius: 12px;
+    padding: 0.4em 0.7em;
+    font-weight: 500;
+    margin: 1em;
+    width: 6em;
     background-color: transparent;
     cursor: pointer;
     transition: border-color 0.25s;
   }
-  button:hover {
+   button:hover {
     background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
 	background-size: 200% 200%;
 	animation: gradient 1s ease infinite;
   }
-  button:focus,
-  button:focus-visible {
+  .layoutButton :focus,
+  .layoutButton :focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
   }
