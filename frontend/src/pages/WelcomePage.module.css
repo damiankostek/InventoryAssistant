@@ -1,0 +1,34 @@
+.welcomeContainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.headerContainer {
+    margin-bottom: 3em;
+}
+
+.logo {
+    float: left;
+    width: 8em;
+    height: auto;
+    filter: brightness(0) invert(1);
+}
+
+.title {
+    float: left;
+    text-align: left;
+    font-size: 2.5em;
+}
+  
+.logInButton {
+    all: unset;
+    padding-top: 4em;
+    padding-bottom: 2em;
+}
+
+.bottomStyle {
+    font-size: 1.5em;
+}

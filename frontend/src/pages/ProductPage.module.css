@@ -1,0 +1,73 @@
+.productContainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* .contentContainer {
+
+}
+
+.qrCodeStyle {
+
+} */
+
+/* .nameProduct {
+
+} */
+
+.h2Style {
+    font-size: 1.5em;
+}
+
+.quantityStyle {
+    width: 8em;
+}
+
+.inputText input {
+    height: 3em;
+    text-align: right;
+}
+
+.form_group {
+    padding-top: 0.8em;
+}
+
+.form_group label {
+    font-size: 1.5em;
+}
+
+.buttonStyle {
+    width: 16em;
+    display: flex;
+    justify-content: space-around;
+}
+
+.confirm {
+    margin-top: 1em;
+    border-radius: 12px;
+    border: 1px solid #3df546;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    color: #f9f9f9;
+    background-color: #2a6906;
+    width: 7em;
+}
+
+.cancel {
+    text-decoration: none;
+    margin-top: 1em;
+    border-radius: 12px;
+    border: 1px solid #f33d3d;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    color: #f9f9f9;
+    background-color: #940d0d;
+    width: 7em;
+}

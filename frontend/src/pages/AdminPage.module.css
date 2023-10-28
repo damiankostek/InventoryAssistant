@@ -1,0 +1,94 @@
+.adminContainer {
+    min-height: 100vh;
+    min-width: 80vw;
+    margin: 0;
+    padding: 0;
+}
+
+.banner {
+    background-color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    justify-content: space-around;
+    border-radius: 0px 0px 20px 20px;
+}
+
+.headerContainer {
+    margin-left: -15em;
+    padding-top: 1.5em;
+    padding-bottom: 1.5em;
+}
+
+.logo {
+    float: left;
+    width: 8em;
+    height: auto;
+    filter: brightness(0) invert(1);
+}
+
+.title {
+    float: left;
+    text-align: left;
+    font-size: 2.5em;
+}
+
+.userStyle {
+    float: left;
+    padding-top: 3.5em;
+}
+
+span.optionsButton a img {
+    filter: brightness(0) invert(1);
+    margin-right: -25em;
+}
+.logOutButton {
+    all: unset
+}
+
+.layoutButton{
+    all: unset;
+    text-decoration: none;
+    color: white;
+    border: 2px solid white;
+    border-radius: 12px;
+    padding: 0.4em 0.7em;
+    font-weight: 500;
+    margin: 1em;
+    width: 6em;
+}
+
+.adminContent {
+    background-color: rgba(255, 255, 255, 0.4);
+    min-height: 75vh;
+    border-radius: 20px 20px 20px 20px;
+}
+
+.menuAdmin {
+    background-color: rgba(255, 255, 255, 0.45);
+    float: left;
+    min-height: 75vh;
+    width: 15vw;
+    border-radius: 20px 0px 0px 20px;
+}
+
+.details {
+    float: left;
+    min-height: 75vh;
+    width: 65vw;
+    border-radius: 0px 20px 20px 0px;
+}
+
+
+button {
+    background-color: transparent;
+    cursor: pointer;
+    transition: border-color 0.25s;
+  }
+  button:hover {
+    background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+	background-size: 200% 200%;
+	animation: gradient 1s ease infinite;
+  }
+  button:focus,
+  button:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
