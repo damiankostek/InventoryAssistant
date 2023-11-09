@@ -1,6 +1,6 @@
 .adminContainer {
     min-height: 100vh;
-    min-width: 80vw;
+    min-width: 85vw;
     margin: 0;
     padding: 0;
 }
@@ -13,7 +13,7 @@
 }
 
 .headerContainer {
-    margin-left: -15em;
+    margin-left: -14.5em;
     padding-top: 1.5em;
     padding-bottom: 1.5em;
 }
@@ -38,7 +38,7 @@
 
 span.optionsButton a img {
     filter: brightness(0) invert(1);
-    margin-right: -25em;
+    margin-right: -23em;
 }
 .logOutButton {
     all: unset

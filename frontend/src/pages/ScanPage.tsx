@@ -12,7 +12,7 @@ const ScanPage: React.FC = () => {
                 <div className={styles.qrContainer}>
                     <h1>Zeskanuj kod QR</h1>
                     <div className={styles.qrWindow}>
-                        <i>miejsce na aparat</i>
+                        <i>miejsce na czytnik kodów</i>
                     </div>
                 </div>
                 <div className={styles.codeStyle}>
