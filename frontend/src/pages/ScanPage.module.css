@@ -6,20 +6,20 @@
     text-align: center;
 }
 
-/* .qrContainer {
-
-}
-
-.qrWindow {
-
-} */
-
 .codeStyle {
     width: 15em;
 }
 
 .inputText input {
     height: 3em;
+    text-align: center;
+    /* border: 3px solid rgb(33, 245, 33); */
+}
+
+.inputTextGreen input {
+    height: 3em;
+    text-align: center;
+    border: 3px solid rgb(33, 245, 33);
 }
 
 .inputText {
@@ -40,4 +40,47 @@
 
 .form_group {
     padding-top: 0.8em;
+}
+
+.onAparat {
+    margin: 1em;
+    border-radius: 8px;
+    border: 1px solid #646cff;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    color: #f9f9f9;
+    background-color: #1a1a1a;
+}
+
+.test{
+    border: none !important;
+}
+
+.test img {
+    display: none;
+}
+
+.test div div div {
+    display: none;
+}
+
+.test div > video{
+    margin-top: 1.5em !important;
+    width: 80% !important;
+    margin: 0 auto;
+}
+
+.test button {
+    all: unset;
+    margin: 1em;
+    border-radius: 8px;
+    border: 1px solid #646cff;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    color: #f9f9f9;
+    background-color: #1a1a1a;
 }

@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { InputGroup } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import logo from '../assets/qr.png';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 let failFeedback:string;
 

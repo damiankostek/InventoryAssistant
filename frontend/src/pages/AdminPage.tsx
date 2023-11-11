@@ -26,7 +26,7 @@ const AdminPage: React.FC = () => {
                         </span>
                     </div>
                 </div>
-                <div>
+                <div className={styles.layoutButtons}>
                     <button className={styles.layoutButton}>Konta</button>
                     <button className={styles.layoutButton}>Tabele</button>
                 </div>
