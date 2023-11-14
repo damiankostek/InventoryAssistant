@@ -1,4 +1,4 @@
-import styles from './RegistrationPage.module.css';
+import styles from '../styles/RegistrationPage.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { InputGroup } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';

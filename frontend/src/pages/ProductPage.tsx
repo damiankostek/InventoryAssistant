@@ -1,5 +1,5 @@
 import { Form, InputGroup } from 'react-bootstrap';
-import styles from './ProductPage.module.css';
+import styles from '../styles/ProductPage.module.css';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 

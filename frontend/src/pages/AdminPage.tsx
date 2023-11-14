@@ -1,4 +1,4 @@
-import styles from './AdminPage.module.css';
+import styles from '../styles/AdminPage.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from '../assets/qr.png';
 import log_out from "../assets/log_out.png";

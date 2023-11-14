@@ -1,16 +1,16 @@
-import styles from './LoginPage.module.css';
+import styles from '../styles/LoginPage.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { InputGroup } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import logo from '../assets/qr.png';
-import { useEffect, useState } from 'react';
-
-let failFeedback:string;
+import { useState } from 'react';
+import Cookies from "js-cookie";
 
 const LoginPage: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    // const [validated, setValidated] = useState(false);
+    const [failFeedback, setFailFeedback] = useState("");
+    const [validated, setValidated] = useState(false);
 
     // useEffect( () => {
     //     const user = Cookies.get('user');
@@ -35,9 +35,13 @@ const LoginPage: React.FC = () => {
     //             return response.json();
     //         })
     //         .then((data) => {
-    //             if(data.success) {
-    //               document.location.href = '/HomePage';
+    //           if(data.success) {
+    //             if(data.success == "admin"){
+    //               document.location.href = '/admin';
+    //             }else {
+    //               document.location.href = '/scan';
     //             }
+    //           }
     //         })
     //         .catch((error) => {
     //             console.log(error);
@@ -45,38 +49,46 @@ const LoginPage: React.FC = () => {
     //     }
     //   }, []);
 
-    // const handleLogin = () => {
-    //     const apiUrl = 'http://localhost:8080/login';
+    const handleLogin = () => {
+        const apiUrl = 'http://localhost:8080/login';
     
-    //     const requestBody = {
-    //       username: username,
-    //       password: password,
-    //     };
-    //     console.log(requestBody)
-    //     fetch(apiUrl, {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //       },
-    //       body: JSON.stringify(requestBody),
-    //     })
-    //       .then((response) => {
-    //         if (!response.ok) {
-    //           throw new Error('Login failed');
-    //         }
-    //         return response.json();
-    //       })
-    //       .then((data) => {
-    //         if(data.success) {
-    //           Cookies.set('user', data.success, { expires: 7 });
-    //           setValidated(false);
-    //           document.location.href = '/HomePage';
-    //         }else {
-    //           setValidated(true);
-    //           failFeedback = data.fail;
-    //         }
-    //       });
-    //     };
+        const requestBody = {
+          username: username,
+          password: password,
+        };
+        console.log(requestBody)
+        fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Login failed');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data.success);
+            if(data.success) {
+              Cookies.set('user', data.success, { expires: 7 });
+              setValidated(false);
+              if(data.success == "admin"){
+                document.location.href = '/admin';
+              }else {
+                document.location.href = '/scan';
+              }
+            }else {
+              console.log(data.fail);
+              setValidated(true);
+              setFailFeedback(data.fail)
+            }
+          }).catch((error) => {
+            console.error(error);
+          });
+        };
     
     return (
         <>
@@ -98,7 +110,7 @@ const LoginPage: React.FC = () => {
                             id="username"
                             placeholder='username'
                             value={username}
-                            // isInvalid={validated}
+                            isInvalid={validated}
                             onChange={(e) => setUsername(e.target.value)}
                             />
                             <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
@@ -113,7 +125,7 @@ const LoginPage: React.FC = () => {
                             id="password"
                             placeholder='********'
                             value={password}
-                            // isInvalid={validated}
+                            isInvalid={validated}
                             onChange={(e) => setPassword(e.target.value)}
                             />
                             <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
@@ -122,7 +134,7 @@ const LoginPage: React.FC = () => {
                         </InputGroup>
                     </div>
                 </div>
-                <button className={styles.logIn}>Zaloguj się</button>
+                <button onClick={handleLogin} className={styles.logIn}>Zaloguj się</button>
             </div>
         </>
     

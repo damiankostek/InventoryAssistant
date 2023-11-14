@@ -1,13 +1,14 @@
 import { Form, InputGroup } from 'react-bootstrap';
-import styles from './ScanPage.module.css';
+import styles from '../styles/ScanPage.module.css';
 import { useState } from 'react';
 import { Html5QrcodeScanner } from "html5-qrcode";
+import Cookies from "js-cookie";
 
 {/* <script src="html5-qrcode.min.js"></script> */}
 
 const ScanPage: React.FC = () => {
     const [qrCode, setQRCode] = useState('');
-    const [validatedQRCode] = useState(false);
+    const [validatedQRCode, setValidatedQRCode] = useState(false);
     const [aparatClicked, setAparatClicked] = useState(false);
 
     function onScanSuccess(decodedText: any, decodedResult: any) {
@@ -26,10 +27,34 @@ const ScanPage: React.FC = () => {
     }
 
     const sendQrCode = () => {
+        const apiUrl = 'http://localhost:8080/qrCode';
+
         const requestBody = {
             qrCode: qrCode
           };
           console.log(requestBody)
+          fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+          })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Login failed');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log(data)
+            if(data.success) {
+              Cookies.set('user', data.success, { expires: 7 });
+              setValidatedQRCode(false); //niedokonczone
+            }
+          }).catch((error) => {
+            console.error(error);
+          });
     }
     
 
