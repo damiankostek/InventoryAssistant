@@ -13,7 +13,7 @@
 }
 
 .headerContainer {
-    margin-left: -14.5em;
+    margin-left: -12em;
     padding-top: 1.5em;
     padding-bottom: 1.5em;
 }
@@ -38,7 +38,7 @@
 
 span.optionsButton a img {
     filter: brightness(0) invert(1);
-    margin-right: -23em;
+    margin-right: -17.5em;
 }
 .logOutButton {
     all: unset

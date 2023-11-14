@@ -26,7 +26,7 @@ const AdminPage: React.FC = () => {
                         </span>
                     </span>
                     <div className={styles.userStyle}>
-                        <h1>Witaj $user$</h1>
+                        <h1>Panel administratora</h1>
                     </div>
                     <div>
                         <span className={styles.optionsButton}>
