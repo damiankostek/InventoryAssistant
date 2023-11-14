@@ -1,0 +1,67 @@
+.menuAdmin {
+    background-color: rgba(255, 255, 255, 0.45);
+    float: left;
+    min-height: 75vh;
+    width: 15vw;
+    border-radius: 20px 0px 0px 20px;
+}
+
+.details {
+    float: left;
+    min-height: 75vh;
+    width: 65vw;
+    border-radius: 0px 20px 20px 0px;
+}
+
+hr {
+    border: 2px solid white;
+}
+
+.addUserButton {
+    all: unset;
+    text-decoration: none;
+    color: rgb(63, 56, 56);
+    border: 2px solid white;
+    border-radius: 20px 0px 0px 0px;
+    padding: 0.7em 0;
+    font-weight: 700;
+    width: 14.7vw;
+    background-color: rgba(255, 255, 255, 0);
+    cursor: pointer;
+    transition: border-color 0.25s;
+  }
+.menuButtons .addUserButton:hover {
+    background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+	background-size: 200% 200%;
+	animation: gradient 1s ease infinite;
+     color: white;
+    /*border: 2px dashed white; */
+  }
+   .addUserButton :focus,
+  .addUserButton :focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+
+.userButton {
+    all: unset;
+    text-decoration: none;
+    color: rgb(63, 56, 56);
+    border: 2px solid white;
+    padding: 0.7em 0;
+    font-weight: 700;
+    width: 14.7vw;
+    background-color: rgba(255, 255, 255, 0);
+    cursor: pointer;
+    transition: border-color 0.25s;
+  }
+.menuButtons .userButton:hover {
+    background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+	background-size: 200% 200%;
+	animation: gradient 1s ease infinite;
+     color: white;
+    /*border: 2px dashed white; */
+  }
+   .userButton :focus,
+  .userButton :focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }

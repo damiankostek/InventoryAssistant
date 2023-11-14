@@ -3,8 +3,16 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from '../assets/qr.png';
 import log_out from "../assets/log_out.png";
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import AccountPageLayout from '../layouts/AccountPageLayout';
+import TablePageLayout from '../layouts/TablePageLayout';
 
 const AdminPage: React.FC = () => {
+    const [activeButton, setActiveButton] = useState('Konta');
+
+    const handleButtonClick = (buttonName: string) => {
+        setActiveButton(buttonName);
+    };
     
     return (
         <>
@@ -27,16 +35,25 @@ const AdminPage: React.FC = () => {
                     </div>
                 </div>
                 <div className={styles.layoutButtons}>
-                    <button className={styles.layoutButton}>Konta</button>
-                    <button className={styles.layoutButton}>Tabele</button>
+                    <button
+                        className={activeButton === 'Konta' ? styles.layoutButton : styles.layoutButton}
+                        onClick={() => handleButtonClick('Konta')}
+                    >
+                        Konta
+                    </button>
+                    <button
+                        className={activeButton === 'Tabele' ? styles.layoutButton : styles.layoutButton}
+                        onClick={() => handleButtonClick('Tabele')}
+                    >
+                        Tabele
+                    </button>
                 </div>
                 <div className={styles.adminContent}>
-                    <div className={styles.menuAdmin}>
-                        <h1>Menu</h1>
-                    </div>
-                    <div className={styles.details}>
-                        Szczegóły dotyczące danego konta lub jakiejś tabeli...
-                    </div>
+                    {activeButton === 'Konta' ? (
+                        <AccountPageLayout/>
+                    ) : (
+                        <TablePageLayout/>
+                    )}
                 </div>
             </div>
         </>

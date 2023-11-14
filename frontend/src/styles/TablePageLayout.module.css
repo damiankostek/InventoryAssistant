@@ -1,0 +1,14 @@
+.menuAdmin {
+    background-color: rgba(255, 255, 255, 0.45);
+    float: left;
+    min-height: 75vh;
+    width: 15vw;
+    border-radius: 20px 0px 0px 20px;
+}
+
+.details {
+    float: left;
+    min-height: 75vh;
+    width: 65vw;
+    border-radius: 0px 20px 20px 0px;
+}
