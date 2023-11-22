@@ -44,6 +44,19 @@ async function usernameUnique(arr, username) {
     }
 }
 
+async function getUsernameById(id) {
+    try {
+        const user = await db.User.findById(new ObjectId(id)).exec();
+        if(user) {
+            return user;
+        }
+        return false;
+    }catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności nazwy użytkownika:', error);
+        throw error;
+    }
+}
+
 async function getUsers(){
     try {
         return await db.User.find();
@@ -62,4 +75,4 @@ async function getTable(){  // prowizorka xd
     }
 }
 
-module.exports = { changePassword, add, usernameUnique, getUsers, getTable};
+module.exports = { changePassword, add, usernameUnique, getUsernameById, getUsers, getTable};

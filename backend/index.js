@@ -31,6 +31,7 @@ app.use(cors(corsOptions)) // Use this after the variable declaration
 
 const user = require("./controllers/user");
 const validation = require("./controllers/validation");
+const token = require("./controllers/token");
 const admin = require("./controllers/admin");
 
 
@@ -39,22 +40,35 @@ app.post('/', (req, res) => {
 }); 
 
 // AUTH
-// app.post('/auth', async (req, res) => {
-//   const id = req.body.user;
-//   if (!id){
-//     return res.status(200).send({login: false});
-//   }
-//   try{
-//     const get_user = await user.auth(id);
-//     if(!get_user){
-//       return res.status(200).send({login: false});
-//     }else{
-//       return res.status(200).send({login: true});
-//     }
-//   }catch(error){
-//     return res.status(500);
-//   }
-// });
+app.post('/auth', async (req, res) => {
+  const ctoken = req.body.token;
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const username = await admin.getUsernameById(userID);
+      const get_user = await user.checkUsername(username.username);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+        return res.status(200).send({success: "Admin zalogowany", admin: true});
+      }else {
+        return res.status(200).send({success: "Użytkownik zalogowany"});
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
 
 // LOGOWANIE
 app.post("/login", async (req,res) => {
@@ -62,23 +76,33 @@ app.post("/login", async (req,res) => {
   const password = req.body.password;
 
   try{
-    if (req.body.username == "admin" && req.body.password == "admin"){
-      return res.json({success:"admin"});
-    }else{
     const get_user = await user.checkUsername(username);
     if (!get_user) {
       return res.status(200).send({fail:"Konto nie istnieje"});
     }
     const passwordHash = get_user.password;
-    console.log(get_user);
-    console.log(get_user.password);
     if (await user.passwordCompare(passwordHash, password)){
-      return res.status(200).send({success:get_user._id});
+      const ctoken = await token.addToken(get_user._id.toString());
+      if(get_user.role == "admin") {
+        return res.status(200).send({token: ctoken, admin: true});
+      }else {
+        return res.status(200).send({token: ctoken});
+      }
     }
     return res.status(200).send({fail:"Niepoprawne hasło."});
-    }
+
   }catch(error){
       return res.status(500);
+  }
+})
+
+// WYLOGOWYWANIE
+app.post('/logout', async (req, res) => {
+  const ctoken = req.body.token;
+  console.log('token1 '+ctoken);
+  if (ctoken){
+      token.removeToken(ctoken);
+      return res.send({success: "wylogowano"})
   }
 })
 

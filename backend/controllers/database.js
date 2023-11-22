@@ -15,7 +15,16 @@ db.once('open', () => {
   console.log('Połączono z bazą danych MongoDB');
 });
 
+const tokenSchema = new mongoose.Schema({
+  userID: String,
+  token: String,
+  created_at: {type: Date, default: new Date()},
+  updated_at: {type: Date, default: new Date()},
+});
+const Token = mongoose.model('Token', tokenSchema);
+
 const userSchema = new mongoose.Schema({
+    role: String,
     username: String,
     password: String,
     created_at: {type: Date, default: new Date()},
@@ -39,4 +48,4 @@ const tableSchema = new mongoose.Schema({
 });
 const Inventory = mongoose.model('Inventory', tableSchema);
 
-module.exports = { User, Inventory };
+module.exports = { User, Inventory, Token };

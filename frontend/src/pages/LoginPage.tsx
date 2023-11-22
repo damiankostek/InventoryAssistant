@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { InputGroup } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import logo from '../assets/qr.png';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Cookies from "js-cookie";
 
 const LoginPage: React.FC = () => {
@@ -12,42 +12,44 @@ const LoginPage: React.FC = () => {
     const [failFeedback, setFailFeedback] = useState("");
     const [validated, setValidated] = useState(false);
 
-    // useEffect( () => {
-    //     const user = Cookies.get('user');
-    //     if(user){
-    //         const apiUrl = 'http://localhost:8080/auth';
+    useEffect( () => {
+        const token = Cookies.get('user');
+        if(token){
+            const apiUrl = 'http://localhost:8080/auth';
             
-    //         const requestBody = {
-    //             user: user,
-    //         };
-    //         console.log(requestBody)
-    //         fetch(apiUrl, {
-    //             method: 'POST',
-    //             headers: {
-    //             'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(requestBody),
-    //         })
-    //         .then((response) => {
-    //             if (!response.ok) {
-    //                 throw new Error('Nie ma autoryzacji');
-    //             }
-    //             return response.json();
-    //         })
-    //         .then((data) => {
-    //           if(data.success) {
-    //             if(data.success == "admin"){
-    //               document.location.href = '/admin';
-    //             }else {
-    //               document.location.href = '/scan';
-    //             }
-    //           }
-    //         })
-    //         .catch((error) => {
-    //             console.log(error);
-    //         });
-    //     }
-    //   }, []);
+            const requestBody = {
+              token: token,
+            };
+            console.log(requestBody)
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            })
+            .then((response) => {
+              if (response.status == 500) {
+                  throw new Error('Błąd serwera');
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if(data.success) {
+                if(data.admin){
+                  document.location.href = '/admin';
+                }else {
+                  document.location.href = '/scan';
+                }
+              }else {
+                Cookies.remove('user', { path: '/', domain: 'localhost' });
+              }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+        }
+      }, []);
 
     const handleLogin = () => {
         const apiUrl = 'http://localhost:8080/login';
@@ -71,11 +73,11 @@ const LoginPage: React.FC = () => {
             return response.json();
           })
           .then((data) => {
-            console.log(data.success);
-            if(data.success) {
-              Cookies.set('user', data.success, { expires: 7 });
+            console.log(data.token);
+            if(data.token) {
+              Cookies.set('user', data.token, { expires: 7 });
               setValidated(false);
-              if(data.success == "admin"){
+              if(data.admin){
                 document.location.href = '/admin';
               }else {
                 document.location.href = '/scan';
