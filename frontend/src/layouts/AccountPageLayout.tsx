@@ -1,15 +1,186 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from '../styles/AccountPageLayout.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import AddUser from '../pages/AddUser';
+import { Form, InputGroup } from 'react-bootstrap';
+
+// interface User {
+//     _id: number;
+//     username: string;
+// }
+
+// interface Inventory {
+//     id: number;
+//     tableName: string;
+// }
+
+// const users: User[] = []; 
+// const tables: Inventory[] = []; 
+
+var user:any = []
+// var table:any = []
 
 const AccountPageLayout: React.FC = () => {
     const [showAddUser, setShowAddUser] = useState(false);
+    const [id, setId] = useState('');
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    // const [tableName, setTableName] = useState('');
+    const [usernameChanged, setUsernameChanged] = useState(false);
+    const [passwordChanged, setPasswordChanged] = useState(false);
+    const [tableChanged, setTableChanged] = useState(false);
+    const [feedbackValues, setFeedbackValues] = useState({
+        username: '',
+        password: '',
+        // tableName: ''  // czy to potrzebne
+    })
+    const [validatedValues, setValidatedValues] = useState({
+        username: false,
+        password: false,
+        // tableName: false // czy to potrzebne
+    })
+    const [userTable, setUserTable] = useState(user)
+    // const [productsTable, setProductsTable] = useState(table)
+    // const [users, setUsers] = useState<User[]>([]);
+    // const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+    // const [selectedTableID, setSelectedTableID] = useState<number | null>(null);
 
     const handleAddUserClick = () => {
         setShowAddUser(true);
     };
-    
+
+    useEffect( () => {
+        const apiUrl = 'http://localhost:8080/userDetails';
+        
+        const requestBody = {
+            details: true,
+        };
+        console.log(requestBody)
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+        })
+        .then((response) => {
+          if (response.status == 500) {
+              throw new Error('Błąd serwera');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setUserTable(data.details)
+          console.log(userTable)
+        //   setTableName(data.details)
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+  }, []);
+
+    const handleChangeUserDetails = () => {
+        const apiUrl = 'http://localhost:8080/setUserDetails';
+
+        const requestBody = {
+            id: id,
+            username: username,
+            password: password
+        };
+        console.log(requestBody)
+        fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Reset password failed: User not found');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          if(data.updated.username) 
+          {
+            console.log("Username updated");
+            setUsernameChanged(true);
+          }
+          if(data.updated.password) 
+          {
+            console.log("Hasło zostało pomyślnie zmienione");
+            setPasswordChanged(true);
+          }
+          if(data.errors){
+            console.log(data.errors)
+            if(data.errors.username.length != 0) {
+              setValidatedValues((prev) => ({
+                  ...prev, 
+                  username: true
+              }));
+              setFeedbackValues((prev) => ({
+                  ...prev, 
+                  username: data.errors.username[0]
+              }));
+            }else{
+              setValidatedValues((prev) => ({
+                ...prev, 
+                username: false
+              }));
+            }
+            if(data.errors.password.length != 0) {
+                setValidatedValues((prev) => ({
+                    ...prev, 
+                    password: true
+                }));
+                setFeedbackValues((prev) => ({
+                    ...prev, 
+                    password: data.errors.password[0]
+                }));
+            }else{
+                setValidatedValues((prev) => ({
+                    ...prev, 
+                    password: false
+                }));
+            }
+          }
+        });
+      };
+
+    //   const handleSelectTables = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        // const tableId = parseInt(event.target.value, 10);
+        // setSelectedTableID(tableId);
+        // setTableChanged(true);
+
+        // const apiUrl = 'http://localhost:8080/selectTable';
+
+        // const requestBody = {
+        // tableName: tableName
+        // };
+        // console.log(requestBody)
+        // fetch(apiUrl, {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify(requestBody),
+        // })
+        // .then((response) => {
+        //   if (!response.ok) {
+        //     throw new Error('Table not found');
+        //   }
+        //   return response.json();
+        // })
+        // .then((data) => {
+        //   if(data.selected.tableName) 
+        //   {
+        //     console.log("Table selected");
+        //     setTableChanged(true);
+        //   }
+        // });
+    //   };
+    console.log(id);
     return (
         <>
             <div className={styles.adminContent}>
@@ -19,11 +190,93 @@ const AccountPageLayout: React.FC = () => {
                             Dodaj pracownika
                         </button>
                         <hr />
-                        <button className={styles.userButton}>jkowalski</button>
+                        <h4>Lista kont</h4>
+                        {/* <select className={styles.userButton} id="user" value={selectedUserId || ''} onChange={handleUserChange}> */}
+                        <select className={styles.userButton} id="user" value={username} onChange={(e) => setUsername(e.target.value) }>
+                            {/* <option value={user.username}>jkowal</option>
+                            <option value={user.username}>knowak</option>
+                            <option value={user.username}>bkról</option> */}
+                            {userTable.map((user: any) => (
+                            <option key={user._id} value={user.username}>{user.username}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
                 <div className={styles.details}>
-                    {showAddUser ? <AddUser /> : null}
+                    {showAddUser ? <AddUser /> : 
+                      <div className={styles.contents_container}>
+                            <div className={styles.id_styles}>
+                                {userTable.map((user: any) => (
+                                    user.username == username ? <span key={user._id}>ID: {user._id}</span> : null
+                                ))}
+                            </div>
+                            <hr />
+                        <div className={styles.content_container}>
+                            <div>
+                                <div className={styles.contentForm}>
+                                    <div className={styles.form_group}>
+                                        <label htmlFor="username">Nazwa użytkownika:</label>
+                                        <InputGroup className={styles.inputText} hasValidation>
+                                        <Form.Control
+                                            type="username"
+                                            id="username"
+                                            value={username}
+                                            isInvalid={validatedValues.username}
+                                            onChange={(e) => setUsername(e.target.value)}
+                                        />
+                                        <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
+                                            {feedbackValues.username}
+                                        </Form.Control.Feedback>
+                                        </InputGroup>
+                                    </div>
+                                    {usernameChanged && <div className={styles.successMessage}>Nazwa użytkownika została zmieniona</div>}
+                                    <div className={styles.form_group}>
+                                        <label htmlFor="password">Hasło:</label>
+                                        <InputGroup className={styles.inputText} hasValidation>
+                                        <Form.Control
+                                            type="password"
+                                            id="password"
+                                            value={password}
+                                            isInvalid={validatedValues.password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                        />
+                                        <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
+                                            {feedbackValues.password}
+                                        </Form.Control.Feedback>
+                                        </InputGroup>
+                                    </div>
+                                    {passwordChanged && <div className={styles.successMessage}>Hasło zostało zmienione</div>}
+                                    {/* <div className={styles.buttonEdits}>
+                                        {<button onClick={handleChangeUserDetails} className={styles.buttonEdit}>Zapisz</button>}
+                                    </div> */}
+                                </div>
+                            </div>
+                            <hr />
+                            <div>
+                                <div className={styles.tableContent}>
+                                    <label htmlFor="inventoryTable">Wybierz tabele do inwentaryzacji:</label>
+                                    <select className={styles.inventoryTable} id="inventoryTable" >
+                                        <option value="0"></option>
+                                        <option value="1">Podzepoły komputerowe</option>
+                                        <option value="2">Smarfony</option>
+                                        {/* {tables.map((table) => (
+                                        <option key={table.id} value={table.id}>{table.tableName}</option>
+                                        ))} */}
+                                    </select>
+                                    {tableChanged && <div className={styles.successMessageTable}>Przypisano tabele</div>}
+
+                                    {/* <div className={styles.buttonAdds}>
+                                        {<button onClick={handleSelectTables} className={styles.buttonAdd}>Wybierz</button>}
+                                    </div> */}
+                                </div>
+                            </div>
+                        </div>
+                        <div className={styles.buttonEdits}>
+                            {<button onClick={handleChangeUserDetails} className={styles.buttonEdit}>Zapisz</button>}
+                            {/* dodac opcje przypisania tabeli do pracownika */}
+                        </div>
+                      </div>
+                    }
                 </div>
             </div>
         </>

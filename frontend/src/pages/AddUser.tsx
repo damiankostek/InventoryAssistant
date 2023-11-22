@@ -41,7 +41,7 @@ const AddUser: React.FC = () => {
           .then((data) => {
               console.log(data.errors);
               if(data.success){
-                //dodaj do menu kont
+                console.log(data.success);
               }else{
                 if(data.errors.username != "") {
                 setValidatedUsername(true);

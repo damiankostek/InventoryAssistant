@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = 8080;
 
-//this is new \/
+
 app.use(bodyParser.json()) // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
 app.use((req, res, next) => {
@@ -20,29 +20,25 @@ app.use((req, res, next) => {
   }
 });
 
-//this is new \/
 const cors=require("cors");
 const corsOptions ={
    origin:'*', 
    credentials:true,   //access-control-allow-credentials:true
    optionSuccessStatus:200,
 }
-//this is new \/
+
 app.use(cors(corsOptions)) // Use this after the variable declaration
 
 const user = require("./controllers/user");
+const validation = require("./controllers/validation");
+const admin = require("./controllers/admin");
 
-//
 
 app.post('/', (req, res) => { 
   res.json("welcome to our server") 
 }); 
 
-
-// const mongojs = require('mongojs')
-// const db = mongojs('mongodb+srv://dkostek:<password>@cluster0.zai7k7p.mongodb.net/', ['Inventory'])
-
-
+// AUTH
 // app.post('/auth', async (req, res) => {
 //   const id = req.body.user;
 //   if (!id){
@@ -60,6 +56,7 @@ app.post('/', (req, res) => {
 //   }
 // });
 
+// LOGOWANIE
 app.post("/login", async (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -72,7 +69,9 @@ app.post("/login", async (req,res) => {
     if (!get_user) {
       return res.status(200).send({fail:"Konto nie istnieje"});
     }
-    const passwordHash = get_user.passwordHash;
+    const passwordHash = get_user.password;
+    console.log(get_user);
+    console.log(get_user.password);
     if (await user.passwordCompare(passwordHash, password)){
       return res.status(200).send({success:get_user._id});
     }
@@ -81,16 +80,134 @@ app.post("/login", async (req,res) => {
   }catch(error){
       return res.status(500);
   }
-
-  //   if (req.body.username == "admin" && req.body.password == "admin"){
-  //     return res.json({success:"admin"});
-  //   }else{
-  //     return res.json({success:"user"});
-  //   }
-  // }catch(error){
-  //   return res.json({fail: error});
-  // }
 })
+
+// TWORZENIE KONTA PRACOWNIKA
+app.post('/registration', async (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  {
+    let err = false;
+    let errors = {
+      username:[],
+      password:[]
+    };
+    validation.check(errors.username,username);
+    validation.username(errors.username,username);
+    await admin.usernameUnique(errors.username,username);
+    errors.username.length > 0?err=true:null;
+  
+    validation.check(errors.password,password);
+    validation.password(errors.password,password);
+    validation.min(errors.password,password,4);
+    validation.max(errors.password,password,20);
+    errors.password.length > 0?err=true:null;
+  
+    if (err){
+      res.status(200).json({ errors });
+      return;
+    }
+  }
+
+  try{
+    if(await admin.add(username, password)){
+      return res.status(200).json({ success: true });
+    }else {
+      errors.username.push("Nie można utworzyć konta")
+      return res.status(200).json({ errors });
+    }
+  }catch(error){
+    console.error(error)
+    return res.status(500);
+  }
+});
+
+// POBRANIE DANYCH Z KONT
+app.post('/userDetails', async (req, res) => {
+  try{
+    let data = {}
+    if(req.body.details){
+      data.details = await admin.getUsers();
+    }
+    return res.status(200).send(data);
+  }catch(error){
+    return res.status(500);
+  }
+});
+
+// ZMIANA DANYCH KONTA
+app.post('/setUserDetails', async (req,res) => {
+  // let get_user = null;
+  // try{
+  //   get_user = await admin.id;
+  //   if(!get_user){
+  //     return res.status(500)
+  //   }
+  // }catch{
+  //   return res.status(500)
+  // }
+  const username = req.body.username
+  const password = req.body.password
+  
+  let errors = {
+    username:[],
+    password:[]
+  };
+  let updated = {};
+  if (username != get_user.username){
+    validation.check(errors.username,username);
+    validation.username(errors.username,username);
+    await admin.usernameUnique(errors.username,username);
+    if(errors.username.length == 0){
+      console.log("username update!")
+      get_user.username = username;
+      await get_user.save()
+      updated.username = true;
+    }
+  }
+  
+  if (password != ''){
+    if (!validation.check(errors.password,password)){
+      if (!user.passwordCompare(get_user.passwordHash, password)){
+        errors.password.push("Podane hasło jest niepoprawne.");
+      }
+    }
+    if (!validation.check(errors.password,password)){
+      validation.password(errors.password,password);
+      validation.min(errors.password,password,4);
+      validation.max(errors.password,password,20);
+    }
+    if(errors.password.length == 0){
+      await admin.changePassword(get_user, password);
+      updated.password = true;
+    }
+  }
+  return res.status(200).json({ errors,updated });
+})
+
+// TWORZENIE TABELI
+app.post('/createTable', async (req, res) => {  // dodac
+  
+});
+
+// DODAWANIE PRODUKTÓW DO TABELI
+app.post('/addProduct', async (req, res) => {  // dodac
+  
+});
+
+// POBRANIE DANYCH Z TABEL
+app.post('/tableDetails', async (req, res) => {  // prowizorka xD
+  try{
+    let data = {}
+    if(req.body.details){
+      data.details = await admin.getTable();
+    }
+    return res.status(200).send(data);
+  }catch(error){
+    return res.status(500);
+  }
+});
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);

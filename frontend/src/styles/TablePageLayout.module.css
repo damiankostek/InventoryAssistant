@@ -12,3 +12,87 @@
     width: 65vw;
     border-radius: 0px 20px 20px 0px;
 }
+
+hr {
+    border: 2px solid white;
+}
+
+.addTableButton {
+    all: unset;
+    text-decoration: none;
+    color: rgb(63, 56, 56);
+    border: 2px solid white;
+    border-radius: 20px 0px 0px 0px;
+    padding: 0.7em 0;
+    font-weight: 700;
+    width: 14.7vw;
+    background-color: rgba(255, 255, 255, 0);
+    cursor: pointer;
+    transition: border-color 0.25s;
+  }
+.menuButtons .addTableButton:hover {
+    background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+	background-size: 200% 200%;
+	animation: gradient 1s ease infinite;
+     color: white;
+  }
+   .addTableButton :focus,
+  .addTableButton :focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+
+  .tableButton {
+    all: unset;
+    text-decoration: none;
+    color: rgb(63, 56, 56);
+    border: 2px solid white;
+    padding: 0.7em 0;
+    font-size: 1.1em;
+    font-weight: 700;
+    width: 14.7vw;
+    background-color: rgba(255, 255, 255, 0);
+    cursor: pointer;
+    transition: border-color 0.25s;
+  }
+.menuButtons .tableButton:hover {
+    background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+	background-size: 200% 200%;
+	animation: gradient 1s ease infinite;
+     color: white;
+  }
+  .menuButtons .tableButton:active {
+    background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+	background-size: 200% 200%;
+	animation: gradient 1s ease infinite;
+     color: white;
+  }
+   .tableButton :focus,
+  .tableButton :focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+
+  .tableButton option {
+    background-color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.85);
+    font-size: 1.1em;
+  }
+
+  .table_container {
+    display: flex;
+    justify-content: left;
+    flex-direction: column;
+    align-items: left;
+    text-align: left;
+    float: left;
+    margin-top: 2em;
+    margin-left: 2em;
+}
+
+/* .contentTable {
+
+} */
+
+.id_styles {
+    font-size: 1.5em;
+    font-weight: bold;
+  }

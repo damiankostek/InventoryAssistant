@@ -7,10 +7,8 @@
 }
 
 .details {
-    float: left;
-    min-height: 75vh;
-    width: 65vw;
-    border-radius: 0px 20px 20px 0px;
+    display: flex;
+    justify-content: center;
 }
 
 hr {
@@ -35,7 +33,6 @@ hr {
 	background-size: 200% 200%;
 	animation: gradient 1s ease infinite;
      color: white;
-    /*border: 2px dashed white; */
   }
    .addUserButton :focus,
   .addUserButton :focus-visible {
@@ -48,6 +45,7 @@ hr {
     color: rgb(63, 56, 56);
     border: 2px solid white;
     padding: 0.7em 0;
+    font-size: 1.1em;
     font-weight: 700;
     width: 14.7vw;
     background-color: rgba(255, 255, 255, 0);
@@ -59,9 +57,165 @@ hr {
 	background-size: 200% 200%;
 	animation: gradient 1s ease infinite;
      color: white;
-    /*border: 2px dashed white; */
+  }
+  .menuButtons .userButton:active {
+    background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+	background-size: 200% 200%;
+	animation: gradient 1s ease infinite;
+     color: white;
   }
    .userButton :focus,
   .userButton :focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
   }
+
+  .userButton option {
+    background-color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.85);
+    font-size: 1.1em;
+  }
+
+  .contents_container {
+    width: 55em;
+    margin-top: 2.5em; 
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 1.5em;
+    border-radius: 20px;
+}
+
+.content_container {
+  display: flex;
+  justify-content: space-around;
+  text-align: left;
+  width: 53em;
+  margin-top: 1.2em;
+}
+
+.contentForm {
+    display: flex;
+    justify-content: left;
+    flex-direction: column;
+    align-items: left;
+    text-align: left;
+    width: 18em;
+}
+
+.id_styles {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+label {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.inputText input {
+  height: 2.5em;
+  margin-bottom: 1em;
+  margin-top: 0.5em;
+  font-size: 1.1em;
+}
+
+.successMessage{
+  color: #1d7933;
+  margin-top: -1em;
+}
+
+.successMessageTable{
+  color: #1d7933;
+}
+
+.ErrorInput {
+  color: #c22727;
+  font-size: small;
+  margin-top: -1em;
+}
+
+.buttonEdits {
+  display: flex;
+  justify-content: center;
+}
+
+.buttonEdit {
+  all: unset;
+  text-decoration: none;
+  margin-top: 1.5em;
+  color: rgb(63, 56, 56);
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0);
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+.buttonEdits .buttonEdit:hover {
+  background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+background-size: 200% 200%;
+animation: gradient 1s ease infinite;
+   color: white;
+}
+ .buttonEdit :focus,
+.buttonEdit :focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.tableContent {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.inventoryTable {
+  all: unset;
+  margin-top: 0.8em;
+  text-decoration: none;
+  color: rgb(63, 56, 56);
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 0.7em 0.5em;
+  font-size: 1.1em;
+  font-weight: 700;
+  width: 14.7vw;
+  background-color: rgba(255, 255, 255, 0);
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+.tableContent .inventoryTable:hover {
+  background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+background-size: 200% 200%;
+animation: gradient 1s ease infinite;
+}
+ .inventoryTable :focus,
+.inventoryTable :focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* .buttonAdds {
+  float: left !important;
+}
+
+.buttonAdd {
+  all: unset;
+  text-decoration: none;
+  margin-top: 1em;
+  color: rgb(63, 56, 56);
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0);
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+.buttonAdds .buttonAdd:hover {
+  background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+background-size: 200% 200%;
+animation: gradient 1s ease infinite;
+   color: white;
+}
+ .buttonAdd :focus,
+.buttonAdd :focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+} */

@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import ScanPage from './pages/ScanPage';
 import ProductPage from './pages/ProductPage';
 import AdminPage from './pages/AdminPage';
+import ProductsTablePage from './pages/ProductsTablePage';
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
       <Route path="login" element={<LoginPage/>} /> 
       <Route path="scan" element={<ScanPage/>} /> 
       <Route path="product" element={<ProductPage/>} />
+      <Route path="productsTable" element={<ProductsTablePage/>} />
       <Route path="admin" element={<AdminPage/>} />
     </Routes>
   </BrowserRouter>
