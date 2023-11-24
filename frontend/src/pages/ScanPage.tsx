@@ -5,7 +5,7 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 import Cookies from "js-cookie";
 import { Link } from 'react-router-dom';
 
-{/* <script src="html5-qrcode.min.js"></script> */}
+<script src="html5-qrcode.min.js"></script>
 
 const ScanPage: React.FC = () => {
     const [qrCode, setQRCode] = useState('');
@@ -26,7 +26,7 @@ const ScanPage: React.FC = () => {
         var html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 30, qrbox: 250 }, false);
         html5QrcodeScanner.render(onScanSuccess, onScanError);
     }
-
+// ogarnac zeby wysylalo request po wlaczeniu aparatu
     const sendQrCode = () => {
         const apiUrl = 'http://localhost:8080/qrCode';
 
@@ -68,7 +68,7 @@ const ScanPage: React.FC = () => {
                         {!aparatClicked && (
                             <button onClick={onAparat} className={styles.onAparat}>Włącz aparat</button>
                         )}
-                        <div style={{ width: '100%' }} className={styles.test} id="reader"></div>
+                        <div style={{ width: '100%' }} className={styles.qrReader} id="reader"></div>
                     </div>
                 </div>
                 <div className={styles.codeStyle}>

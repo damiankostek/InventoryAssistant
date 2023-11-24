@@ -54,25 +54,25 @@
     background-color: #1a1a1a;
 }
 
-.test{
+.qrReader{
     border: none !important;
 }
 
-.test img {
+.qrReader img {
     display: none;
 }
 
-.test div div div {
+.qrReader div div div {
     display: none;
 }
 
-.test div > video{
+.qrReader div > video{
     margin-top: 1.5em !important;
     width: 80% !important;
     margin: 0 auto;
 }
 
-.test button {
+.qrReader button {
     all: unset;
     margin: 1em;
     border-radius: 8px;
