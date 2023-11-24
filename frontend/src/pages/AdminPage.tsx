@@ -10,6 +10,7 @@ import Cookies from "js-cookie";
 
 const AdminPage: React.FC = () => {
     const [activeButton, setActiveButton] = useState('Konta');
+    const [layoutAdmin, setLayoutAdmin] = useState(true);
 
     const handleButtonClick = (buttonName: string) => {
         setActiveButton(buttonName);
@@ -38,19 +39,18 @@ const AdminPage: React.FC = () => {
               return response.json();
             })
             .then((data) => {
-              if(data.success) { //poprawic
-                if(data.admin){
-                  document.location.href = '/admin';
+              if(data.fail) {
+                  setLayoutAdmin(true);
                 }else {
+                  setLayoutAdmin(false);
                   document.location.href = '/scan';
                 }
-              }else {
-                Cookies.remove('user', { path: '/', domain: 'localhost' });
-              }
             })
             .catch((error) => {
                 console.log(error);
             });
+        }else{
+          document.location.href = '/login';
         }
       }, []);
 
@@ -92,6 +92,7 @@ const AdminPage: React.FC = () => {
     
     return (
         <>
+          {layoutAdmin===true?
             <div className={styles.adminContainer}>
                 <div className={styles.banner}>
                     <span className={styles.headerContainer}>
@@ -132,6 +133,7 @@ const AdminPage: React.FC = () => {
                     )}
                 </div>
             </div>
+            :null}
         </>
     
     );
