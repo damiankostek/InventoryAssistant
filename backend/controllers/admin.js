@@ -44,7 +44,7 @@ async function usernameUnique(arr, username) {
     }
 }
 
-async function getUsernameById(id) {
+async function getUserById(id) {
     try {
         const user = await db.User.findById(new ObjectId(id)).exec();
         if(user) {
@@ -59,7 +59,7 @@ async function getUsernameById(id) {
 
 async function getUsers(){
     try {
-        return await db.User.find();
+        return await db.User.find({'role':'user'});
     } catch (error) {
         console.error('Błąd podczas pobierania osób:', error);
         throw error;
@@ -75,4 +75,4 @@ async function getTable(){  // prowizorka xd
     }
 }
 
-module.exports = { changePassword, add, usernameUnique, getUsernameById, getUsers, getTable};
+module.exports = { changePassword, add, usernameUnique, getUserById, getUsers, getTable};

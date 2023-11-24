@@ -3,6 +3,7 @@ import styles from '../styles/AccountPageLayout.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import AddUser from '../pages/AddUser';
 import { Form, InputGroup } from 'react-bootstrap';
+import Cookies from "js-cookie";
 
 // interface User {
 //     _id: number;
@@ -82,7 +83,9 @@ const AccountPageLayout: React.FC = () => {
     const handleChangeUserDetails = () => {
         const apiUrl = 'http://localhost:8080/setUserDetails';
 
+        const token = Cookies.get('user');
         const requestBody = {
+            token: token,
             id: id,
             username: username,
             password: password
@@ -106,6 +109,32 @@ const AccountPageLayout: React.FC = () => {
           {
             console.log("Username updated");
             setUsernameChanged(true);
+            const apiUrl = 'http://localhost:8080/userDetails';
+        
+            const requestBody = {
+                details: true,
+            };
+            console.log(requestBody)
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            })
+            .then((response) => {
+            if (response.status == 500) {
+                throw new Error('Błąd serwera');
+            }
+            return response.json();
+            })
+            .then((data) => {
+            setUserTable(data.details)
+            console.log(userTable)
+            })
+            .catch((error) => {
+                console.log(error);
+            });
           }
           if(data.updated.password) 
           {
@@ -192,12 +221,12 @@ const AccountPageLayout: React.FC = () => {
                         <hr />
                         <h4>Lista kont</h4>
                         {/* <select className={styles.userButton} id="user" value={selectedUserId || ''} onChange={handleUserChange}> */}
-                        <select className={styles.userButton} id="user" value={username} onChange={(e) => setUsername(e.target.value) }>
-                            {/* <option value={user.username}>jkowal</option>
-                            <option value={user.username}>knowak</option>
-                            <option value={user.username}>bkról</option> */}
+                        <select className={styles.userButton} id="user" onChange={(e) =>{
+                            setUsername(e.target.value.split(',')[1]);
+                            setId(e.target.value.split(',')[0]);
+                            }}>
                             {userTable.map((user: any) => (
-                            <option key={user._id} value={user.username}>{user.username}</option>
+                            <option key={user._id} value={[user._id, user.username]}>{user.username}</option>
                             ))}
                         </select>
                     </div>
@@ -209,6 +238,14 @@ const AccountPageLayout: React.FC = () => {
                                 {userTable.map((user: any) => (
                                     user.username == username ? <span key={user._id}>ID: {user._id}</span> : null
                                 ))}
+
+                                {/* {userTable.map((user: any) => {
+                                        if (user.username === username) {
+                                            setId(user._id);
+                                            return <span key={user._id}>ID: {user._id}</span>;
+                                        }
+                                        return null;
+                                    })} */}
                             </div>
                             <hr />
                         <div className={styles.content_container}>

@@ -51,8 +51,7 @@ app.post('/auth', async (req, res) => {
       if (!userID){
         return res.status(200).send({fail:"Niepoprawne dane"});
       }
-      const username = await admin.getUsernameById(userID);
-      const get_user = await user.checkUsername(username.username);
+      const get_user = await admin.getUserById(userID);
       if(!get_user){
         return res.status(200).send({fail:"Użytkownik nie istnieje"});
       }
@@ -152,7 +151,7 @@ app.post('/userDetails', async (req, res) => {
   try{
     let data = {}
     if(req.body.details){
-      data.details = await admin.getUsers();
+      data.details = (await admin.getUsers());
     }
     return res.status(200).send(data);
   }catch(error){
@@ -162,15 +161,18 @@ app.post('/userDetails', async (req, res) => {
 
 // ZMIANA DANYCH KONTA
 app.post('/setUserDetails', async (req,res) => {
-  // let get_user = null;
-  // try{
-  //   get_user = await admin.id;
-  //   if(!get_user){
-  //     return res.status(500)
-  //   }
-  // }catch{
-  //   return res.status(500)
-  // }
+  const id = req.body.id;
+  let get_user = null;
+  try{
+    get_user = await admin.getUserById(id);
+    console.log("get user: "+get_user)
+    if(!get_user){
+      return res.status(500)
+    }
+  }catch{
+    return res.status(500)
+  }
+
   const username = req.body.username
   const password = req.body.password
   
@@ -184,7 +186,7 @@ app.post('/setUserDetails', async (req,res) => {
     validation.username(errors.username,username);
     await admin.usernameUnique(errors.username,username);
     if(errors.username.length == 0){
-      console.log("username update!")
+      console.log("username update! ")
       get_user.username = username;
       await get_user.save()
       updated.username = true;

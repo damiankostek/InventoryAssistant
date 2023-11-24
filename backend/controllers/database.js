@@ -24,7 +24,7 @@ const tokenSchema = new mongoose.Schema({
 const Token = mongoose.model('Token', tokenSchema);
 
 const userSchema = new mongoose.Schema({
-    role: String,
+    role: {type: String, default: "user"},
     username: String,
     password: String,
     created_at: {type: Date, default: new Date()},

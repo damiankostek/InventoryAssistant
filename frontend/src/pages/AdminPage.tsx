@@ -41,9 +41,9 @@ const AdminPage: React.FC = () => {
             .then((data) => {
               if(data.fail) {
                   setLayoutAdmin(true);
+                  document.location.href = '/scan';
                 }else {
                   setLayoutAdmin(false);
-                  document.location.href = '/scan';
                 }
             })
             .catch((error) => {
@@ -92,7 +92,7 @@ const AdminPage: React.FC = () => {
     
     return (
         <>
-          {layoutAdmin===true?
+          {layoutAdmin===true?null:
             <div className={styles.adminContainer}>
                 <div className={styles.banner}>
                     <span className={styles.headerContainer}>
@@ -133,7 +133,7 @@ const AdminPage: React.FC = () => {
                     )}
                 </div>
             </div>
-            :null}
+            }
         </>
     
     );
