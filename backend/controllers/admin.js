@@ -30,6 +30,36 @@ async function add(username, passwd) {
     return false;
 }
 
+async function addProduct(qrCode, name, quantity) {
+    try {
+        const newProduct = new db.Inventory({ 
+            qrCode,
+            name,
+            quantity
+        });
+        await newProduct.save();
+        console.log('Produkt został dodany do bazy danych.');
+        return true;
+    } catch (error) {
+        console.error('Błąd podczas dodawania produktu:', error);
+    }
+    return false;
+}
+
+async function addTable(tableName) {
+    try {
+        const newTable = new db.Inventory({ 
+            tableName
+        });
+        await newTable.save();
+        console.log('Tabela została dodana do bazy danych.');
+        return true;
+    } catch (error) {
+        console.error('Błąd podczas dodawania tabeli:', error);
+    }
+    return false;
+}
+
 async function usernameUnique(arr, username) {
     try {
         const newUser = await db.User.findOne({ username: username }).exec();
@@ -40,6 +70,48 @@ async function usernameUnique(arr, username) {
         return false;
     } catch (error) {
         console.error('Błąd podczas sprawdzania unikalności nazwy użytkownika:', error);
+        throw error;
+    }
+}
+
+async function tableNameUnique(arr, tableName) {
+    try {
+        const newTable = await db.Inventory.findOne({ tableName: tableName }).exec();
+        if(newTable){
+            arr.push("Tabela o tej nazwie już istnieje.");
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności nazwy tabeli:', error);
+        throw error;
+    }
+}
+
+async function qrCodeUnique(arr, qrCode) {  // przerobic zeby sprawdzało tylko w jednej tabeli
+    try {
+        const newQRCode = await db.Inventory.findOne({ qrCode: qrCode }).exec();
+        if(newQRCode){
+            arr.push("Taki kod QR już istnieje.");
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności kodu QR:', error);
+        throw error;
+    }
+}
+
+async function nameUnique(arr, name) {  // przerobic zeby sprawdzało tylko w jednej tabeli
+    try {
+        const newName = await db.Inventory.findOne({ name: name }).exec();
+        if(newName){
+            arr.push("Taka nazwa produktu już istnieje.");
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności nazwy produktu:', error);
         throw error;
     }
 }
@@ -57,6 +129,19 @@ async function getUserById(id) {
     }
 }
 
+async function getTableById(id) {
+    try {
+        const tabeName = await db.Inventory.findById(new ObjectId(id)).exec();
+        if(tabeName) {
+            return tabeName;
+        }
+        return false;
+    }catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności nazwy tabeli:', error);
+        throw error;
+    }
+}
+
 async function getUsers(){
     try {
         return await db.User.find({'role':'user'});
@@ -66,7 +151,7 @@ async function getUsers(){
     }
 }
 
-async function getTable(){  // prowizorka xd
+async function getTable(){ 
     try {
         return await db.Inventory.find();
     } catch (error) {
@@ -75,4 +160,4 @@ async function getTable(){  // prowizorka xd
     }
 }
 
-module.exports = { changePassword, add, usernameUnique, getUserById, getUsers, getTable};
+module.exports = { changePassword, add, addProduct, addTable, usernameUnique, tableNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTable};

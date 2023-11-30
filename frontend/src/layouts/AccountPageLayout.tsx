@@ -47,22 +47,18 @@ const AccountPageLayout: React.FC = () => {
     // const [selectedTableID, setSelectedTableID] = useState<number | null>(null);
 
     const handleAddUserClick = () => {
-        setShowAddUser(true);
+        setShowAddUser(false);
     };
+
 
     useEffect( () => {
         const apiUrl = 'http://localhost:8080/userDetails';
         
-        const requestBody = {
-            details: true,
-        };
-        console.log(requestBody)
         fetch(apiUrl, {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
+            }
         })
         .then((response) => {
           if (response.status == 500) {
@@ -209,7 +205,7 @@ const AccountPageLayout: React.FC = () => {
         //   }
         // });
     //   };
-    console.log(id);
+    // console.log(id);
     return (
         <>
             <div className={styles.adminContent}>
@@ -222,17 +218,48 @@ const AccountPageLayout: React.FC = () => {
                         <h4>Lista kont</h4>
                         {/* <select className={styles.userButton} id="user" value={selectedUserId || ''} onChange={handleUserChange}> */}
                         <select className={styles.userButton} id="user" onChange={(e) =>{
-                            setUsername(e.target.value.split(',')[1]);
-                            setId(e.target.value.split(',')[0]);
+                                setId(e.target.value);
+                                setShowAddUser(true);
+                                
+                                const apiUrl = 'http://localhost:8080/getAccountById';
+                                console.log("ID: "+id)
+                                console.log(e.target.value);
+                                const requestBody = {
+                                    id: e.target.value
+                                };
+                                fetch(apiUrl, {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(requestBody),
+                                  })
+                                  .then((response) => {
+                                    if (response.status == 500) {
+                                      throw new Error('Błąd serwera');
+                                    }
+                                    return response.json();
+                                  })
+                                  .then((data) => {
+                                    console.log("data: "+data);
+                                    if(data.fail){
+                                        setShowAddUser(false);
+                                        console.log("Błąd pobierania użytkownika");
+                                    }else {
+                                        setUsername(data.username);
+                                        console.log("username: "+data.username)
+                                    }
+                                  }
+                                  )
                             }}>
                             {userTable.map((user: any) => (
-                            <option key={user._id} value={[user._id, user.username]}>{user.username}</option>
+                            <option key={user._id} value={user._id}>{user.username}</option>
                             ))}
                         </select>
                     </div>
                 </div>
                 <div className={styles.details}>
-                    {showAddUser ? <AddUser /> : 
+                    {!showAddUser ? <AddUser /> : 
                       <div className={styles.contents_container}>
                             <div className={styles.id_styles}>
                                 {userTable.map((user: any) => (
@@ -293,9 +320,9 @@ const AccountPageLayout: React.FC = () => {
                                 <div className={styles.tableContent}>
                                     <label htmlFor="inventoryTable">Wybierz tabele do inwentaryzacji:</label>
                                     <select className={styles.inventoryTable} id="inventoryTable" >
-                                        <option value="0"></option>
+                                        {/* <option value="0"></option>
                                         <option value="1">Podzepoły komputerowe</option>
-                                        <option value="2">Smarfony</option>
+                                        <option value="2">Smarfony</option> */}
                                         {/* {tables.map((table) => (
                                         <option key={table.id} value={table.id}>{table.tableName}</option>
                                         ))} */}

@@ -150,11 +150,43 @@ app.post('/registration', async (req, res) => {
 app.post('/userDetails', async (req, res) => {
   try{
     let data = {}
-    if(req.body.details){
       data.details = (await admin.getUsers());
-    }
     return res.status(200).send(data);
   }catch(error){
+    return res.status(500);
+  }
+});
+
+// POBRANIE DANYCH Z KONT PO ID
+app.post('/getAccountById', async (req, res) => {
+  const id = req.body.id;
+  try{
+    if(!id){
+      console.log("blad")
+      return res.status(200).send({fail: true});
+    }
+      const data = (await admin.getUserById(id));
+      console.log("data: "+data)
+    return res.status(200).send(data);
+  }catch(error){
+    console.log(error);
+    return res.status(500);
+  }
+});
+
+// POBRANIE DANYCH Z TABELI PO ID
+app.post('/getTableById', async (req, res) => {
+  const id = req.body.id;
+  try{
+    if(!id){
+      console.log("blad")
+      return res.status(200).send({fail: true});
+    }
+      const data = (await admin.getTableById(id));
+      console.log("data: "+data)
+    return res.status(200).send(data);
+  }catch(error){
+    console.log(error);
     return res.status(500);
   }
 });
@@ -213,22 +245,89 @@ app.post('/setUserDetails', async (req,res) => {
 })
 
 // TWORZENIE TABELI
-app.post('/createTable', async (req, res) => {  // dodac
+app.post('/createTable', async (req, res) => {  // prowizorka
+  const tableName = req.body.tableName;
+
+  {
+    let err = false;
+    let errors = {
+      tableName:[]
+    };
+    validation.check(errors.tableName,tableName);
+    validation.tableName(errors.tableName,tableName);
+    await admin.tableNameUnique(errors.tableName,tableName);
+    errors.tableName.length > 0?err=true:null;
   
+    if (err){
+      res.status(200).json({ errors });
+      return;
+    }
+  }
+
+  try{
+    if(await admin.addTable(tableName)){
+      return res.status(200).json({ success: true });
+    }else {
+      errors.username.push("Nie można utworzyć tabeli")
+      return res.status(200).json({ errors });
+    }
+  }catch(error){
+    console.error(error)
+    return res.status(500);
+  }
 });
 
 // DODAWANIE PRODUKTÓW DO TABELI
 app.post('/addProduct', async (req, res) => {  // dodac
+  const qrCode = req.body.qrCode;
+  const name = req.body.name;
+  const quantity = req.body.quantity;
+
+  {
+    let err = false;
+    let errors = {
+      qrCode:[],
+      name:[],
+      quantity:[]
+    };
+    validation.check(errors.qrCode,qrCode);
+    validation.qrCode(errors.qrCode,qrCode);
+    await admin.qrCodeUnique(errors.qrCode,qrCode);
+    errors.qrCode.length > 0?err=true:null;
   
+    validation.check(errors.name,name);
+    validation.name(errors.name,name);
+    await admin.nameUnique(errors.name,name);
+    errors.name.length > 0?err=true:null;
+
+    validation.check(errors.quantity,quantity);
+    validation.quantity(errors.quantity,quantity);
+    errors.quantity.length > 0?err=true:null;
+  
+    if (err){
+      res.status(200).json({ errors });
+      return;
+    }
+  }
+
+  try{
+    if(await admin.addProduct(qrCode, name, quantity)){
+      return res.status(200).json({ success: true });
+    }else {
+      errors.username.push("Nie można dodać produktu")
+      return res.status(200).json({ errors });
+    }
+  }catch(error){
+    console.error(error)
+    return res.status(500);
+  }
 });
 
 // POBRANIE DANYCH Z TABEL
-app.post('/tableDetails', async (req, res) => {  // prowizorka xD
+app.post('/tableDetails', async (req, res) => {
   try{
     let data = {}
-    if(req.body.details){
       data.details = await admin.getTable();
-    }
     return res.status(200).send(data);
   }catch(error){
     return res.status(500);

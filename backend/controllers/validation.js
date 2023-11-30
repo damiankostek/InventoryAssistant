@@ -9,7 +9,43 @@ function check(arr, value) {
 function username(arr, value) {
     const pattern = /^[0-9a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/;
     if (!pattern.test(value)){
-        arr.push("Wartość może składać się tylko z liter.");
+        arr.push("Wartość może składać się tylko z liter i/lub cyfr.");
+        return true;
+    }
+    return false;
+}
+
+function tableName(arr, value) {
+    const pattern = /^[0-9a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/;
+    if (!pattern.test(value)){
+        arr.push("Wartość może składać się tylko z liter i/lub cyfr.");
+        return true;
+    }
+    return false;
+}
+
+function qrCode(arr, value) {
+    const pattern = /^[0-9a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/;
+    if (!pattern.test(value)){
+        arr.push("Wartość może składać się tylko z liter i/lub cyfr.");
+        return true;
+    }
+    return false;
+}
+
+function name(arr, value) {
+    const pattern = /^[0-9a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ ]+$/;
+    if (!pattern.test(value)){
+        arr.push("Wartość może składać się tylko z liter i/lub cyfr.");
+        return true;
+    }
+    return false;
+}
+
+function quantity(arr, value) {
+    const pattern = /^[0-9]+$/;
+    if (!pattern.test(value)){
+        arr.push("Wartość może składać się tylko z cyfr.");
         return true;
     }
     return false;
@@ -41,4 +77,4 @@ function max(arr, value, number) {
     return false;
 }
 
-module.exports = { check, username, password, min, max };
+module.exports = { check, username, tableName, qrCode, name, quantity, password, min, max };

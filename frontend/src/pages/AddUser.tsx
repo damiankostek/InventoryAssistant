@@ -2,9 +2,12 @@ import { useState } from 'react';
 import styles from '../styles/AddUser.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, InputGroup } from 'react-bootstrap';
+// import setUserTable from '../layouts/AccountPageLayout';
 
 let usernameFeedback:string;
 let passwordFeedback:string;
+
+var user:any = []
 
 const AddUser: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -12,6 +15,8 @@ const AddUser: React.FC = () => {
     
     const [validatedUsername, setValidatedUsername] = useState(false);
     const [validatedPassword, setValidatedPassword] = useState(false);
+    
+    const [userTable, setUserTable] = useState(user)
     
     const handleRegistration = () => {
         setValidatedUsername(false);
@@ -42,6 +47,32 @@ const AddUser: React.FC = () => {
               console.log(data.errors);
               if(data.success){
                 console.log(data.success);
+                const apiUrl = 'http://localhost:8080/userDetails';
+        
+                const requestBody = {         // ogarnac odswieżanie tu
+                    details: true,
+                };
+                console.log(requestBody)
+                fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                })
+                .then((response) => {
+                if (response.status == 500) {
+                    throw new Error('Błąd serwera');
+                }
+                return response.json();
+                })
+                .then((data) => {
+                setUserTable(data.details)
+                console.log("tabelka "+userTable)
+                })
+                .catch((error) => {
+                    console.log("Błąd"+error);
+                });
               }else{
                 if(data.errors.username != "") {
                 setValidatedUsername(true);

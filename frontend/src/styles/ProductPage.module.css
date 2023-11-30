@@ -14,9 +14,9 @@
 
 } */
 
-/* .nameProduct {
-
-} */
+.nameProduct p {
+    width: 70vw;
+}
 
 .h2Style {
     font-size: 1.5em;
@@ -27,8 +27,8 @@
 }
 
 .inputText input {
-    height: 3em;
     text-align: right;
+    font-size: 1.5em;
 }
 
 .form_group {

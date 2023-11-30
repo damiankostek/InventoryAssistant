@@ -13,7 +13,7 @@ const AddTable: React.FC = () => {
     const handleCreateTable = () => {
         setValidatedTableName(false);
     
-        const apiUrl = 'http://localhost:8080/createTable'; // nie ma backed
+        const apiUrl = 'http://localhost:8080/createTable';
     
         const requestBody = {
           tableName: tableName,
