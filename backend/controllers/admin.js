@@ -30,20 +30,41 @@ async function add(username, passwd) {
     return false;
 }
 
-async function addProduct(qrCode, name, quantity) {
+async function addProduct(tableName, qrCode, name, quantity) {
     try {
-        const newProduct = new db.Inventory({ 
-            qrCode,
-            name,
-            quantity
-        });
-        await newProduct.save();
-        console.log('Produkt został dodany do bazy danych.');
-        return true;
+        const existingInventory = await Inventory.findOne({ tableName });
+
+        if (existingInventory) {
+            existingInventory.products.push({
+                qrCode,
+                name,
+                quantity
+            });
+
+            existingInventory.updated_at = new Date();
+
+            await existingInventory.save();
+            console.log('Produkt został dodany do istniejącej tabeli w bazie danych.');
+            return true;
+        } else {
+            console.error('Tabela o nazwie', tableName, 'nie istnieje.');
+        }
     } catch (error) {
         console.error('Błąd podczas dodawania produktu:', error);
     }
+
     return false;
+}
+
+async function removeProduct(id){
+    db.Inventory.products.findByIdAndRemove(id) //nie dziala funkcja
+    .then(() => {
+        return true;
+    })
+    .catch((error) => {
+        console.error(error)
+        return false;
+    })
 }
 
 async function addTable(tableName) {
@@ -160,4 +181,4 @@ async function getTable(){
     }
 }
 
-module.exports = { changePassword, add, addProduct, addTable, usernameUnique, tableNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTable};
+module.exports = { changePassword, add, addProduct, removeProduct, addTable, usernameUnique, tableNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTable};

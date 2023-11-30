@@ -278,7 +278,8 @@ app.post('/createTable', async (req, res) => {  // prowizorka
 });
 
 // DODAWANIE PRODUKTÓW DO TABELI
-app.post('/addProduct', async (req, res) => {  // dodac
+app.post('/addProduct', async (req, res) => {  // prowizorka nie dziala xD
+  const tableName = req.body.tableName;
   const qrCode = req.body.qrCode;
   const name = req.body.name;
   const quantity = req.body.quantity;
@@ -311,15 +312,24 @@ app.post('/addProduct', async (req, res) => {  // dodac
   }
 
   try{
-    if(await admin.addProduct(qrCode, name, quantity)){
+    if(await admin.addProduct(tableName, qrCode, name, quantity)){
       return res.status(200).json({ success: true });
     }else {
-      errors.username.push("Nie można dodać produktu")
+      errors.name.push("Nie można dodać produktu")
       return res.status(200).json({ errors });
     }
   }catch(error){
     console.error(error)
     return res.status(500);
+  }
+});
+
+// DODAWANIE PRODUKTÓW DO TABELI
+app.post('/productDelete', async (req, res) => {  // prowizorka
+  if (await admin.removeProduct(req.body.id)) {
+    res.status(200).json({ success: "Pomyślnie usunięto produkt" });
+  } else {
+    res.status(200).json({ fail: "Nie udało się usunąć produktu" });
   }
 });
 

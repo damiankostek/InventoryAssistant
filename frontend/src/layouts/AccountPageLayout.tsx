@@ -5,28 +5,16 @@ import AddUser from '../pages/AddUser';
 import { Form, InputGroup } from 'react-bootstrap';
 import Cookies from "js-cookie";
 
-// interface User {
-//     _id: number;
-//     username: string;
-// }
-
-// interface Inventory {
-//     id: number;
-//     tableName: string;
-// }
-
-// const users: User[] = []; 
-// const tables: Inventory[] = []; 
-
 var user:any = []
-// var table:any = []
+var table:any = []
 
 const AccountPageLayout: React.FC = () => {
     const [showAddUser, setShowAddUser] = useState(false);
     const [id, setId] = useState('');
+    const [idTable, setIdTable] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    // const [tableName, setTableName] = useState('');
+    const [tableName, setTableName] = useState('');
     const [usernameChanged, setUsernameChanged] = useState(false);
     const [passwordChanged, setPasswordChanged] = useState(false);
     const [tableChanged, setTableChanged] = useState(false);
@@ -41,10 +29,7 @@ const AccountPageLayout: React.FC = () => {
         // tableName: false // czy to potrzebne
     })
     const [userTable, setUserTable] = useState(user)
-    // const [productsTable, setProductsTable] = useState(table)
-    // const [users, setUsers] = useState<User[]>([]);
-    // const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-    // const [selectedTableID, setSelectedTableID] = useState<number | null>(null);
+    const [inventoryTable, setInventoryTable] = useState(table)
 
     const handleAddUserClick = () => {
         setShowAddUser(false);
@@ -216,7 +201,6 @@ const AccountPageLayout: React.FC = () => {
                         </button>
                         <hr />
                         <h4>Lista kont</h4>
-                        {/* <select className={styles.userButton} id="user" value={selectedUserId || ''} onChange={handleUserChange}> */}
                         <select className={styles.userButton} id="user" onChange={(e) =>{
                                 setId(e.target.value);
                                 setShowAddUser(true);
@@ -265,14 +249,6 @@ const AccountPageLayout: React.FC = () => {
                                 {userTable.map((user: any) => (
                                     user.username == username ? <span key={user._id}>ID: {user._id}</span> : null
                                 ))}
-
-                                {/* {userTable.map((user: any) => {
-                                        if (user.username === username) {
-                                            setId(user._id);
-                                            return <span key={user._id}>ID: {user._id}</span>;
-                                        }
-                                        return null;
-                                    })} */}
                             </div>
                             <hr />
                         <div className={styles.content_container}>
@@ -310,23 +286,51 @@ const AccountPageLayout: React.FC = () => {
                                         </InputGroup>
                                     </div>
                                     {passwordChanged && <div className={styles.successMessage}>Hasło zostało zmienione</div>}
-                                    {/* <div className={styles.buttonEdits}>
-                                        {<button onClick={handleChangeUserDetails} className={styles.buttonEdit}>Zapisz</button>}
-                                    </div> */}
                                 </div>
                             </div>
                             <hr />
                             <div>
                                 <div className={styles.tableContent}>
                                     <label htmlFor="inventoryTable">Wybierz tabele do inwentaryzacji:</label>
-                                    <select className={styles.inventoryTable} id="inventoryTable" >
-                                        {/* <option value="0"></option>
-                                        <option value="1">Podzepoły komputerowe</option>
-                                        <option value="2">Smarfony</option> */}
-                                        {/* {tables.map((table) => (
-                                        <option key={table.id} value={table.id}>{table.tableName}</option>
-                                        ))} */}
-                                    </select>
+    {/* do przerobienia !!!!!!!!!!!! */}
+                                    <select className={styles.tableButton} id="table" onChange={(e) =>{
+                                        setIdTable(e.target.value);
+                                        // setShowAddTable(true);
+
+                                        const apiUrl = 'http://localhost:8080/getTableById';
+                                        console.log("ID: "+idTable)
+                                        console.log(e.target.value);
+                                        const requestBody = {
+                                            idTable: e.target.value
+                                        };
+                                        fetch(apiUrl, {
+                                            method: 'POST',
+                                            headers: {
+                                            'Content-Type': 'application/json',
+                                            },
+                                            body: JSON.stringify(requestBody),
+                                        })
+                                        .then((response) => {
+                                            if (response.status == 500) {
+                                            throw new Error('Błąd serwera');
+                                            }
+                                            return response.json();
+                                        })
+                                        .then((data) => {
+                                            console.log("data: "+data);
+                                            if(data.fail){
+                                                // setShowAddTable(false);
+                                                console.log("Błąd pobierania tabeli");
+                                            }else {
+                                                setTableName(data.tableName);                                
+                                            }
+                                        }
+                                        )
+                                    }}>
+                                    {inventoryTable.map((table: any, index: any) => (
+                                    <option key={index} value={table._id}>{table.tableName}</option>
+                                    ))}
+                                </select>
                                     {tableChanged && <div className={styles.successMessageTable}>Przypisano tabele</div>}
 
                                     {/* <div className={styles.buttonAdds}>

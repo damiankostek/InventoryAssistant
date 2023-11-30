@@ -167,7 +167,7 @@ animation: gradient 1s ease infinite;
   flex-direction: column;
 }
 
-.inventoryTable {
+.tableButton {
   all: unset;
   margin-top: 0.8em;
   text-decoration: none;
@@ -182,13 +182,13 @@ animation: gradient 1s ease infinite;
   cursor: pointer;
   transition: border-color 0.25s;
 }
-.tableContent .inventoryTable:hover {
+.tableContent .tableButton:hover {
   background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
 background-size: 200% 200%;
 animation: gradient 1s ease infinite;
 }
- .inventoryTable :focus,
-.inventoryTable :focus-visible {
+ .tableButton :focus,
+.tableButton :focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 

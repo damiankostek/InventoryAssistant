@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import styles from '../styles/TablePageLayout.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import AddTable from '../pages/AddTable';
-import { Form, InputGroup } from 'react-bootstrap';
+import { Form, InputGroup, Table } from 'react-bootstrap';
 import Cookies from "js-cookie";
 import QRCode from 'qrcode.react';
 
@@ -28,6 +28,7 @@ const TablePageLayout: React.FC = () => {
     const [qrCodeImage, setQRCodeImage] = useState<JSX.Element | null>(null);
     const [name, setName] = useState('');
     const [quantity, setQuantity] = useState('');
+    const [inventory] = useState('');
     
     // const [tableNameChanged, setTableNameChanged] = useState(false);
     // const [qrCodeChanged, setQrCodeChanged] = useState(false);
@@ -71,7 +72,7 @@ const TablePageLayout: React.FC = () => {
         .then((data) => {
           setInventoryTable(data.details)
           // setQrCode()
-        //   setProductsTable(data.details)
+          // setProductsTable(data.details)
           console.log("tabela :"+inventoryTable)
         //   console.log("tabela produktów:"+productsTable)
         })
@@ -102,6 +103,7 @@ const TablePageLayout: React.FC = () => {
     const requestBody = {
       token: token,
       id: id,
+      tableName: tableName,
       qrCode: qrCode,
       name: name,
       quantity: quantity
@@ -174,6 +176,42 @@ const TablePageLayout: React.FC = () => {
                 }));
               }
           }
+      });
+  };
+
+  const handleDelete = (id:any) => {
+    const apiUrl = 'http://localhost:8080/productDelete';
+    
+    const token = Cookies.get('user');
+
+    const requestBody = {
+      token: token,
+      id: id
+    };
+
+    console.log(requestBody)
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
+      })
+      .then((data) => {
+          console.log(data.errors);
+          if(data.success){
+            console.log(data.success);
+            product = data.success;  // ...
+            setProductsTable(product);
+          }else {
+          console.log("Nie działa usuwanie");
+        }
       });
   };
 
@@ -310,8 +348,8 @@ const TablePageLayout: React.FC = () => {
                   </div>
                 </div>
                             <hr />
-                            LISTA PRODUKTÓW      
-                            <div>
+                            <h4>LISTA PRODUKTÓW </h4>   
+                            {/* <div>
                               {productsTable.length === 0 ? null : (
                                 <>
                                   {productsTable.map((product: any, index: any) => (
@@ -319,6 +357,33 @@ const TablePageLayout: React.FC = () => {
                                   ))}
                                 </>
                               )}
+                            </div> */}
+                            <div className="table-responsive">
+                              <Table striped bordered>
+                                <thead>
+                                  <tr>
+                                    <th scope="col" className={styles.qrStyle}>Kod QR</th>
+                                    <th scope="col">Nazwa</th>
+                                    <th scope="col" className={styles.quantityStyle}>Ilość</th>
+                                    <th scope="col" className={styles.inventoryStyle}>PoInw</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {productsTable.length === 0 ? null : (
+                                    <>
+                                      {productsTable.map((product: any, index: any) => (
+                                        <tr key={index}>
+                                          <td>{product.qrCode}</td>
+                                          <td>{product.name}</td>
+                                          <td className={styles.quantityStyle}>{product.quantity}</td>
+                                          <td className={styles.inventoryStyle}>{product.inventory}</td>
+                                          <td className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDelete(product._id)}><i className="fa-solid fa-trash fa-sm"></i></button></td>
+                                        </tr>
+                                      ))}
+                                    </>
+                                  )}
+                                </tbody>
+                              </Table>
                             </div>
                         </div>
                     </div>

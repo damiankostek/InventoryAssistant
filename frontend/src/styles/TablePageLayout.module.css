@@ -9,7 +9,7 @@
 .details {
     float: left;
     min-height: 75vh;
-    width: 65vw;
+    width: 70vw;
     border-radius: 0px 20px 20px 0px;
 }
 
@@ -159,3 +159,57 @@ hr {
     margin-top: 0.3em;
   }
   
+  table th {
+    text-align: center;
+    background-color: rgba(139, 138, 138, 0.6) !important; 
+  }
+
+  .qrStyle {
+    width: 15em;
+    text-align: center;
+  }
+
+  .quantityStyle {
+    width: 7em;
+    text-align: center;
+  }
+
+  .inventoryStyle {
+    width: 5em;
+    text-align: center;
+  }
+  
+  table tr {
+    font-size: 1em;
+    color: white;
+  }
+  
+ table tbody tr td {
+    border: none;
+    border-top: rgb(26, 26, 26) solid 1px;
+    border-left: rgb(26, 26, 26) solid 1px;
+    border-bottom: rgb(26, 26, 26) solid 1px;
+  }
+  
+  table tr:nth-child(odd) td:not(.sdButton) {
+    background-color: rgba(238, 233, 233, 0.7); 
+  }
+  table tr td:not(.sdButton) {
+    background-color: rgba(255, 255, 255, 0.7); 
+  }
+  
+ table tbody tr td.sdButton {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+  }
+
+table tbody tr td.sdButton button {
+    margin-left: 0.3em;
+    margin-bottom: 0.3em;
+    margin-top: 0.3em;
+  }
+
+  #colorRed :hover{
+    color: rgb(255, 0, 0);
+  }

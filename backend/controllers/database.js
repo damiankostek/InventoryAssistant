@@ -32,7 +32,6 @@ const userSchema = new mongoose.Schema({
 });
 const User = mongoose.model('User', userSchema);
 
-//do obgadania
 const tableSchema = new mongoose.Schema({
   tableName: String,
   products: [
@@ -42,7 +41,7 @@ const tableSchema = new mongoose.Schema({
       quantity: Number,
       inventory: String,
     }
-  ], // dopytac jak zrobic liste w 1 tabelce
+  ],
   created_at: {type: Date, default: new Date()},
   updated_at: {type: Date, default: new Date()},
 });
