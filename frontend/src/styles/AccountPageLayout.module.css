@@ -192,6 +192,11 @@ animation: gradient 1s ease infinite;
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.idTableStyle {
+  font-size: 1.1em;
+  margin-top: 3em;
+}
+
 /* .buttonAdds {
   float: left !important;
 }

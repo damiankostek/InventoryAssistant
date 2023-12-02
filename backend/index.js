@@ -34,7 +34,6 @@ const validation = require("./controllers/validation");
 const token = require("./controllers/token");
 const admin = require("./controllers/admin");
 
-
 app.post('/', (req, res) => { 
   res.json("welcome to our server") 
 }); 
@@ -197,7 +196,6 @@ app.post('/setUserDetails', async (req,res) => {
   let get_user = null;
   try{
     get_user = await admin.getUserById(id);
-    console.log("get user: "+get_user)
     if(!get_user){
       return res.status(500)
     }
@@ -207,10 +205,12 @@ app.post('/setUserDetails', async (req,res) => {
 
   const username = req.body.username
   const password = req.body.password
+  const idTable = req.body.idTable
   
   let errors = {
     username:[],
-    password:[]
+    password:[],
+    idTable:[]
   };
   let updated = {};
   if (username != get_user.username){
@@ -241,6 +241,14 @@ app.post('/setUserDetails', async (req,res) => {
       updated.password = true;
     }
   }
+
+  const addInventory = await admin.addUserInventory(username, idTable);
+
+  get_user.idTable = addInventory;
+  await get_user.save();
+  updated.idTable = true;
+  console.log("przypisano table "+idTable)
+    
   return res.status(200).json({ errors,updated });
 })
 
@@ -326,7 +334,7 @@ app.post('/addProduct', async (req, res) => {  // prowizorka nie dziala xD
 
 // DODAWANIE PRODUKTÓW DO TABELI
 app.post('/productDelete', async (req, res) => {  // prowizorka
-  if (await admin.removeProduct(req.body.id)) {
+  if (await admin.removeProduct(req.body.id, req.body.idProduct)) {
     res.status(200).json({ success: "Pomyślnie usunięto produkt" });
   } else {
     res.status(200).json({ fail: "Nie udało się usunąć produktu" });

@@ -202,6 +202,7 @@ hr {
     border: none;
     background-color: transparent;
     padding: 0;
+    width: 3em;
   }
 
 table tbody tr td.sdButton button {
@@ -212,4 +213,28 @@ table tbody tr td.sdButton button {
 
   #colorRed :hover{
     color: rgb(255, 0, 0);
+  }
+
+  #colorBlue :hover{
+    color: rgb(0, 0, 255);
+  }
+
+  .popupDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: white;
+    width: 10em;
+    height: 12em;
+    border-radius: 20px;
+  }
+  
+.qrButton {
+  margin-top: 1em;
+}
+
+  .downloadButton {
+    margin-top: 1em;
   }

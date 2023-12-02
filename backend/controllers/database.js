@@ -27,6 +27,8 @@ const userSchema = new mongoose.Schema({
     role: {type: String, default: "user"},
     username: String,
     password: String,
+    // inventoryId: String,
+    inventoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Inventory', get: id => id.toString() },
     created_at: {type: Date, default: new Date()},
     updated_at: {type: Date, default: new Date()},
 });

@@ -32,7 +32,7 @@ async function add(username, passwd) {
 
 async function addProduct(tableName, qrCode, name, quantity) {
     try {
-        const existingInventory = await Inventory.findOne({ tableName });
+        const existingInventory = await db.Inventory.findOne({ tableName });
 
         if (existingInventory) {
             existingInventory.products.push({
@@ -56,9 +56,10 @@ async function addProduct(tableName, qrCode, name, quantity) {
     return false;
 }
 
-async function removeProduct(id){
-    db.Inventory.products.findByIdAndRemove(id) //nie dziala funkcja
-    .then(() => {
+async function removeProduct(id, idProduct){
+    db.Inventory.findById(new ObjectId(id)).products.findById(new ObjectId(idProduct))  // ogarnac to
+    .then((test) => {
+        console.log(test)
         return true;
     })
     .catch((error) => {
@@ -181,4 +182,28 @@ async function getTable(){
     }
 }
 
-module.exports = { changePassword, add, addProduct, removeProduct, addTable, usernameUnique, tableNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTable};
+const addUserInventory = async (username, inventoryIdToAdd) => {
+    try {
+        const existingUser = await db.User.findOne({ username });
+
+        if (!existingUser) {
+            console.error('Użytkownik nie istnieje.');
+            return;
+        }
+
+        const result = await db.User.updateOne(
+            { username },
+            { $set: { inventoryId: inventoryIdToAdd } }
+        );
+
+        if (result.nModified > 0) {
+            console.log('Użytkownik zaktualizowany pomyślnie.');
+        } else {
+            console.error('Nie udało się zaktualizować użytkownika.');
+        }
+    } catch (error) {
+        console.error('Błąd podczas dodawania inventoryId do użytkownika:', error);
+    }
+};
+
+module.exports = { changePassword, add, addProduct, removeProduct, addTable, usernameUnique, tableNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTable, addUserInventory };

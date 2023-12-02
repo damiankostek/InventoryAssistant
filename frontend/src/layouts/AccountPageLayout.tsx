@@ -38,6 +38,7 @@ const AccountPageLayout: React.FC = () => {
 
     useEffect( () => {
         const apiUrl = 'http://localhost:8080/userDetails';
+        const tableUrl = 'http://localhost:8080/tableDetails'; 
         
         fetch(apiUrl, {
             method: 'POST',
@@ -59,6 +60,26 @@ const AccountPageLayout: React.FC = () => {
         .catch((error) => {
             console.log(error);
         });
+
+        fetch(tableUrl, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            }
+        })
+        .then((response) => {
+          if (response.status == 500) {
+              throw new Error('Błąd serwera');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setInventoryTable(data.details)
+          console.log("tabela :"+inventoryTable)
+        })
+        .catch((error) => {
+            console.log(error);
+        });
   }, []);
 
     const handleChangeUserDetails = () => {
@@ -69,7 +90,8 @@ const AccountPageLayout: React.FC = () => {
             token: token,
             id: id,
             username: username,
-            password: password
+            password: password,
+            idTable: idTable
         };
         console.log(requestBody)
         fetch(apiUrl, {
@@ -231,6 +253,7 @@ const AccountPageLayout: React.FC = () => {
                                         console.log("Błąd pobierania użytkownika");
                                     }else {
                                         setUsername(data.username);
+                                        setTableName(data.inventoryId);
                                         console.log("username: "+data.username)
                                     }
                                   }
@@ -291,51 +314,15 @@ const AccountPageLayout: React.FC = () => {
                             <hr />
                             <div>
                                 <div className={styles.tableContent}>
-                                    <label htmlFor="inventoryTable">Wybierz tabele do inwentaryzacji:</label>
-    {/* do przerobienia !!!!!!!!!!!! */}
-                                    <select className={styles.tableButton} id="table" onChange={(e) =>{
-                                        setIdTable(e.target.value);
-                                        // setShowAddTable(true);
-
-                                        const apiUrl = 'http://localhost:8080/getTableById';
-                                        console.log("ID: "+idTable)
-                                        console.log(e.target.value);
-                                        const requestBody = {
-                                            idTable: e.target.value
-                                        };
-                                        fetch(apiUrl, {
-                                            method: 'POST',
-                                            headers: {
-                                            'Content-Type': 'application/json',
-                                            },
-                                            body: JSON.stringify(requestBody),
-                                        })
-                                        .then((response) => {
-                                            if (response.status == 500) {
-                                            throw new Error('Błąd serwera');
-                                            }
-                                            return response.json();
-                                        })
-                                        .then((data) => {
-                                            console.log("data: "+data);
-                                            if(data.fail){
-                                                // setShowAddTable(false);
-                                                console.log("Błąd pobierania tabeli");
-                                            }else {
-                                                setTableName(data.tableName);                                
-                                            }
-                                        }
-                                        )
-                                    }}>
-                                    {inventoryTable.map((table: any, index: any) => (
-                                    <option key={index} value={table._id}>{table.tableName}</option>
+                                    <label htmlFor="inventoryTable">Tabela do inwentaryzacji:</label>
+                                    <select className={styles.tableButton} id="table">
+                                        
+                                    <option value="">Brak</option>
+                                    {inventoryTable.map((table: any, index: any) => (   
+                                        <option key={index} value={table._id}>{table.tableName}</option>
                                     ))}
                                 </select>
                                     {tableChanged && <div className={styles.successMessageTable}>Przypisano tabele</div>}
-
-                                    {/* <div className={styles.buttonAdds}>
-                                        {<button onClick={handleSelectTables} className={styles.buttonAdd}>Wybierz</button>}
-                                    </div> */}
                                 </div>
                             </div>
                         </div>

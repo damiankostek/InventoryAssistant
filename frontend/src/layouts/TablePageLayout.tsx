@@ -5,6 +5,7 @@ import AddTable from '../pages/AddTable';
 import { Form, InputGroup, Table } from 'react-bootstrap';
 import Cookies from "js-cookie";
 import QRCode from 'qrcode.react';
+import Popup from 'reactjs-popup';
 
 var table:any = []
 var product:any = []
@@ -28,7 +29,7 @@ const TablePageLayout: React.FC = () => {
     const [qrCodeImage, setQRCodeImage] = useState<JSX.Element | null>(null);
     const [name, setName] = useState('');
     const [quantity, setQuantity] = useState('');
-    const [inventory] = useState('');
+    const [inventory] = useState(' ');  //musi byc bo nie łapie kolumny
     
     // const [tableNameChanged, setTableNameChanged] = useState(false);
     // const [qrCodeChanged, setQrCodeChanged] = useState(false);
@@ -37,7 +38,7 @@ const TablePageLayout: React.FC = () => {
 
     const [feedbackValues, setFeedbackValues] = useState({
         tableName: '',
-        qrCode: 'Kod QR już istnieje w bazie danych. Wygeneruj nowy kod QR.',
+        qrCode: '',
         name: '',
         quantity: ''
     })
@@ -97,7 +98,7 @@ const TablePageLayout: React.FC = () => {
       return;
     }
 
-    const apiUrl = 'http://localhost:8080/addProduct'; // nie ma backed
+    const apiUrl = 'http://localhost:8080/addProduct';    // nie sprawdza czy juz istnieje
     const token = Cookies.get('user');
 
     const requestBody = {
@@ -179,14 +180,19 @@ const TablePageLayout: React.FC = () => {
       });
   };
 
-  const handleDelete = (id:any) => {
+  const handleDownload = (idProduct: any) => {
+    
+  };
+
+  const handleDelete = (idProduct:any) => {
     const apiUrl = 'http://localhost:8080/productDelete';
     
     const token = Cookies.get('user');
 
     const requestBody = {
       token: token,
-      id: id
+      id: id,
+      idProduct: idProduct
     };
 
     console.log(requestBody)
@@ -349,15 +355,6 @@ const TablePageLayout: React.FC = () => {
                 </div>
                             <hr />
                             <h4>LISTA PRODUKTÓW </h4>   
-                            {/* <div>
-                              {productsTable.length === 0 ? null : (
-                                <>
-                                  {productsTable.map((product: any, index: any) => (
-                                    <span key={index}>{product.qrCode}, {product.name}, {product.quantity}<br /></span>
-                                  ))}
-                                </>
-                              )}
-                            </div> */}
                             <div className="table-responsive">
                               <Table striped bordered>
                                 <thead>
@@ -377,7 +374,21 @@ const TablePageLayout: React.FC = () => {
                                           <td>{product.name}</td>
                                           <td className={styles.quantityStyle}>{product.quantity}</td>
                                           <td className={styles.inventoryStyle}>{product.inventory}</td>
-                                          <td className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDelete(product._id)}><i className="fa-solid fa-trash fa-sm"></i></button></td>
+                                          <td className={styles.sdButton} id={styles.colorBlue}>
+                                            <Popup className="mypopup" trigger={<button className={styles.qrButton}><i className="fa-solid fa-qrcode fa-lg"></i></button>} position="left center">
+                                              <div className={styles.popupdiv}>
+                                                <div className={styles.popupDiv}>
+                                                <QRCode value={product.qrCode} size={120} />
+                                                  <div className={styles.downloadButton}>
+                                                    <button onClick={(_) => handleDownload(product._id)} id={styles.colorBlue} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
+                                                      <i className="fa-solid fa-download fa-lg"></i>
+                                                    </button>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </Popup>
+                                          </td>
+                                          <td className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDelete(product._id)}><i className="fa-solid fa-trash fa-lg"></i></button></td>
                                         </tr>
                                       ))}
                                     </>
