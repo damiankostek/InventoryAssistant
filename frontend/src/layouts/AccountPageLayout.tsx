@@ -15,6 +15,10 @@ const AccountPageLayout: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [tableName, setTableName] = useState('');
+    const [userAssignedTable, setUserAssignedTable] = useState({
+        idT: '',
+        nameT: ''
+    });
     const [usernameChanged, setUsernameChanged] = useState(false);
     const [passwordChanged, setPasswordChanged] = useState(false);
     const [tableChanged, setTableChanged] = useState(false);
@@ -54,6 +58,7 @@ const AccountPageLayout: React.FC = () => {
         })
         .then((data) => {
           setUserTable(data.details)
+        //   setUserAssignedTable(data.details[0]?.idTable || '');
           console.log(userTable)
         //   setTableName(data.details)
         })
@@ -144,6 +149,37 @@ const AccountPageLayout: React.FC = () => {
             console.log("Hasło zostało pomyślnie zmienione");
             setPasswordChanged(true);
           }
+          if(data.updated.idTable) 
+          {
+            console.log("Wybrano tabele");
+            setTableChanged(true);
+            const apiUrl = 'http://localhost:8080/userDetails';
+        
+            const requestBody = {
+                details: true,
+            };
+            console.log(requestBody)
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            })
+            .then((response) => {
+            if (response.status == 500) {
+                throw new Error('Błąd serwera');
+            }
+            return response.json();
+            })
+            .then((data) => {
+            setUserTable(data.details)
+            console.log(userTable)
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+          }
           if(data.errors){
             console.log(data.errors)
             if(data.errors.username.length != 0) {
@@ -180,39 +216,6 @@ const AccountPageLayout: React.FC = () => {
         });
       };
 
-    //   const handleSelectTables = (event: React.ChangeEvent<HTMLSelectElement>) => {
-        // const tableId = parseInt(event.target.value, 10);
-        // setSelectedTableID(tableId);
-        // setTableChanged(true);
-
-        // const apiUrl = 'http://localhost:8080/selectTable';
-
-        // const requestBody = {
-        // tableName: tableName
-        // };
-        // console.log(requestBody)
-        // fetch(apiUrl, {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify(requestBody),
-        // })
-        // .then((response) => {
-        //   if (!response.ok) {
-        //     throw new Error('Table not found');
-        //   }
-        //   return response.json();
-        // })
-        // .then((data) => {
-        //   if(data.selected.tableName) 
-        //   {
-        //     console.log("Table selected");
-        //     setTableChanged(true);
-        //   }
-        // });
-    //   };
-    // console.log(id);
     return (
         <>
             <div className={styles.adminContent}>
@@ -252,9 +255,15 @@ const AccountPageLayout: React.FC = () => {
                                         setShowAddUser(false);
                                         console.log("Błąd pobierania użytkownika");
                                     }else {
-                                        setUsername(data.username);
+                                        setUsername(data.data.username);
                                         setTableName(data.inventoryId);
-                                        console.log("username: "+data.username)
+                                        // setUserAssignedTable(data.dataInventoryId);
+                                        setUserAssignedTable((prev) => ({
+                                            ...prev, 
+                                            nameT: data.dataInventoryId.tableName,
+                                            idT: data.dataInventoryId._id
+                                        }));
+                                        console.log("username: "+data.data.username)
                                     }
                                   }
                                   )
@@ -315,12 +324,11 @@ const AccountPageLayout: React.FC = () => {
                             <div>
                                 <div className={styles.tableContent}>
                                     <label htmlFor="inventoryTable">Tabela do inwentaryzacji:</label>
-                                    <select className={styles.tableButton} id="table">
-                                        
-                                    <option value="">Brak</option>
-                                    {inventoryTable.map((table: any, index: any) => (   
-                                        <option key={index} value={table._id}>{table.tableName}</option>
-                                    ))}
+                                    <select className={styles.tableButton} id="table" onChange={(e) => setIdTable(e.target.value)}>
+                                        {userAssignedTable ? <option value={userAssignedTable.idT} style={{visibility: 'hidden'}}>{userAssignedTable.nameT}</option> : null}
+                                        {inventoryTable.map((table: any, index: any) => (   
+                                            <option key={index} value={table._id} >{table.tableName}</option>
+                                        ))}
                                 </select>
                                     {tableChanged && <div className={styles.successMessageTable}>Przypisano tabele</div>}
                                 </div>
@@ -328,7 +336,6 @@ const AccountPageLayout: React.FC = () => {
                         </div>
                         <div className={styles.buttonEdits}>
                             {<button onClick={handleChangeUserDetails} className={styles.buttonEdit}>Zapisz</button>}
-                            {/* dodac opcje przypisania tabeli do pracownika */}
                         </div>
                       </div>
                     }

@@ -58,13 +58,13 @@
     border: none !important;
 }
 
-.qrReader img {
+/* .qrReader img {
     display: none;
 }
 
 .qrReader div div div {
     display: none;
-}
+} */
 
 .qrReader div > video{
     margin-top: 1.5em !important;

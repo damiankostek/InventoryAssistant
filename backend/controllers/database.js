@@ -27,8 +27,8 @@ const userSchema = new mongoose.Schema({
     role: {type: String, default: "user"},
     username: String,
     password: String,
-    // inventoryId: String,
-    inventoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Inventory', get: id => id.toString() },
+    // inventoryId: String,           ogranac id do stringa
+    inventoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Inventory', get: id => id.toString(), default: "aaaaaaaaaaaaaaaaaaaaaaaa" },
     created_at: {type: Date, default: new Date()},
     updated_at: {type: Date, default: new Date()},
 });
@@ -41,7 +41,7 @@ const tableSchema = new mongoose.Schema({
       qrCode: String,
       name: String,
       quantity: Number,
-      inventory: String,
+      inventory: {type: String, default: ""},
     }
   ],
   created_at: {type: Date, default: new Date()},

@@ -5,7 +5,7 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 import Cookies from "js-cookie";
 import { Link } from 'react-router-dom';
 
-<script src="html5-qrcode.min.js"></script>
+{/* <script src="html5-qrcode.min.js"></script> */}
 
 const ScanPage: React.FC = () => {
     const [qrCode, setQRCode] = useState('');
