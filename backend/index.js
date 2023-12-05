@@ -363,6 +363,7 @@ app.post('/tableDetails', async (req, res) => {
 // POBRANIE INVENTORY ID DLA UŻYTKOwNIKA
 app.post('/getInventoryId', async (req, res) => {
   const ctoken = req.body.token;
+
   try{
     const userID = await token.getUserIDByToken(ctoken);
     const data = await admin.getUserById(userID);
@@ -378,6 +379,13 @@ app.post('/getInventoryId', async (req, res) => {
 app.post('/sendQrCode', async (req, res) => {
   const idTable = req.body.idTable;
   const qrCode = req.body.qrCode;
+
+  try{
+    // sprawdzic czy jest taki kod qr w tej tabeli i odeslac detale albo fail
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
 });
 
 app.listen(port, () => {
