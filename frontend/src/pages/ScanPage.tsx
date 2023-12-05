@@ -1,13 +1,16 @@
 import { Form, InputGroup } from 'react-bootstrap';
 import styles from '../styles/ScanPage.module.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Html5QrcodeScanner } from "html5-qrcode";
 import Cookies from "js-cookie";
 import { Link } from 'react-router-dom';
 
 {/* <script src="html5-qrcode.min.js"></script> */}
 
+// ogarnac zeby wysylalo request po wlaczeniu aparatu !!!!!!
+
 const ScanPage: React.FC = () => {
+    const [idTable, setIdTable] = useState('');
     const [qrCode, setQRCode] = useState('');
     const [validatedQRCode, setValidatedQRCode] = useState(false);
     const [aparatClicked, setAparatClicked] = useState(false);
@@ -21,16 +24,82 @@ const ScanPage: React.FC = () => {
         console.log({errorMessage})
     }
 
-    const onAparat = () => {
-        setAparatClicked(true);
-        var html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 30, qrbox: 250 }, false);
-        html5QrcodeScanner.render(onScanSuccess, onScanError);
+  const onAparat = () => {
+      setAparatClicked(true);
+      var html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 30, qrbox: 250 }, false);
+      html5QrcodeScanner.render(onScanSuccess, onScanError);
+  }
+
+  async function getInventoryID() {
+    const getInventoryIdApiUrl = 'http://localhost:8080/getInventoryId';
+
+            const requestBody = {
+              token: Cookies.get('user')
+            };
+            console.log("token2: ")
+            fetch(getInventoryIdApiUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            })
+            .then((response) => {
+              if (response.status == 500) {
+                  throw new Error('Błąd serwera');
+              }
+              return response.json();
+            })
+            .then((data) => {
+                setIdTable(data.inventoryId)
+                console.log('InventoryId:', data.inventoryId);
+                console.log('InventoryId:', idTable);
+            })
+            .catch((error) => {
+                console.error('Błąd przy pobieraniu inventoryId:', error);
+            });
+  }
+
+  useEffect( () => {
+    const token = Cookies.get('user');
+    if(token){
+        const apiUrl = 'http://localhost:8080/auth';
+        
+        const requestBody = {
+          token: token,
+        };
+        console.log("token1: "+token)
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+        })
+        .then((response) => {
+          if (response.status == 500) {
+              throw new Error('Błąd serwera');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          if(data.success) {
+            getInventoryID();
+          }else {
+            Cookies.remove('user', { path: '/', domain: 'localhost' });
+          }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
     }
-// ogarnac zeby wysylalo request po wlaczeniu aparatu
+  }, []);
+
     const sendQrCode = () => {
-        const apiUrl = 'http://localhost:8080/qrCode';
+        const apiUrl = 'http://localhost:8080/sendQrCode';
 
         const requestBody = {
+            idTable: idTable,
             qrCode: qrCode
           };
           console.log(requestBody)
@@ -51,7 +120,7 @@ const ScanPage: React.FC = () => {
             console.log(data)
             if(data.success) {
               Cookies.set('user', data.success, { expires: 7 });
-              setValidatedQRCode(false); //niedokonczone
+              setValidatedQRCode(false);
             }
           }).catch((error) => {
             console.error(error);

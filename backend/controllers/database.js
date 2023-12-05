@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
     role: {type: String, default: "user"},
     username: String,
     password: String,
-    // inventoryId: String,           ogranac id do stringa
+    // inventoryId: String,           ogranac id do stringa bo ObjectId musi miec 24 znaki
     inventoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Inventory', get: id => id.toString(), default: "aaaaaaaaaaaaaaaaaaaaaaaa" },
     created_at: {type: Date, default: new Date()},
     updated_at: {type: Date, default: new Date()},

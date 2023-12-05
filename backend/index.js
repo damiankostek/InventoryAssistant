@@ -360,6 +360,26 @@ app.post('/tableDetails', async (req, res) => {
   }
 });
 
+// POBRANIE INVENTORY ID DLA UŻYTKOwNIKA
+app.post('/getInventoryId', async (req, res) => {
+  const ctoken = req.body.token;
+  try{
+    const userID = await token.getUserIDByToken(ctoken);
+    const data = await admin.getUserById(userID);
+    console.log("user: "+data.inventoryId)
+    return res.status(200).send(data);
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// WYSYŁANIE KODU QR
+app.post('/sendQrCode', async (req, res) => {
+  const idTable = req.body.idTable;
+  const qrCode = req.body.qrCode;
+});
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
   });

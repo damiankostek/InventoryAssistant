@@ -29,7 +29,6 @@ const TablePageLayout: React.FC = () => {
     const [qrCodeImage, setQRCodeImage] = useState<JSX.Element | null>(null);
     const [name, setName] = useState('');
     const [quantity, setQuantity] = useState('');
-    const [inventory] = useState(' ');  //musi byc bo nie łapie kolumny
     
     // const [tableNameChanged, setTableNameChanged] = useState(false);
     // const [qrCodeChanged, setQrCodeChanged] = useState(false);
@@ -56,7 +55,7 @@ const TablePageLayout: React.FC = () => {
     };
 
     useEffect( () => {
-        const apiUrl = 'http://localhost:8080/tableDetails';   //prowizorka
+        const apiUrl = 'http://localhost:8080/tableDetails'; 
         
         fetch(apiUrl, {
             method: 'POST',
@@ -180,9 +179,9 @@ const TablePageLayout: React.FC = () => {
       });
   };
 
-  const handleDownload = (idProduct: any) => {
+  // const handleDownload = (idProduct: any) => {
     
-  };
+  // };
 
   const handleDelete = (idProduct:any) => {
     const apiUrl = 'http://localhost:8080/productDelete';
@@ -380,9 +379,9 @@ const TablePageLayout: React.FC = () => {
                                                 <div className={styles.popupDiv}>
                                                 <QRCode value={product.qrCode} size={120} />
                                                   <div className={styles.downloadButton}>
-                                                    <button onClick={(_) => handleDownload(product._id)} id={styles.colorBlue} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
+                                                    {/* <button onClick={(_) => handleDownload(product._id)} id={styles.colorBlue} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
                                                       <i className="fa-solid fa-download fa-lg"></i>
-                                                    </button>
+                                                    </button> */}
                                                   </div>
                                                 </div>
                                               </div>

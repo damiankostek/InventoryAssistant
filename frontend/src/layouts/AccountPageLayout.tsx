@@ -14,7 +14,7 @@ const AccountPageLayout: React.FC = () => {
     const [idTable, setIdTable] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [tableName, setTableName] = useState('');
+    const [, setTableName] = useState('');
     const [userAssignedTable, setUserAssignedTable] = useState({
         idT: '',
         nameT: ''
