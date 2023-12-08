@@ -36,7 +36,7 @@ const ScanPage: React.FC = () => {
             const requestBody = {
               token: Cookies.get('user')
             };
-            console.log("token2: ")
+            console.log(requestBody)
             fetch(getInventoryIdApiUrl, {
               method: 'POST',
               headers: {
@@ -95,37 +95,37 @@ const ScanPage: React.FC = () => {
     }
   }, []);
 
-    const sendQrCode = () => {
-        const apiUrl = 'http://localhost:8080/sendQrCode';
+  const sendQrCode = () => {
+      const apiUrl = 'http://localhost:8080/sendQrCode';
 
-        const requestBody = {
-            idTable: idTable,
-            qrCode: qrCode
-          };
-          console.log(requestBody)
-          fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-          })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error('Login failed');
-            }
-            return response.json();
-          })
-          .then((data) => {
-            console.log(data)
-            if(data.success) {
-              Cookies.set('user', data.success, { expires: 7 });
-              setValidatedQRCode(false);
-            }
-          }).catch((error) => {
-            console.error(error);
-          });
-    }
+      const requestBody = {
+          idTable: idTable,
+          qrCode: qrCode
+        };
+        console.log(requestBody)
+        fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Login failed');
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log(data)
+          if(data.success) {
+            Cookies.set('user', data.success, { expires: 7 });
+            setValidatedQRCode(false);
+          }
+        }).catch((error) => {
+          console.error(error);
+        });
+  }
     
 
     return (
