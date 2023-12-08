@@ -2,6 +2,7 @@ import { Table } from 'react-bootstrap';
 import styles from '../styles/ScanPage.module.css';
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import Cookies from "js-cookie";
 
 var table:any = []
 var product:any = []
@@ -13,6 +14,36 @@ const ProductsTablePage: React.FC = () => {
     const [inventoryTable, setInventoryTable] = useState(table)
     const [productsTable, setProductsTable] = useState(product)
     
+    async function getInventoryID() {
+        const getInventoryIdApiUrl = 'http://localhost:8080/getInventoryId';
+    
+                const requestBody = {
+                  token: Cookies.get('user')
+                };
+                console.log(requestBody)
+                fetch(getInventoryIdApiUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                })
+                .then((response) => {
+                  if (response.status == 500) {
+                      throw new Error('Błąd serwera');
+                  }
+                  return response.json();
+                })
+                .then((data) => {
+                    setIdTable(data.inventoryId)
+                    console.log('InventoryId:', data.inventoryId);
+                    console.log('InventoryId:', idTable);
+                })
+                .catch((error) => {
+                    console.error('Błąd przy pobieraniu inventoryId:', error);
+                });
+      }
+
     const getTableDetails = () => {
         const apiUrl = 'http://localhost:8080/getTableById';
         const requestBody = {
@@ -44,28 +75,61 @@ const ProductsTablePage: React.FC = () => {
     }
 
     useEffect( () => {
-        const apiUrl = 'http://localhost:8080/tableDetails'; 
-        
-        fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            }
-        })
-        .then((response) => {
-          if (response.status == 500) {
-              throw new Error('Błąd serwera');
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setInventoryTable(data.details)
-          console.log("tabela :"+inventoryTable)
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+        const token = Cookies.get('user');
+        if(token){
+            const apiUrl = 'http://localhost:8080/auth';
+            const tableApiUrl = 'http://localhost:8080/tableDetails'; 
+            
+            const requestBody = {
+              token: token,
+            };
+            console.log("token1: "+token)
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            })
+            .then((response) => {
+              if (response.status == 500) {
+                  throw new Error('Błąd serwera');
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if(data.success) {
+                getInventoryID();
+              }else {
+                Cookies.remove('user', { path: '/', domain: 'localhost' });
+              }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+
+            fetch(tableApiUrl, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                }
+            })
+            .then((response) => {
+              if (response.status == 500) {
+                  throw new Error('Błąd serwera');
+              }
+              return response.json();
+            })
+            .then((data) => {
+              setInventoryTable(data.details)
+              console.log("tabela :"+inventoryTable)
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+        }
       }, []);
+
 
     return (
         <>
