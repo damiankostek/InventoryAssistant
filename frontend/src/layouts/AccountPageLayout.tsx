@@ -24,13 +24,11 @@ const AccountPageLayout: React.FC = () => {
     const [tableChanged, setTableChanged] = useState(false);
     const [feedbackValues, setFeedbackValues] = useState({
         username: '',
-        password: '',
-        // tableName: ''  // czy to potrzebne
+        password: ''
     })
     const [validatedValues, setValidatedValues] = useState({
         username: false,
-        password: false,
-        // tableName: false // czy to potrzebne
+        password: false
     })
     const [userTable, setUserTable] = useState(user)
     const [inventoryTable, setInventoryTable] = useState(table)

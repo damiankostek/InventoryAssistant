@@ -382,12 +382,32 @@ app.post('/sendQrCode', async (req, res) => {
 
   try{
     // sprawdzic czy jest taki kod qr w tej tabeli i odeslac detale albo fail
+
+    // if() {
+    //   return res.status(200).send({success: "Znaleziono produkt"});
+    // }else {
+    //   return res.status(200).send({fail:"Nie znaleziono produktu z takim kodem QR"});
+    // }
   }catch(error){
-    console.log(error)
-    return res.status(500);
+  console.log(error)
+  return res.status(500);
+  }
+});
+
+// AKTUALIZACJA ILOŚCI
+app.post('/sendQrCode', async (req, res) => {
+  const idTable = req.body.idTable;
+  const qrCode = req.body.qrCode;
+  const quantity = req.body.quantity;
+
+  try{
+    
+  }catch(error){
+  console.log(error)
+  return res.status(500);
   }
 });
 
 app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
+    console.log(`App listening at http://localhost:${port}`);
   });

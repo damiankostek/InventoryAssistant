@@ -121,6 +121,9 @@ const ScanPage: React.FC = () => {
           if(data.success) {
             Cookies.set('user', data.success, { expires: 7 });
             setValidatedQRCode(false);
+            document.location.href = '/product';
+          }else if(data.fail){
+            console.log(data.fail);
           }
         }).catch((error) => {
           console.error(error);
