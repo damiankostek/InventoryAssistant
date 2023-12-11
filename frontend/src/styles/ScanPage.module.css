@@ -84,3 +84,11 @@
     color: #f9f9f9;
     background-color: #1a1a1a;
 }
+
+.errorMessageInventory {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: rgb(230, 25, 25);
+    margin-top: 1.8em;
+    padding: 1em;
+}

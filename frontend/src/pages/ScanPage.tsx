@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 // ogarnac zeby wysylalo request po wlaczeniu aparatu !!!!!!
 
 const ScanPage: React.FC = () => {
+    const [unassignedTable, setUnassignedTable] = useState(false);
     const [idTable, setIdTable] = useState('');
     const [qrCode, setQRCode] = useState('');
     const [validatedQRCode, setValidatedQRCode] = useState(false);
@@ -86,6 +87,9 @@ const ScanPage: React.FC = () => {
               return response.json();
             })
             .then((data) => {
+              if(data.inventoryId == "aaaaaaaaaaaaaaaaaaaaaaaa") {
+                setUnassignedTable(true);
+              }
                 setIdTable(data.inventoryId)
                 console.log('InventoryId:', data.inventoryId);
                 console.log('InventoryId:', idTable);
@@ -161,6 +165,9 @@ const ScanPage: React.FC = () => {
                 </div>
                 <button onClick={sendQrCode} className={styles.check}>Sprawdź</button>
                 <Link to="/productsTable"><button className={styles.check}>Wszystkie produkty</button></Link>
+                <span>
+                  {unassignedTable ? <p className={styles.errorMessageInventory}>Nie przypisano tabeli do inwentaryzacji dla tego użytkownika</p> : null }
+                </span>
             </div>
         </>
     

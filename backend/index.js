@@ -367,7 +367,7 @@ app.post('/getInventoryId', async (req, res) => {
   try{
     const userID = await token.getUserIDByToken(ctoken);
     const data = await admin.getUserById(userID);
-    console.log("user: "+data.inventoryId)
+    console.log("inventoryId: "+data.inventoryId)
     return res.status(200).send(data);
   }catch(error){
     console.log(error)
@@ -455,7 +455,7 @@ app.post('/setChangeQuantity', async (req, res) => {
         updated.quantity = true;
       }
     }
-    return res.status(200).json({ errors,updated  });
+    return res.status(200).json({ errors,updated });
   }catch(error){
   console.log(error)
   return res.status(500);
