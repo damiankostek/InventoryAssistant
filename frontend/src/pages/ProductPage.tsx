@@ -4,14 +4,11 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Cookies from "js-cookie";
 
-var table:any = []
-var product:any = []
+var products:any = []
 
 const ProductPage: React.FC = () => {
-    const [idTable, ] = useState('');
     const [tableName, setTableName] = useState('');
-    const [qrCode, ] = useState('');
-    const [quantity, setQuantity] = useState('');
+    const [quantity, setQuantity] = useState("");
     const [inventory, ] = useState('X');
 
     const [, setQuantityChanged] = useState(false);
@@ -23,44 +20,12 @@ const ProductPage: React.FC = () => {
         quantity: false
     })
     
-    const [inventoryTable, setInventoryTable] = useState(table)
-    const [productsTable, setProductsTable] = useState(product)
-
-    const getTableDetails = () => {
-        const apiUrl = 'http://localhost:8080/getTableById';
-        const requestBody = {
-            idTable: idTable
-        };
-        fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-          })
-          .then((response) => {
-            if (response.status == 500) {
-              throw new Error('Błąd serwera');
-            }
-            return response.json();
-          })
-          .then((data) => {
-            console.log("data: "+data);
-            if(data.fail){
-                console.log("Błąd pobierania tabeli");
-            }else {
-                setTableName(data.tableName);
-                setProductsTable(data.products);                                   
-            }
-          }
-          )
-    }
+    const [product, setProduct] = useState(products)
 
     useEffect( () => {
         const token = Cookies.get('user');
         if(token){
             const apiUrl = 'http://localhost:8080/auth';
-            const tableUrl = 'http://localhost:8080/tableDetails'; 
             
             const requestBody = {
               token: token,
@@ -81,6 +46,7 @@ const ProductPage: React.FC = () => {
             })
             .then((data) => {
               if(data.success) {
+                
                 getTableDetails();
               }else {
                 Cookies.remove('user', { path: '/', domain: 'localhost' });
@@ -89,35 +55,52 @@ const ProductPage: React.FC = () => {
             .catch((error) => {
                 console.log(error);
             });
-
-            fetch(tableUrl, {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json',
-                }
-            })
-            .then((response) => {
-              if (response.status == 500) {
-                  throw new Error('Błąd serwera');
-              }
-              return response.json();
-            })
-            .then((data) => {
-              setInventoryTable(data.details)
-              console.log("tabela :"+inventoryTable)
-            })
-            .catch((error) => {
-                console.log(error);
-            });
         }
       }, []);
 
+      const getTableDetails = () => {
+        const apiUrl = 'http://localhost:8080/getProduct';
+        const params = new URLSearchParams(window.location.search);
+        const idT = params.get('idTable');
+        const qrC = params.get('qrCode');
+        const requestBody = {
+            id: idT,
+            qr: qrC
+        };
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+          })
+          .then((response) => {
+            if (response.status == 500) {
+              throw new Error('Błąd serwera');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if(data.fail){
+                console.log("Błąd pobierania tabeli");
+            }else {
+                setTableName(data.data.tableName);
+                setProduct(data.data.product);   
+                setQuantity(data.data.product.quantity);                        
+            }
+          }
+          )
+    }
+
       const setChangeQuantity = () => {
-        const apiUrl = 'http://localhost:8080/setChangeQuantity';  //brak backend
+        const apiUrl = 'http://localhost:8080/setChangeQuantity';
+        const params = new URLSearchParams(window.location.search);
+        const idT = params.get('idTable');
+        const qrC = params.get('qrCode');
   
         const requestBody = {
-            idTable: idTable,
-            qrCode: qrCode,
+            idTable: idT,
+            qrCode: qrC,
             quantity: quantity,
             inventory: inventory
           };
@@ -140,6 +123,7 @@ const ProductPage: React.FC = () => {
             if(data.updated.quantity) {
                 console.log("Quantity updated");
                 setQuantityChanged(true);
+                document.location.href = '/scan'
             }
             if(data.errors){
                 console.log(data.errors)
@@ -170,27 +154,15 @@ const ProductPage: React.FC = () => {
                 <div className={styles.contentContainer}>
                     <span className={styles.tableNameStyle}>
                         <h2 className={styles.h2Style}>Tabela:</h2>
-                        <p>
-                        {inventoryTable.map((table: any) => (
-                            table.tableName == tableName ? <span key={table._id}>{table.tableName}</span> : null
-                        ))}
-                        </p>
+                        <p>{tableName}</p>
                     </span>
                     <span className={styles.qrCodeStyle}>
                         <h2 className={styles.h2Style}>Kod QR produktu:</h2>
-                        <p>
-                        {productsTable.map((product: any) => (
-                            product.qrCode == qrCode ? <span key={product._id}>{product.qrCode}</span> : null
-                        ))}
-                        </p>
+                        <p>{product.qrCode}</p>
                     </span>
                     <span className={styles.nameProduct}>
                         <h2 className={styles.h2Style}>Nazwa produktu:</h2>
-                        <p>
-                        {productsTable.map((product: any) => (
-                            product.qrCode == qrCode ? <span key={product._id}>{product.name}</span> : null
-                        ))}
-                        </p>
+                        <p>{product.name}</p>
                     </span>
                 </div>
                 <div className={styles.quantityStyle}>
@@ -200,7 +172,6 @@ const ProductPage: React.FC = () => {
                         <Form.Control
                         type="number"
                         id="quantity"
-                        defaultValue={324}
                         value={quantity}
                         isInvalid={validatedValues.quantity}
                         onChange={(e) => setQuantity(e.target.value)}

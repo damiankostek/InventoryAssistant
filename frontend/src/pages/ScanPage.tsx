@@ -30,36 +30,6 @@ const ScanPage: React.FC = () => {
       html5QrcodeScanner.render(onScanSuccess, onScanError);
   }
 
-  async function getInventoryID() {
-    const getInventoryIdApiUrl = 'http://localhost:8080/getInventoryId';
-
-            const requestBody = {
-              token: Cookies.get('user')
-            };
-            console.log(requestBody)
-            fetch(getInventoryIdApiUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody),
-            })
-            .then((response) => {
-              if (response.status == 500) {
-                  throw new Error('Błąd serwera');
-              }
-              return response.json();
-            })
-            .then((data) => {
-                setIdTable(data.inventoryId)
-                console.log('InventoryId:', data.inventoryId);
-                console.log('InventoryId:', idTable);
-            })
-            .catch((error) => {
-                console.error('Błąd przy pobieraniu inventoryId:', error);
-            });
-  }
-
   useEffect( () => {
     const token = Cookies.get('user');
     if(token){
@@ -95,6 +65,36 @@ const ScanPage: React.FC = () => {
     }
   }, []);
 
+  async function getInventoryID() {
+    const getInventoryIdApiUrl = 'http://localhost:8080/getInventoryId';
+
+            const requestBody = {
+              token: Cookies.get('user')
+            };
+            console.log(requestBody)
+            fetch(getInventoryIdApiUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            })
+            .then((response) => {
+              if (response.status == 500) {
+                  throw new Error('Błąd serwera');
+              }
+              return response.json();
+            })
+            .then((data) => {
+                setIdTable(data.inventoryId)
+                console.log('InventoryId:', data.inventoryId);
+                console.log('InventoryId:', idTable);
+            })
+            .catch((error) => {
+                console.error('Błąd przy pobieraniu inventoryId:', error);
+            });
+  }
+
   const sendQrCode = () => {
       const apiUrl = 'http://localhost:8080/sendQrCode';
 
@@ -119,9 +119,8 @@ const ScanPage: React.FC = () => {
         .then((data) => {
           console.log(data)
           if(data.success) {
-            Cookies.set('user', data.success, { expires: 7 });
             setValidatedQRCode(false);
-            document.location.href = '/product';
+            document.location.href = '/product?idTable='+idTable+'&qrCode='+qrCode;
           }else if(data.fail){
             console.log(data.fail);
           }

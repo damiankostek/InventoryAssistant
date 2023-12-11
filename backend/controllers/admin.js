@@ -68,6 +68,20 @@ async function removeProduct(id, idProduct){
     })
 }
 
+async function updateProduct(product, newQuantity, newInventory, table){
+    if (product.quantity !== newQuantity) {
+        product.quantity = newQuantity;
+      }
+    
+      if (product.inventory !== newInventory) {
+        product.inventory = newInventory;
+      }
+    
+      table.updated_at = new Date();
+    
+      table.save();
+}
+
 async function addTable(tableName) {
     try {
         const newTable = new db.Inventory({ 
@@ -206,4 +220,4 @@ const addUserInventory = async (username, inventoryIdToAdd) => {
     }
 };
 
-module.exports = { changePassword, add, addProduct, removeProduct, addTable, usernameUnique, tableNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTable, addUserInventory };
+module.exports = { changePassword, add, addProduct, updateProduct, removeProduct, addTable, usernameUnique, tableNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTable, addUserInventory };

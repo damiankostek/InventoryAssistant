@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
             const requestBody = {
               token: token,
             };
-            console.log(requestBody)
+            console.log("token logowania: "+requestBody)
             fetch(apiUrl, {
                 method: 'POST',
                 headers: {

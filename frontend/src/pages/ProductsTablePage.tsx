@@ -14,66 +14,6 @@ const ProductsTablePage: React.FC = () => {
     const [inventoryTable, setInventoryTable] = useState(table)
     const [productsTable, setProductsTable] = useState(product)
     
-    async function getInventoryID() {
-        const getInventoryIdApiUrl = 'http://localhost:8080/getInventoryId';
-    
-                const requestBody = {
-                  token: Cookies.get('user')
-                };
-                console.log(requestBody)
-                fetch(getInventoryIdApiUrl, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody),
-                })
-                .then((response) => {
-                  if (response.status == 500) {
-                      throw new Error('Błąd serwera');
-                  }
-                  return response.json();
-                })
-                .then((data) => {
-                    setIdTable(data.inventoryId)
-                    console.log('InventoryId:', data.inventoryId);
-                    console.log('InventoryId:', idTable);
-                })
-                .catch((error) => {
-                    console.error('Błąd przy pobieraniu inventoryId:', error);
-                });
-      }
-
-    const getTableDetails = () => {
-        const apiUrl = 'http://localhost:8080/getTableById';
-        const requestBody = {
-            idTable: idTable
-        };
-        fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-          })
-          .then((response) => {
-            if (response.status == 500) {
-              throw new Error('Błąd serwera');
-            }
-            return response.json();
-          })
-          .then((data) => {
-            console.log("data: "+data);
-            if(data.fail){
-                console.log("Błąd pobierania tabeli");
-            }else {
-                setTableName(data.tableName);
-                setProductsTable(data.products);                                   
-            }
-          }
-          )
-    }
-
     useEffect( () => {
         const token = Cookies.get('user');
         if(token){
@@ -100,6 +40,30 @@ const ProductsTablePage: React.FC = () => {
             .then((data) => {
               if(data.success) {
                 getInventoryID();
+                const requestBody = {
+                    idTable: idTable,
+                  };
+                console.log("idTable: "+requestBody.idTable)
+                fetch(tableApiUrl, {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    }
+                })
+                .then((response) => {
+                  if (response.status == 500) {
+                      throw new Error('Błąd serwera');
+                  }
+                  return response.json();
+                })
+                .then((data) => {
+                  setInventoryTable(data.details)
+                  getTableDetails();
+                  console.log("tabela :"+data.details)
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
               }else {
                 Cookies.remove('user', { path: '/', domain: 'localhost' });
               }
@@ -108,28 +72,69 @@ const ProductsTablePage: React.FC = () => {
                 console.log(error);
             });
 
-            fetch(tableApiUrl, {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json',
-                }
-            })
-            .then((response) => {
-              if (response.status == 500) {
-                  throw new Error('Błąd serwera');
-              }
-              return response.json();
-            })
-            .then((data) => {
-              setInventoryTable(data.details)
-              console.log("tabela :"+inventoryTable)
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+            
         }
       }, []);
 
+    async function getInventoryID() {
+        const getInventoryIdApiUrl = 'http://localhost:8080/getInventoryId';
+    
+                const requestBody = {
+                  token: Cookies.get('user')
+                };
+                console.log("token2: "+requestBody.token)
+                fetch(getInventoryIdApiUrl, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                })
+                .then((response) => {
+                  if (response.status == 500) {
+                      throw new Error('Błąd serwera');
+                  }
+                  return response.json();
+                })
+                .then((data) => {
+                    setIdTable(data.inventoryId)
+                    console.log('InventoryId:', idTable);
+                })
+                .catch((error) => {
+                    console.error('Błąd przy pobieraniu inventoryId:', error);
+                });
+      }
+
+    const getTableDetails = () => {
+        const apiUrl = 'http://localhost:8080/getTableById';
+        const requestBody = {
+            idTable: idTable
+        };
+        console.log("id tabelki: "+idTable)
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+          })
+          .then((response) => {
+            if (response.status == 500) {
+              throw new Error('Błąd serwera');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("data: "+data);
+            if(data.fail){
+                console.log("Błąd pobierania tabeli");
+            }else {
+                setTableName(data.tableName);
+                setProductsTable(data.products);                                   
+            }
+          }
+          )
+    }
 
     return (
         <>
