@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
 import WelcomePage from './pages/WelcomePage';
-import RegistrationPage from './pages/RegistrationPage';
 import LoginPage from './pages/LoginPage';
 import ScanPage from './pages/ScanPage';
 import ProductPage from './pages/ProductPage';
@@ -15,7 +14,6 @@ function App() {
     <Routes>
       <Route index element={<WelcomePage />} />
       <Route path="welcome" element={<WelcomePage/>} /> 
-      <Route path="registration" element={<RegistrationPage/>} /> 
       <Route path="login" element={<LoginPage/>} /> 
       <Route path="scan" element={<ScanPage/>} /> 
       <Route path="product" element={<ProductPage/>} />
