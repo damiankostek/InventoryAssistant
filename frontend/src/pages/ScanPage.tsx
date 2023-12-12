@@ -164,7 +164,9 @@ const ScanPage: React.FC = () => {
                     </div>
                 </div>
                 <button onClick={sendQrCode} className={styles.check}>Sprawdź</button>
-                <Link to="/productsTable"><button className={styles.check}>Wszystkie produkty</button></Link>
+                <Link to={{ pathname: '/productsTable', search: `?idTable=${idTable}` }}>
+                  <button className={styles.check}>Wszystkie produkty</button>
+                </Link>
                 <span>
                   {unassignedTable ? <p className={styles.errorMessageInventory}>Nie przypisano tabeli do inwentaryzacji dla tego użytkownika</p> : null }
                 </span>
