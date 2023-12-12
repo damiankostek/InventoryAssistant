@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styles from '../styles/AddUser.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, InputGroup } from 'react-bootstrap';
+import api from "../assets/api.json";
 
 let usernameFeedback:string;
 let passwordFeedback:string;
@@ -21,7 +22,7 @@ const AddUser: React.FC = () => {
         setValidatedUsername(false);
         setValidatedPassword(false);
     
-        const apiUrl = 'http://localhost:8080/registration';
+        const apiUrl = 'http://'+api+':8080/registration';
     
         const requestBody = {
           username: username,
@@ -46,7 +47,7 @@ const AddUser: React.FC = () => {
               console.log(data.errors);
               if(data.success){
                 console.log(data.success);
-                const apiUrl = 'http://localhost:8080/userDetails';
+                const apiUrl = 'http://'+api+':8080/userDetails';
         
                 const requestBody = {         // ogarnac odswieżanie tu
                     details: true,

@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import logo from '../assets/qr.png';
 import { useEffect, useState } from 'react';
 import Cookies from "js-cookie";
+import api from "../assets/api.json";
 
 const LoginPage: React.FC = () => {
     const [username, setUsername] = useState('');
@@ -15,7 +16,7 @@ const LoginPage: React.FC = () => {
     useEffect( () => {
         const token = Cookies.get('user');
         if(token){
-            const apiUrl = 'http://localhost:8080/auth';
+            const apiUrl = 'http://'+api+':8080/auth';
             
             const requestBody = {
               token: token,
@@ -52,7 +53,7 @@ const LoginPage: React.FC = () => {
       }, []);
 
     const handleLogin = () => {
-        const apiUrl = 'http://localhost:8080/login';
+        const apiUrl = 'http://'+api+':8080/login';
     
         const requestBody = {
           username: username,
@@ -136,7 +137,7 @@ const LoginPage: React.FC = () => {
                         </InputGroup>
                     </div>
                 </div>
-                <button onClick={handleLogin} className={styles.logIn}>Zaloguj się</button>
+                  <button onClick={handleLogin} className={styles.logIn}>Zaloguj się</button>
             </div>
         </>
     

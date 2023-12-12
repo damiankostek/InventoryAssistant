@@ -41,6 +41,7 @@
     font-family: inherit;
     color: #f9f9f9;
     background-color: #1a1a1a;
+    cursor: pointer;
 }
 
 .form_group {

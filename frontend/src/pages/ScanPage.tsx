@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Html5QrcodeScanner } from "html5-qrcode";
 import Cookies from "js-cookie";
 import { Link } from 'react-router-dom';
+import api from "../assets/api.json";
 
 {/* <script src="html5-qrcode.min.js"></script> */}
 
@@ -34,7 +35,7 @@ const ScanPage: React.FC = () => {
   useEffect( () => {
     const token = Cookies.get('user');
     if(token){
-        const apiUrl = 'http://localhost:8080/auth';
+        const apiUrl = 'http://'+api+':8080/auth';
         
         const requestBody = {
           token: token,
@@ -67,7 +68,7 @@ const ScanPage: React.FC = () => {
   }, []);
 
   async function getInventoryID() {
-    const getInventoryIdApiUrl = 'http://localhost:8080/getInventoryId';
+    const getInventoryIdApiUrl = 'http://'+api+':8080/getInventoryId';
 
             const requestBody = {
               token: Cookies.get('user')
@@ -100,7 +101,7 @@ const ScanPage: React.FC = () => {
   }
 
   const sendQrCode = () => {
-      const apiUrl = 'http://localhost:8080/sendQrCode';
+      const apiUrl = 'http://'+api+':8080/sendQrCode';
 
       const requestBody = {
           idTable: idTable,
@@ -165,7 +166,7 @@ const ScanPage: React.FC = () => {
                 </div>
                 <button onClick={sendQrCode} className={styles.check}>Sprawdź</button>
                 <Link to={{ pathname: '/productsTable', search: `?idTable=${idTable}` }}>
-                  <button className={styles.check}>Wszystkie produkty</button>
+                  <button className={styles.check}>Szczegóły</button>
                 </Link>
                 <span>
                   {unassignedTable ? <p className={styles.errorMessageInventory}>Nie przypisano tabeli do inwentaryzacji dla tego użytkownika</p> : null }

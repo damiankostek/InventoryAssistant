@@ -20,7 +20,12 @@ body.ProductsTable {
     box-sizing: border-box;
 }
 
-.back {
+.buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+.buttonOptions {
     margin-top: 1em;
     border-radius: 8px;
     border: 1px solid #646cff;

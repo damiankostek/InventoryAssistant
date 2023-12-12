@@ -3,6 +3,7 @@ import styles from '../styles/ProductPage.module.css';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Cookies from "js-cookie";
+import api from "../assets/api.json";
 
 var products:any = []
 
@@ -25,7 +26,7 @@ const ProductPage: React.FC = () => {
     useEffect( () => {
         const token = Cookies.get('user');
         if(token){
-            const apiUrl = 'http://localhost:8080/auth';
+            const apiUrl = 'http://'+api+':8080/auth';
             
             const requestBody = {
               token: token,
@@ -59,7 +60,7 @@ const ProductPage: React.FC = () => {
       }, []);
 
       const getTableDetails = () => {
-        const apiUrl = 'http://localhost:8080/getProduct';
+        const apiUrl = 'http://'+api+':8080/getProduct';
         const params = new URLSearchParams(window.location.search);
         const idT = params.get('idTable');
         const qrC = params.get('qrCode');
@@ -93,7 +94,7 @@ const ProductPage: React.FC = () => {
     }
 
       const setChangeQuantity = () => {
-        const apiUrl = 'http://localhost:8080/setChangeQuantity';
+        const apiUrl = 'http://'+api+':8080/setChangeQuantity';
         const params = new URLSearchParams(window.location.search);
         const idT = params.get('idTable');
         const qrC = params.get('qrCode');

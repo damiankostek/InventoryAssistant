@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import AddUser from '../pages/AddUser';
 import { Form, InputGroup } from 'react-bootstrap';
 import Cookies from "js-cookie";
+import api from "../assets/api.json";
 
 var user:any = []
 var table:any = []
@@ -39,8 +40,8 @@ const AccountPageLayout: React.FC = () => {
 
 
     useEffect( () => {
-        const apiUrl = 'http://localhost:8080/userDetails';
-        const tableUrl = 'http://localhost:8080/tableDetails'; 
+        const apiUrl = 'http://'+api+':8080/userDetails';
+        const tableUrl = 'http://'+api+':8080/tableDetails'; 
         
         fetch(apiUrl, {
             method: 'POST',
@@ -84,7 +85,7 @@ const AccountPageLayout: React.FC = () => {
   }, []);
 
     const handleChangeUserDetails = () => {
-        const apiUrl = 'http://localhost:8080/setUserDetails';
+        const apiUrl = 'http://'+api+':8080/setUserDetails';
 
         const token = Cookies.get('user');
         const requestBody = {
@@ -113,7 +114,7 @@ const AccountPageLayout: React.FC = () => {
           {
             console.log("Username updated");
             setUsernameChanged(true);
-            const apiUrl = 'http://localhost:8080/userDetails';
+            const apiUrl = 'http://'+api+':8080/userDetails';
         
             const requestBody = {
                 details: true,
@@ -149,7 +150,7 @@ const AccountPageLayout: React.FC = () => {
           {
             console.log("Wybrano tabele");
             setTableChanged(true);
-            const apiUrl = 'http://localhost:8080/userDetails';
+            const apiUrl = 'http://'+api+':8080/userDetails';
         
             const requestBody = {
                 details: true,
@@ -226,7 +227,7 @@ const AccountPageLayout: React.FC = () => {
                                 setId(e.target.value);
                                 setShowAddUser(true);
                                 
-                                const apiUrl = 'http://localhost:8080/getAccountById';
+                                const apiUrl = 'http://'+api+':8080/getAccountById';
                                 console.log("ID: "+id)
                                 console.log(e.target.value);
                                 const requestBody = {

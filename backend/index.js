@@ -73,6 +73,7 @@ app.post("/login", async (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
 
+  console.log(username)
   try{
     const get_user = await user.checkUsername(username);
     if (!get_user) {

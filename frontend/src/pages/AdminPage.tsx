@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import AccountPageLayout from '../layouts/AccountPageLayout';
 import TablePageLayout from '../layouts/TablePageLayout';
 import Cookies from "js-cookie";
+import api from "../assets/api.json";
 
 const AdminPage: React.FC = () => {
     const [activeButton, setActiveButton] = useState('Konta');
@@ -19,7 +20,7 @@ const AdminPage: React.FC = () => {
     useEffect( () => {
         const token = Cookies.get('user');
         if(token){
-            const apiUrl = 'http://localhost:8080/auth';
+            const apiUrl = 'http://'+api+':8080/auth';
             
             const requestBody = {
               token: token,
@@ -56,7 +57,7 @@ const AdminPage: React.FC = () => {
 
     const handleLogOff = () => {
         const token = Cookies.get('user');
-        const apiUrl = 'http://localhost:8080/logout';
+        const apiUrl = 'http://'+api+':8080/logout';
             
         const requestBody = {
             token: token

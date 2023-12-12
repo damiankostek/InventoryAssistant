@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styles from '../styles/AddUser.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, InputGroup } from 'react-bootstrap';
+import api from "../assets/api.json";
 
 let tableNameFeedback:string;
 
@@ -13,7 +14,7 @@ const AddTable: React.FC = () => {
     const handleCreateTable = () => {
         setValidatedTableName(false);
     
-        const apiUrl = 'http://localhost:8080/createTable';
+        const apiUrl = 'http://'+api+':8080/createTable';
     
         const requestBody = {
           tableName: tableName,

@@ -6,6 +6,7 @@ import { Form, InputGroup, Table } from 'react-bootstrap';
 import Cookies from "js-cookie";
 import QRCode from 'qrcode.react';
 import Popup from 'reactjs-popup';
+import api from "../assets/api.json";
 
 var table:any = []
 var product:any = []
@@ -50,7 +51,7 @@ const TablePageLayout: React.FC = () => {
     };
 
     useEffect( () => {
-        const apiUrl = 'http://localhost:8080/tableDetails'; 
+        const apiUrl = 'http://'+api+':8080/tableDetails'; 
         
         fetch(apiUrl, {
             method: 'POST',
@@ -89,7 +90,7 @@ const TablePageLayout: React.FC = () => {
       return;
     }
 
-    const apiUrl = 'http://localhost:8080/addProduct';    // nie sprawdza czy juz istnieje
+    const apiUrl = 'http://'+api+':8080/addProduct';    // nie sprawdza czy juz istnieje
     const token = Cookies.get('user');
 
     const requestBody = {
@@ -176,7 +177,7 @@ const TablePageLayout: React.FC = () => {
   // };
 
   const handleDelete = (idProduct:any) => {
-    const apiUrl = 'http://localhost:8080/productDelete';
+    const apiUrl = 'http://'+api+':8080/productDelete';
     
     const token = Cookies.get('user');
 
@@ -227,7 +228,7 @@ const TablePageLayout: React.FC = () => {
                                 setId(e.target.value);
                                 setShowAddTable(true);
 
-                                const apiUrl = 'http://localhost:8080/getTableById';
+                                const apiUrl = 'http://'+api+':8080/getTableById';
                                 console.log("ID: "+id)
                                 console.log(e.target.value);
                                 const requestBody = {
