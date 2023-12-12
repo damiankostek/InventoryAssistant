@@ -56,9 +56,7 @@ const AccountPageLayout: React.FC = () => {
         })
         .then((data) => {
           setUserTable(data.details)
-        //   setUserAssignedTable(data.details[0]?.idTable || '');
           console.log(userTable)
-        //   setTableName(data.details)
         })
         .catch((error) => {
             console.log(error);
@@ -255,7 +253,6 @@ const AccountPageLayout: React.FC = () => {
                                     }else {
                                         setUsername(data.data.username);
                                         setTableName(data.inventoryId);
-                                        // setUserAssignedTable(data.dataInventoryId);
                                         setUserAssignedTable((prev) => ({
                                             ...prev, 
                                             nameT: data.dataInventoryId.tableName,

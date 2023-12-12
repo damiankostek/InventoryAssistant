@@ -2,7 +2,6 @@ import { useState } from 'react';
 import styles from '../styles/AddUser.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, InputGroup } from 'react-bootstrap';
-// import setUserTable from '../layouts/AccountPageLayout';
 
 let usernameFeedback:string;
 let passwordFeedback:string;

@@ -261,7 +261,7 @@ app.post('/setUserDetails', async (req,res) => {
 })
 
 // TWORZENIE TABELI
-app.post('/createTable', async (req, res) => {  // prowizorka
+app.post('/createTable', async (req, res) => {
   const tableName = req.body.tableName;
 
   {
@@ -294,7 +294,7 @@ app.post('/createTable', async (req, res) => {  // prowizorka
 });
 
 // DODAWANIE PRODUKTÓW DO TABELI
-app.post('/addProduct', async (req, res) => {  // prowizorka nie dziala xD
+app.post('/addProduct', async (req, res) => {
   const tableName = req.body.tableName;
   const qrCode = req.body.qrCode;
   const name = req.body.name;
@@ -447,14 +447,12 @@ app.post('/setChangeQuantity', async (req, res) => {
       quantity:[]
     };
     let updated = {};
-    if (quantity != product.quantity){
       validation.quantity(errors.quantity,quantity);
       if(errors.quantity.length == 0){
         console.log("quantity update! ")
         admin.updateProduct(product, quantity, inventory, table);
         updated.quantity = true;
       }
-    }
     return res.status(200).json({ errors,updated });
   }catch(error){
   console.log(error)

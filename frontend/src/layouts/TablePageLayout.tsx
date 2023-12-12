@@ -29,11 +29,6 @@ const TablePageLayout: React.FC = () => {
     const [qrCodeImage, setQRCodeImage] = useState<JSX.Element | null>(null);
     const [name, setName] = useState('');
     const [quantity, setQuantity] = useState('');
-    
-    // const [tableNameChanged, setTableNameChanged] = useState(false);
-    // const [qrCodeChanged, setQrCodeChanged] = useState(false);
-    // const [nameChanged, setNameChanged] = useState(false);
-    // const [quantityChanged, setQuantityChanged] = useState(false);
 
     const [feedbackValues, setFeedbackValues] = useState({
         tableName: '',
@@ -71,10 +66,7 @@ const TablePageLayout: React.FC = () => {
         })
         .then((data) => {
           setInventoryTable(data.details)
-          // setQrCode()
-          // setProductsTable(data.details)
           console.log("tabela :"+inventoryTable)
-        //   console.log("tabela produktów:"+productsTable)
         })
         .catch((error) => {
             console.log(error);
