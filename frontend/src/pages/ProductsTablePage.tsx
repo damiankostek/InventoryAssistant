@@ -132,6 +132,8 @@ const ProductsTablePage: React.FC = () => {
                       <Table striped bordered>
                       <thead>
                           <tr>
+                          {/* Leg-H1-B-10-2 nie ma nic do tego */}
+                          <th scope="col" className={styles.location}>Lokalizacja</th> 
                           <th scope="col" className={styles.qrStyle}>Kod QR</th>
                           <th scope="col">Nazwa</th>
                           <th scope="col" className={styles.quantityStyle}>Ilość</th>

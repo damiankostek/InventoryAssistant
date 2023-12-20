@@ -38,9 +38,12 @@ const tableSchema = new mongoose.Schema({
   tableName: String,
   products: [
     {
+      ownerProduct: {String, optionalFieldValue},  //(nie jest wymagany)
       qrCode: String,
       name: String,
       quantity: Number,
+      newQuantity: Number,
+      // lokalizacja      Leg-H1-B-10-2
       inventory: {type: String, default: ""},
     }
   ],
@@ -49,4 +52,56 @@ const tableSchema = new mongoose.Schema({
 });
 const Inventory = mongoose.model('Inventory', tableSchema);
 
-module.exports = { User, Inventory, Token };
+const warehouseSchema = new mongoose.Schema({
+  warehouseName: String, // magazyn
+  hall: [  // hala
+    {
+      hall: String,
+      section: [  // alejka w magazynie
+        {
+          section: String,
+          rack: [  // regał 
+            {
+              rack: String,
+              shelf: [  // półka 
+                {
+                  shelf: String,
+                  productNumber: String
+                }
+              ],
+            }
+          ],
+        }
+      ],
+    }
+  ],
+  created_at: {type: Date, default: new Date()},
+  updated_at: {type: Date, default: new Date()},
+});
+const Warehouse = mongoose.model('Warehouse', warehouseSchema);
+
+const globalSchema = new mongoose.Schema({
+  placeName: String, // ogólna nazwa (PCz)
+  hall: [  // budynek główny pcz
+    {
+      hall: String,
+      section: [  // pietro w budynku
+        {
+          section: String,
+          rack: [  // pokój 
+            {
+              rack: String,
+              ownerRack: String,
+              productNumber: String,
+            }
+          ],
+        }
+      ],
+    }
+  ],
+  created_at: {type: Date, default: new Date()},
+  updated_at: {type: Date, default: new Date()},
+});
+const Global = mongoose.model('Global', globalSchema);
+
+module.exports = { User, Inventory, Token, Warehouse, Global };
