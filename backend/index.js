@@ -34,7 +34,8 @@ const validation = require("./controllers/validation");
 const token = require("./controllers/token");
 const admin = require("./controllers/admin");
 
-app.post('/', (req, res) => { 
+app.get('/', (req, res) => { 
+  admin.addGlobal();
   res.json("welcome to our server") 
 }); 
 
@@ -160,22 +161,22 @@ app.post('/userDetails', async (req, res) => {
 // POBRANIE DANYCH Z KONT PO ID
 app.post('/getAccountById', async (req, res) => {
   const id = req.body.id;
-  var dataInventoryId = null;
+  // var dataInventoryId = null;
   try{
     if(!id){
       console.log("blad")
       return res.status(200).send({fail: true});
     }
       const data = (await admin.getUserById(id));
-      if(data.inventoryId == "aaaaaaaaaaaaaaaaaaaaaaaa"){
-        dataInventoryId = "Brak tablicy";
-      }else {
-        dataInventoryId = (await admin.getTableById(data.inventoryId));
-      }
-      console.log("data: "+data)
-      console.log("dataInventoryId: "+dataInventoryId)
+      // if(data.inventoryId == "aaaaaaaaaaaaaaaaaaaaaaaa"){
+      //   dataInventoryId = "Brak tablicy";
+      // }else {
+      //   dataInventoryId = (await admin.getTableById(data.inventoryId));
+      // }
+      // console.log("data: "+data)
+      // console.log("dataInventoryId: "+dataInventoryId)
       
-    return res.status(200).send({data,dataInventoryId});
+    return res.status(200).send({data});
   }catch(error){
     console.log(error);
     return res.status(500);
@@ -214,12 +215,10 @@ app.post('/setUserDetails', async (req,res) => {
 
   const username = req.body.username
   const password = req.body.password
-  const idTable = req.body.idTable
   
   let errors = {
     username:[],
-    password:[],
-    idTable:[]
+    password:[]
   };
   let updated = {};
   if (username != get_user.username){
@@ -251,12 +250,7 @@ app.post('/setUserDetails', async (req,res) => {
     }
   }
 
-  const addInventory = await admin.addUserInventory(username, idTable);
-
-  get_user.idTable = addInventory;
   await get_user.save();
-  updated.idTable = true;
-  console.log("przypisano table "+idTable)
     
   return res.status(200).json({ errors,updated });
 })
@@ -347,17 +341,6 @@ app.post('/productDelete', async (req, res) => {  // prowizorka
     res.status(200).json({ success: "Pomyślnie usunięto produkt" });
   } else {
     res.status(200).json({ fail: "Nie udało się usunąć produktu" });
-  }
-});
-
-// POBRANIE DANYCH Z TABEL
-app.post('/tableDetails', async (req, res) => {
-  try{
-    let data = {}
-      data.details = await admin.getTable();
-    return res.status(200).send(data);
-  }catch(error){
-    return res.status(500);
   }
 });
 

@@ -1,0 +1,69 @@
+.adminContent {
+  margin-bottom: 1em;
+}
+
+.details {
+    margin-top: 1em;
+    width: 18.75em;
+}
+
+.formContent {
+  display: flex;
+  justify-content: center;
+}
+
+.inputText input {
+    height: 3em;
+    margin-bottom: 1em;
+    margin-top: 0.5em;
+}
+
+.addProducts {
+  margin-left: 8em;
+  width: 65em;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding: 1.5em;
+  border-radius: 20px;
+}
+
+.addProduct {
+  width: 60em;
+  display: flex;
+  justify-content: space-between;
+}
+
+.drawButton {
+  all: unset;
+  margin-left: 1em;
+  margin-top: 1.2em;
+}
+
+.qrCodePreview {
+  margin-left: 1em !important;
+  margin-top: 0.3em;
+}
+
+.registrationButton {
+    all: unset;
+    text-decoration: none;
+    margin-top: 1em;
+    color: rgb(63, 56, 56);
+    border: 2px solid white;
+    border-radius: 8px;
+    padding: 0.6em 1.2em;
+    font-weight: 700;
+    background-color: rgba(255, 255, 255, 0);
+    cursor: pointer;
+    transition: border-color 0.25s;
+  }
+.registrationButtons .registrationButton:hover {
+    background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+	background-size: 200% 200%;
+	animation: gradient 1s ease infinite;
+     color: white;
+    /*border: 2px dashed white; */
+  }
+   .registrationButton :focus,
+  .registrationButton :focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }

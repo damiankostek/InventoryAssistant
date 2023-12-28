@@ -7,22 +7,14 @@ import Cookies from "js-cookie";
 import api from "../assets/api.json";
 
 var user:any = []
-var table:any = []
 
 const AccountPageLayout: React.FC = () => {
     const [showAddUser, setShowAddUser] = useState(false);
     const [id, setId] = useState('');
-    const [idTable, setIdTable] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [, setTableName] = useState('');
-    const [userAssignedTable, setUserAssignedTable] = useState({
-        idT: '',
-        nameT: ''
-    });
     const [usernameChanged, setUsernameChanged] = useState(false);
     const [passwordChanged, setPasswordChanged] = useState(false);
-    const [tableChanged, setTableChanged] = useState(false);
     const [feedbackValues, setFeedbackValues] = useState({
         username: '',
         password: ''
@@ -32,7 +24,6 @@ const AccountPageLayout: React.FC = () => {
         password: false
     })
     const [userTable, setUserTable] = useState(user)
-    const [inventoryTable, setInventoryTable] = useState(table)
 
     const handleAddUserClick = () => {
         setShowAddUser(false);
@@ -41,7 +32,6 @@ const AccountPageLayout: React.FC = () => {
 
     useEffect( () => {
         const apiUrl = 'http://'+api+':8080/userDetails';
-        const tableUrl = 'http://'+api+':8080/tableDetails'; 
         
         fetch(apiUrl, {
             method: 'POST',
@@ -62,26 +52,6 @@ const AccountPageLayout: React.FC = () => {
         .catch((error) => {
             console.log(error);
         });
-
-        fetch(tableUrl, {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            }
-        })
-        .then((response) => {
-          if (response.status == 500) {
-              throw new Error('Błąd serwera');
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setInventoryTable(data.details)
-          console.log("tabela :"+inventoryTable)
-        })
-        .catch((error) => {
-            console.log(error);
-        });
   }, []);
 
     const handleChangeUserDetails = () => {
@@ -92,8 +62,7 @@ const AccountPageLayout: React.FC = () => {
             token: token,
             id: id,
             username: username,
-            password: password,
-            idTable: idTable
+            password: password
         };
         console.log(requestBody)
         fetch(apiUrl, {
@@ -145,37 +114,6 @@ const AccountPageLayout: React.FC = () => {
           {
             console.log("Hasło zostało pomyślnie zmienione");
             setPasswordChanged(true);
-          }
-          if(data.updated.idTable) 
-          {
-            console.log("Wybrano tabele");
-            setTableChanged(true);
-            const apiUrl = 'http://'+api+':8080/userDetails';
-        
-            const requestBody = {
-                details: true,
-            };
-            console.log(requestBody)
-            fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody),
-            })
-            .then((response) => {
-            if (response.status == 500) {
-                throw new Error('Błąd serwera');
-            }
-            return response.json();
-            })
-            .then((data) => {
-            setUserTable(data.details)
-            console.log(userTable)
-            })
-            .catch((error) => {
-                console.log(error);
-            });
           }
           if(data.errors){
             console.log(data.errors)
@@ -253,13 +191,6 @@ const AccountPageLayout: React.FC = () => {
                                         console.log("Błąd pobierania użytkownika");
                                     }else {
                                         setUsername(data.data.username);
-                                        setTableName(data.inventoryId);
-                                        setUserAssignedTable((prev) => ({
-                                            ...prev, 
-                                            nameT: data.dataInventoryId.tableName,
-                                            idT: data.dataInventoryId._id
-                                        }));
-                                        console.log("username: "+data.data.username)
                                     }
                                   }
                                   )
@@ -314,19 +245,6 @@ const AccountPageLayout: React.FC = () => {
                                         </InputGroup>
                                     </div>
                                     {passwordChanged && <div className={styles.successMessage}>Hasło zostało zmienione</div>}
-                                </div>
-                            </div>
-                            <hr />
-                            <div>
-                                <div className={styles.tableContent}>
-                                    <label htmlFor="inventoryTable">Tabela do inwentaryzacji:</label>
-                                    <select className={styles.tableButton} id="table" onChange={(e) => setIdTable(e.target.value)}>
-                                        {userAssignedTable ? <option value={userAssignedTable.idT} style={{visibility: 'hidden'}}>{userAssignedTable.nameT}</option> : null}
-                                        {inventoryTable.map((table: any, index: any) => (   
-                                            <option key={index} value={table._id} >{table.tableName}</option>
-                                        ))}
-                                </select>
-                                    {tableChanged && <div className={styles.successMessageTable}>Przypisano tabele</div>}
                                 </div>
                             </div>
                         </div>

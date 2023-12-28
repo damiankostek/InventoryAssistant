@@ -28,71 +28,65 @@ const userSchema = new mongoose.Schema({
     username: String,
     password: String,
     // inventoryId: String,           ogranac id do stringa bo ObjectId musi miec 24 znaki
-    inventoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Inventory', get: id => id.toString(), default: "aaaaaaaaaaaaaaaaaaaaaaaa" },
+    // inventoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Inventory', get: id => id.toString(), default: "aaaaaaaaaaaaaaaaaaaaaaaa" },
     created_at: {type: Date, default: new Date()},
     updated_at: {type: Date, default: new Date()},
 });
 const User = mongoose.model('User', userSchema);
 
-const tableSchema = new mongoose.Schema({
-  tableName: String,
-  products: [
-    {
-      ownerProduct: {String, optionalFieldValue},  //(nie jest wymagany)
-      qrCode: String,
-      name: String,
-      quantity: Number,
-      newQuantity: Number,
-      // lokalizacja      Leg-H1-B-10-2
-      inventory: {type: String, default: ""},
-    }
-  ],
-  created_at: {type: Date, default: new Date()},
-  updated_at: {type: Date, default: new Date()},
-});
-const Inventory = mongoose.model('Inventory', tableSchema);
+// const tableSchema = new mongoose.Schema({
+//   tableName: String,
+//   products: [
+//     {
+//       // ownerProduct: String,  //(nie jest wymagany)
+//       qrCode: String,
+//       name: String,
+//       // quantity: Number,
+//       // newQuantity: Number,
+//       // lokalizacja      Leg-H1-B-10-2
+//       inventory: {type: String, default: ""},
+//     }
+//   ],
+//   created_at: {type: Date, default: new Date()},
+//   updated_at: {type: Date, default: new Date()},
+// });
+// const Inventory = mongoose.model('Inventory', tableSchema);
 
-const warehouseSchema = new mongoose.Schema({
-  warehouseName: String, // magazyn
-  hall: [  // hala
+const globalSchema = new mongoose.Schema({
+  name: String, // magazyn lub instytucja
+  halls: [  // hala lub budynek
     {
-      hall: String,
-      section: [  // alejka w magazynie
+      name: String,
+      sections: [  // alejka w magazynie lub pietro
         {
-          section: String,
-          rack: [  // regał 
+          name: String,
+          racks: [  // regał 
             {
-              rack: String,
-              shelf: [  // półka 
+              name: String,
+              shelfs: [  // półka 
                 {
-                  shelf: String,
-                  productNumber: String
+                  name: String,
+                  product: {
+                    qrCode: String,
+                    name: String,
+                    quantity: Number,
+                    newQuantity: Number,
+                  },
                 }
               ],
             }
           ],
-        }
-      ],
-    }
-  ],
-  created_at: {type: Date, default: new Date()},
-  updated_at: {type: Date, default: new Date()},
-});
-const Warehouse = mongoose.model('Warehouse', warehouseSchema);
-
-const globalSchema = new mongoose.Schema({
-  placeName: String, // ogólna nazwa (PCz)
-  hall: [  // budynek główny pcz
-    {
-      hall: String,
-      section: [  // pietro w budynku
-        {
-          section: String,
-          rack: [  // pokój 
+          rooms: [ // pokoj
             {
-              rack: String,
-              ownerRack: String,
-              productNumber: String,
+              name: String,
+              ownerRoom: String,
+              products: [{
+                ownerProduct: String,
+                qrCode: String,
+                name: String,
+                quantity: Number,
+                newQuantity: Number,
+              }],
             }
           ],
         }
@@ -104,4 +98,5 @@ const globalSchema = new mongoose.Schema({
 });
 const Global = mongoose.model('Global', globalSchema);
 
-module.exports = { User, Inventory, Token, Warehouse, Global };
+
+module.exports = { User, Token, Global };

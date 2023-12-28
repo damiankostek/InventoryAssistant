@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import styles from '../styles/TablePageLayout.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import AddTable from '../pages/AddTable';
+import AddWarehouse from '../pages/AddWarehouse';
+import AddInstitution from '../pages/AddInstitution';
 import { Form, InputGroup, Table } from 'react-bootstrap';
 import Cookies from "js-cookie";
 import QRCode from 'qrcode.react';
@@ -23,7 +24,8 @@ const generateRandomQRCode = () => {
 
 
 const TablePageLayout: React.FC = () => {
-    const [showAddTable, setShowAddTable] = useState(false);
+    const [showAddWarehouse, setShowAddWarehouse] = useState(false);
+    const [showAddInstitution, setShowAddInstitution] = useState(false);
     const [id, setId] = useState('');
     const [tableName, setTableName] = useState('');
     const [qrCode, setQrCode] = useState<string>(generateRandomQRCode());
@@ -46,32 +48,16 @@ const TablePageLayout: React.FC = () => {
     const [inventoryTable, setInventoryTable] = useState(table)
     const [productsTable, setProductsTable] = useState(product)
 
-    const handleAddTableClick = () => {
-        setShowAddTable(false);
+    const handleAddWarehouseClick = () => {
+        setShowAddWarehouse(false);
     };
 
+    const handleAddInstitutionClick = () => {
+      setShowAddInstitution(false);
+  };
+
     useEffect( () => {
-        const apiUrl = 'http://'+api+':8080/tableDetails'; 
-        
-        fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            }
-        })
-        .then((response) => {
-          if (response.status == 500) {
-              throw new Error('Błąd serwera');
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setInventoryTable(data.details)
-          console.log("tabela :"+inventoryTable)
-        })
-        .catch((error) => {
-            console.log(error);
-        });
+        // fetch
         if (qrCode) {
           setQRCodeImage(<QRCode value={qrCode} size={55} />);
         }
@@ -219,14 +205,18 @@ const TablePageLayout: React.FC = () => {
             <div className={styles.adminContent}>
             <div className={styles.menuAdmin}>
                     <div className={styles.menuButtons}>
-                        <button className={styles.addTableButton} onClick={handleAddTableClick}>
-                            Dodaj tabele
+                        <button className={styles.addWarehouseButton} onClick={handleAddWarehouseClick}>
+                            Dodaj magazyn
+                        </button>
+                        <button className={styles.addInstitutionButton} onClick={handleAddInstitutionClick}>
+                            Dodaj instytucje
                         </button>
                         <hr />
                         <h4>Lista tabel</h4>
                         <select className={styles.tableButton} id="table" onChange={(e) =>{
                                 setId(e.target.value);
-                                setShowAddTable(true);
+                                setShowAddWarehouse(true);
+                                setShowAddInstitution(true);
 
                                 const apiUrl = 'http://'+api+':8080/getTableById';
                                 console.log("ID: "+id)
@@ -250,7 +240,7 @@ const TablePageLayout: React.FC = () => {
                                   .then((data) => {
                                     console.log("data: "+data);
                                     if(data.fail){
-                                        setShowAddTable(false);
+                                        // setShowAddTable(false);
                                         console.log("Błąd pobierania tabeli");
                                     }else {
                                         setTableName(data.tableName);
@@ -266,7 +256,7 @@ const TablePageLayout: React.FC = () => {
                     </div>
                 </div>
                 <div className={styles.details}>
-                    {!showAddTable ? <AddTable /> : 
+                    {!showAddWarehouse ? <AddInstitution /> : 
                     <div className={styles.table_container}>
                         <div>
                             <div className={styles.id_styles}>

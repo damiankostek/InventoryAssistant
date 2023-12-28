@@ -17,7 +17,7 @@ hr {
     border: 2px solid white;
 }
 
-.addTableButton {
+.addWarehouseButton {
     all: unset;
     text-decoration: none;
     color: rgb(63, 56, 56);
@@ -30,14 +30,37 @@ hr {
     cursor: pointer;
     transition: border-color 0.25s;
   }
-.menuButtons .addTableButton:hover {
+.menuButtons .addWarehouseButton:hover {
     background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
 	background-size: 200% 200%;
 	animation: gradient 1s ease infinite;
      color: white;
   }
-   .addTableButton :focus,
-  .addTableButton :focus-visible {
+   .addWarehouseButton :focus,
+  .addWarehouseButton :focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+
+  .addInstitutionButton {
+    all: unset;
+    text-decoration: none;
+    color: rgb(63, 56, 56);
+    border: 2px solid white;
+    padding: 0.7em 0;
+    font-weight: 700;
+    width: 14.7vw;
+    background-color: rgba(255, 255, 255, 0);
+    cursor: pointer;
+    transition: border-color 0.25s;
+  }
+.menuButtons .addInstitutionButton:hover {
+    background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+	background-size: 200% 200%;
+	animation: gradient 1s ease infinite;
+     color: white;
+  }
+   .addInstitutionButton :focus,
+  .addInstitutionButton :focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
   }
 

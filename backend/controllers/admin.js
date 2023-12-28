@@ -30,6 +30,31 @@ async function add(username, passwd) {
     return false;
 }
 
+async function addGlobal() {
+    try {
+        const newSchema = new db.Global({ 
+            name: "Pcz",
+            halls:[{
+                name: "biblio",
+                sections:[{
+                    name: "pietro",
+                    rooms: [{
+                        name: "512",
+                        ownerRoom: "Łukasz Biś",
+                        productNumber: "aaaaaaaaa"
+                    }]
+                }]
+            }]
+        });
+        await newSchema.save();
+        console.log('Tabela została dodana do bazy danych.');
+        return true;
+    } catch (error) {
+        console.error('Błąd podczas dodawania tabeli:', error);
+    }
+    return false;
+}
+
 async function addProduct(tableName, qrCode, name, quantity) {
     try {
         const existingInventory = await db.Inventory.findOne({ tableName });
@@ -165,18 +190,18 @@ async function getUserById(id) {
     }
 }
 
-async function getTableById(id) {
-    try {
-        const tabeName = await db.Inventory.findById(new ObjectId(id)).exec();
-        if(tabeName) {
-            return tabeName;
-        }
-        return false;
-    }catch (error) {
-        console.error('Błąd podczas sprawdzania unikalności nazwy tabeli:', error);
-        throw error;
-    }
-}
+// async function getTableById(id) {
+//     try {
+//         const tabeName = await db.Inventory.findById(new ObjectId(id)).exec();
+//         if(tabeName) {
+//             return tabeName;
+//         }
+//         return false;
+//     }catch (error) {
+//         console.error('Błąd podczas sprawdzania unikalności nazwy tabeli:', error);
+//         throw error;
+//     }
+// }
 
 async function getUsers(){
     try {
@@ -187,37 +212,4 @@ async function getUsers(){
     }
 }
 
-async function getTable(){ 
-    try {
-        return await db.Inventory.find();
-    } catch (error) {
-        console.error('Błąd podczas pobierania tabel:', error);
-        throw error;
-    }
-}
-
-const addUserInventory = async (username, inventoryIdToAdd) => {
-    try {
-        const existingUser = await db.User.findOne({ username });
-
-        if (!existingUser) {
-            console.error('Użytkownik nie istnieje.');
-            return;
-        }
-
-        const result = await db.User.updateOne(
-            { username },
-            { $set: { inventoryId: inventoryIdToAdd } }
-        );
-
-        if (result.nModified > 0) {
-            console.log('Użytkownik zaktualizowany pomyślnie.');
-        } else {
-            console.error('Nie udało się zaktualizować użytkownika.');
-        }
-    } catch (error) {
-        console.error('Błąd podczas dodawania inventoryId do użytkownika:', error);
-    }
-};
-
-module.exports = { changePassword, add, addProduct, updateProduct, removeProduct, addTable, usernameUnique, tableNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTable, addUserInventory };
+module.exports = { changePassword, add, addProduct, updateProduct, addGlobal, removeProduct, addTable, usernameUnique, tableNameUnique, qrCodeUnique, nameUnique, getUserById, getUsers };
