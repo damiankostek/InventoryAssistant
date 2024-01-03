@@ -185,9 +185,17 @@ hr {
   margin-right: 9.5em;
 }
 
-/* .contentTable {
+.tableNameStyle {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-right: 0.8em;
+}
 
-} */
+.searchStyle {
+  margin-left: 5em;
+  font-size: 1.2em;
+  font-weight: bold;
+}
 
 .id_styles {
     font-size: 1.5em;
@@ -345,4 +353,52 @@ table tbody tr td.sdButton button {
 
   .downloadButton {
     margin-top: 1em;
+  }
+
+  .ownerTitleStyle {
+    width: 14.1vw;
+    margin-top: 0.5em;
+  }
+
+  .oneOwnerTitleStyle {
+    width: 14.1vw;
+    margin-bottom: 0.5em;
+  }
+
+  .selectOwner {
+    width: 14.1vw;
+  }
+
+  .oneOwner {
+    width: 14.1vw;
+    height: 3em;
+    margin-bottom: 1em;
+    border-radius: 8px;
+    border-color: white;
+
+}
+
+  .addRoom {
+    text-decoration: none;
+    color: rgb(63, 56, 56);
+    border: 2px solid white;
+    padding: 0.6em 0;
+    font-weight: 700;
+    width: 14.1vw;
+    background-color: rgba(255, 255, 255, 0);
+    cursor: pointer;
+    transition: border-color 0.25s;
+    float: left;
+  }
+
+  .tableStyle .addRoom:hover {
+    background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+    background-size: 200% 200%;
+    animation: gradient 1s ease infinite;
+    color: white;
+  }
+  
+  .addRoom:focus,
+  .addRoom:focus-visible {
+      outline: 4px auto -webkit-focus-ring-color;
   }

@@ -24,6 +24,15 @@ function warehouseName(arr, value) {
     return false;
 }
 
+function institutionName(arr, value) {
+    const pattern = /^[0-9a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/;
+    if (!pattern.test(value)){
+        arr.push("Wartość może składać się tylko z liter i/lub cyfr.");
+        return true;
+    }
+    return false;
+}
+
 function name(arr, value) {
     const pattern = /^[0-9a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ ]+$/;
     if (!pattern.test(value)){
@@ -68,4 +77,4 @@ function max(arr, value, number) {
     return false;
 }
 
-module.exports = { check, username, warehouseName, name, quantity, password, min, max };
+module.exports = { check, username, warehouseName, institutionName, name, quantity, password, min, max };

@@ -10,11 +10,23 @@ import Popup from 'reactjs-popup';
 import api from "../assets/api.json";
 
 var table:any = []
+var user:any = []
 
 let hallNameFeedback:string;
 let sectionNameFeedback:string;
 let rackNameFeedback:string;
 let shelfNameFeedback:string;
+let roomNameFeedback:string;
+
+const generateRandomQRCode = () => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  const charactersLength = characters.length;
+  for (let i = 0; i < 6; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
 
 const TablePageLayout: React.FC = () => {
     const [showAddWarehouse, setShowAddWarehouse] = useState(false);
@@ -26,6 +38,9 @@ const TablePageLayout: React.FC = () => {
     const [sectionName, setSectionName] = useState('');
     const [rackName, setRackName] = useState('');
     const [shelfName, setShelfName] = useState('');
+    const [roomName, setRoomName] = useState('');
+    const [roomOwners, setRoomOwners] = useState<String []>([]);
+    const [productOwner, setProductOwner] = useState('');
     const [qrCode, setQrCode] = useState('');
     const [qrCodeImage, setQRCodeImage] = useState<JSX.Element | null>(null);
     const [name, setName] = useState('');
@@ -35,17 +50,22 @@ const TablePageLayout: React.FC = () => {
     const [validatedSectionName, setValidatedSectionName] = useState(false);
     const [validatedRackName, setValidatedRackName] = useState(false);
     const [validatedShelfName, setValidatedShelfName] = useState(false);
+    const [validatedRoomName, setValidatedRoomName] = useState(false);
+    const [validatedRoomOwners, setValidatedRoomOwners] = useState(false);
 
     const [feedbackValues, setFeedbackValues] = useState({
+        ownerProduct: '',
         qrCode: '',
         name: '',
         quantity: ''
     })
     const [validatedValues, setValidatedValues] = useState({
+        ownerProduct: false,
         qrCode: false,
         name: false,
         quantity: false,
     })
+    const [userTable, setUserTable] = useState(user)
     const [inventoryTable, setInventoryTable] = useState(table)
     const [col1, setCol1] = useState(table)
     const [col2, setCol2] = useState(table)
@@ -68,7 +88,28 @@ const TablePageLayout: React.FC = () => {
   };
 
     useEffect( () => {
+      const userApiUrl = 'http://'+api+':8080/userDetails';
       const apiUrl = 'http://'+api+':8080/tableDetails';
+
+      fetch(userApiUrl, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        }
+    })
+    .then((response) => {
+      if (response.status == 500) {
+          throw new Error('Błąd serwera');
+      }
+      return response.json();
+    })
+    .then((data) => {
+      setUserTable(data.details)
+      console.log(userTable)
+    })
+    .catch((error) => {
+        console.log(error);
+    });
         
       fetch(apiUrl, {
           method: 'POST',
@@ -253,8 +294,6 @@ const TablePageLayout: React.FC = () => {
       )
   }
 
-  console.log(productsTable)
-
   const handleGetSections = (idH:any, name: string) => {
     setCol2(col1[idH].sections);
     setShowCol2(true);
@@ -272,6 +311,14 @@ const TablePageLayout: React.FC = () => {
     setQrCode(QS[0]+"-"+QS[1]+"-"+name);
   }
 
+  const handleGetRooms = (idS:any, name: string) => {
+    setCol3(col2[idS].rooms)
+    setShowCol3(true);
+    setShowCol4(false);
+    const QS = qrCode?.split("-")
+    setQrCode(QS[0]+"-"+QS[1]+"-"+name);
+  }
+
   const handleGetShelfs = (idR:any, name: string) => {
     setCol4(col3[idR].shelfs)
     setShowCol4(true);
@@ -279,13 +326,20 @@ const TablePageLayout: React.FC = () => {
     setQrCode(QS[0]+"-"+QS[1]+"-"+QS[2]+"-"+name);
   }
 
+  const handleGetOwnerRoom = (idR:any, name: string) => {
+    setCol4(col3[idR].roomOwners)
+    setShowCol4(true);
+    const QS = qrCode?.split("-")
+    setQrCode(QS[0]+"-"+QS[1]+"-"+QS[2]+"-"+name+"-"+generateRandomQRCode());
+  }
+
   const handleSetShelf = (name: string) => {
     const QS = qrCode?.split("-")
     setQrCode(QS[0]+"-"+QS[1]+"-"+QS[2]+"-"+QS[3]+"-"+name);
   }
-  
+
   const handleAddHall = () => {
-    setCol1([...col1, {name: hallName, sections: []}]);
+    // setCol1([...col1, {name: hallName, sections: []}]);
     
     const apiUrl = 'http://'+api+':8080/addHall'; 
 
@@ -313,10 +367,17 @@ const TablePageLayout: React.FC = () => {
           if(data.success){
             console.log(data.success);
             setQrCode(qrCode+"-"+hallName);
+            setCol1([...col1, {name: hallName, sections: []}]);
+            setHallName('');
           }else{
             if(data.errors.hallName != "") {
                   setValidatedHallName(true);
-                  hallNameFeedback = data.errors.hallName[0]
+                  hallNameFeedback = data.errors.hallName[0];
+                  setTimeout(() => {
+                    setValidatedHallName(false);
+                    hallNameFeedback = data.errors.hallName[0];
+                    setHallName('');
+                  }, 3000);
             }else{
               setValidatedHallName(false);
             }
@@ -325,7 +386,7 @@ const TablePageLayout: React.FC = () => {
   }
 
   const handleAddSection = () => {
-    setCol2([...col2, {name: sectionName, racks: []}]);
+    // setCol2([...col2, {name: sectionName, racks: []}]);
     
     const apiUrl = 'http://'+api+':8080/addSection'; 
 
@@ -354,10 +415,17 @@ const TablePageLayout: React.FC = () => {
           if(data.success){
             console.log(data.success);
             setQrCode(qrCode+"-"+sectionName);
+            setCol2([...col2, {name: sectionName, racks: []}]);
+            setSectionName('');
           }else{
             if(data.errors.sectionName != "") {
               setValidatedSectionName(true);
               sectionNameFeedback = data.errors.sectionName[0]
+              setTimeout(() => {
+                setValidatedSectionName(false);
+                sectionNameFeedback = data.errors.sectionName[0];
+                setSectionName('');
+              }, 3000);
             }else{
               setValidatedSectionName(false);
             }
@@ -366,7 +434,7 @@ const TablePageLayout: React.FC = () => {
   }
 
   const handleAddRack = () => {
-    setCol3([...col3, {name: rackName, shelfs: []}]);
+    // setCol3([...col3, {name: rackName, shelfs: []}]);
     
     const apiUrl = 'http://'+api+':8080/addRack'; 
 
@@ -396,10 +464,17 @@ const TablePageLayout: React.FC = () => {
           if(data.success){
             console.log(data.success);
             setQrCode(qrCode+"-"+rackName);
+            setCol3([...col3, {name: rackName, shelfs: []}]);
+            setRackName('');
           }else{
             if(data.errors.rackName != "") {
               setValidatedRackName(true);
-              rackNameFeedback = data.errors.rackName[0]
+              rackNameFeedback = data.errors.rackName[0];
+              setTimeout(() => {
+                setValidatedRackName(false);
+                rackNameFeedback = data.errors.rackName[0];
+                setRackName('');
+              }, 3000);
             }else{
               setValidatedRackName(false);
             }
@@ -407,8 +482,58 @@ const TablePageLayout: React.FC = () => {
       });
   }
 
+  const handleAddRoom= () => {
+    // setCol3([...col3, {name: roomName, roomOwners: []}]);
+    
+    const apiUrl = 'http://'+api+':8080/addRoom';
+
+    const requestBody = {
+      roomName: roomName,
+      roomOwners: roomOwners,
+      listName: qrCode?.split("-")[0],
+      hallName: qrCode?.split("-")[1],
+      sectionName: qrCode?.split("-")[2]
+    };
+
+    console.log(requestBody)
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
+      })
+      .then((data) => {
+          console.log(data.errors);
+          if(data.success){
+            console.log(data.success);
+            setQrCode(qrCode+"-"+roomName+"-"+generateRandomQRCode());
+            setCol3([...col3, {name: roomName, roomOwners: []}]);
+            setRoomName('');
+          }else{
+            if(data.errors.roomName != "") {
+              setValidatedRoomName(true);
+              roomNameFeedback = data.errors.roomName[0];
+              setTimeout(() => {
+                setValidatedRoomName(false);
+                roomNameFeedback = data.errors.roomName[0];
+                setRackName('');
+              }, 3000);
+            }else{
+              setValidatedRoomName(false);
+            }
+          }
+      });
+  }
+
   const handleAddShelf = () => {
-    setCol4([...col4, {name: shelfName, product: {}}]);
+    // setCol4([...col4, {name: shelfName, product: {}}]);
     
     const apiUrl = 'http://'+api+':8080/addShelf'; 
 
@@ -439,10 +564,17 @@ const TablePageLayout: React.FC = () => {
           if(data.success){
             console.log(data.success);
             setQrCode(qrCode+"-"+shelfName);
+            setCol4([...col4, {name: shelfName, product: {}}]);
+            setShelfName('');
           }else{
             if(data.errors.shelfName != "") {
               setValidatedShelfName(true);
-              shelfNameFeedback = data.errors.shelfName[0]
+              shelfNameFeedback = data.errors.shelfName[0];
+              setTimeout(() => {
+                setValidatedShelfName(false);
+                shelfNameFeedback = data.errors.shelfName[0];
+                setShelfName('');
+              }, 3000);
             }else{
               setValidatedShelfName(false);
             }
@@ -475,6 +607,7 @@ const TablePageLayout: React.FC = () => {
                 <div className={styles.details}>
                     {!showAddWarehouse ? <AddWarehouse /> : !showAddInstitution ? <AddInstitution /> : 
                     wh == "wh" ?
+                        // MAGAZYN
                     <div className={styles.table_container}>
                       <div className={styles.tablesStyle}>
                           <div>
@@ -657,7 +790,9 @@ const TablePageLayout: React.FC = () => {
                               </div>
                             </div>
                             <hr />
-                            <h4>LISTA PRODUKTÓW </h4>   
+                            <span className={styles.tableNameStyle}>MAGAZYN: {tableName}</span> 
+                            <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} ><i className="fa-solid fa-trash fa-lg"></i></button></span>   
+                            <span className={styles.searchStyle}>Wyszukaj: dodac tu input!!!</span>
                             <div className="table-responsive">
                               <Table striped bordered>
                                 <thead>
@@ -702,7 +837,240 @@ const TablePageLayout: React.FC = () => {
                               </Table>
                             </div>
                         </div>
-                    </div> : null
+                    </div> :
+                        // INSTYTUCJA
+                    <div className={styles.table_container}>
+                      <div className={styles.tablesStyle}>
+                          <div>
+                                <div className={styles.tableStyle}>
+                                  <>
+                                    <h2>Budynek</h2>
+                                      {col1.map((hall: any, index: any) => (
+                                        <div className={styles.listOption} key={index} id={hall._id} onClick={() => handleGetSections(index, hall.name)}> 
+                                          {hall.name}           
+                                        </div>
+                                      ))}
+                                      {showCol1 ? 
+                                      <div className={styles.form_group}>
+                                        <InputGroup className={styles.inputTextTable} hasValidation>
+                                            <Form.Control
+                                            type="text"
+                                            id="hallName"
+                                            value={hallName}
+                                            isInvalid={validatedHallName}
+                                            onChange={(e) => setHallName(e.target.value)}
+                                            />
+                                            <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
+                                                {hallNameFeedback}
+                                            </Form.Control.Feedback>
+                                        </InputGroup>
+                                        <div className={styles.addOption} onClick={() => handleAddHall()}><i className="fa-solid fa-plus"></i></div>
+                                    </div>
+                                    : null}
+                                  </>
+                                </div>
+                                <div className={styles.tableStyle}>
+                                  <>
+                                    <h2>Piętro</h2>
+                                      {col2=="" ? null : col2.map((section: any, index: any) => (
+                                        <div className={styles.listOption} key={index} id={section._id} onClick={() => handleGetRooms(index, section.name)}> 
+                                          {section.name}           
+                                        </div>
+                                      ))}
+                                      {showCol2 ? 
+                                      <div className={styles.form_group}>
+                                        <InputGroup className={styles.inputTextTable} hasValidation>
+                                        <Form.Control
+                                          type="text"
+                                          id="sectionName"
+                                          value={sectionName}
+                                          isInvalid={validatedSectionName}
+                                          onChange={(e) => setSectionName(e.target.value)}
+                                          />
+                                          <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
+                                              {sectionNameFeedback}
+                                          </Form.Control.Feedback>
+                                        </InputGroup>
+                                        <div className={styles.addOption} onClick={() => handleAddSection()}><i className="fa-solid fa-plus"></i></div>
+                                    </div>
+                                    : null}
+                                  </>
+                                </div>
+                                <div className={styles.tableStyle}>
+                                  <>
+                                    <h2>Pokój</h2>
+                                      {col3=="" ? null : col3.map((room: any, index: any) => (
+                                        <div className={styles.listOption} key={index} id={room._id} onClick={() => handleGetOwnerRoom(index, room.name)}> 
+                                          {room.name}           
+                                        </div>
+                                      ))}
+                                      {showCol3 ?
+                                      <div>
+                                        <div className={styles.form_group}>
+                                            <InputGroup className={styles.inputTextTable} hasValidation>
+                                            <Form.Control
+                                              type="text"
+                                              id="roomName"
+                                              value={roomName}
+                                              isInvalid={validatedRoomName}
+                                              onChange={(e) => setRoomName(e.target.value)}
+                                              />
+                                              <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
+                                                  {roomNameFeedback}
+                                              </Form.Control.Feedback>
+                                            </InputGroup>
+                                        </div>
+                                        <div>
+                                          <label className={styles.ownerTitleStyle}>Właściciel/e pokoju:</label>
+                                          <select className={styles.selectOwner} multiple id="user" onChange={(e) =>{
+                                            var tmp: string[] = [];
+                                              for (let i = 0; i < e.target.options.length; i++) {
+                                                if(e.target.options[i].selected) {
+                                                  tmp=[...tmp, e.target.options[i].value]
+                                                }
+                                              }
+                                              setRoomOwners(tmp);
+                                              console.log(roomOwners);
+                                          }}>
+                                            {userTable.map((user: any) => (
+                                              <option key={user._id} value={user._id}>{user.username}</option>
+                                              ))}
+                                          </select>
+                                        </div>
+                                        <div className={styles.addRoom} onClick={() => handleAddRoom()}><i className="fa-solid fa-plus"></i></div>
+                                      </div>
+                                    : null}
+                                  </>
+                                </div>
+                            </div>
+                        </div>
+                        <div className={styles.tableContent}>
+                            <hr />
+                          <div className={styles.addProducts}>
+                              <h3>Dodaj pozycje</h3>
+                              <div className={styles.addProduct}>
+                                <div>
+                                <div className={styles.form_group}>
+                                    <label htmlFor="qrCode">Kod QR:</label><br />
+                                    <InputGroup className={styles.inputText} hasValidation>
+                                      <Form.Control
+                                        type="text"
+                                        id="qrCode"
+                                        disabled
+                                        value={qrCode}
+                                        isInvalid={validatedValues.qrCode}
+                                        onChange={(e) => setQrCode(e.target.value)}
+                                      />
+                                      <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
+                                        {feedbackValues.qrCode}
+                                      </Form.Control.Feedback>
+                                      <div className={styles.qrCodePreview}>
+                                        {qrCodeImage}
+                                      </div>
+                                      <div>
+                                      </div>
+                                    </InputGroup>
+                                  </div>
+                                  
+                                </div>
+                                <div>
+                                  <div className={styles.form_group}>
+                                      <label htmlFor="name">Nazwa:</label><br />
+                                      <InputGroup className={styles.inputText} hasValidation>
+                                          <Form.Control
+                                          type="text"
+                                          id="name"
+                                          value={name}
+                                          isInvalid={validatedValues.name}
+                                          onChange={(e) => setName(e.target.value)}
+                                          />
+                                          <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
+                                              {feedbackValues.name}
+                                          </Form.Control.Feedback>
+                                      </InputGroup>
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className={styles.form_group}>
+                                  <label className={styles.oneOwnerTitleStyle}>Właściciel:</label> <br />
+                                    <select className={styles.oneOwner} id="user">
+                                      {userTable.map((user: any) => (
+                                        <option key={user._id} value={user._id}>{user.username}</option>
+                                        ))}
+                                    </select>
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className={styles.form_group}>
+                                      <label htmlFor="quantity">Ilość:</label><br />
+                                      <InputGroup className={styles.inputText} hasValidation>
+                                          <Form.Control
+                                          type="number"
+                                          id="quantity"
+                                          value={quantity}
+                                          isInvalid={validatedValues.quantity}
+                                          onChange={(e) => setQuantity(e.target.value)}
+                                          />
+                                          <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
+                                              {feedbackValues.quantity}
+                                          </Form.Control.Feedback>
+                                      </InputGroup>
+                                  </div>
+                                </div>
+                                  <div className={styles.AddProductButtons}>
+                                      <button onClick={handleAddProduct} className={styles.AddProductButton}>Dodaj pozycje</button>
+                                  </div>
+                              </div>
+                            </div>
+                            <hr />
+                            <span className={styles.tableNameStyle}>INSTYTUCJA: {tableName}</span> 
+                            <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} ><i className="fa-solid fa-trash fa-lg"></i></button></span>   
+                            <span className={styles.searchStyle}>Wyszukaj: dodac tu input!!!</span>
+                            <div className="table-responsive">
+                              <Table striped bordered>
+                                <thead>
+                                  <tr>
+                                    <th scope="col" className={styles.qrStyle}>Kod QR</th>
+                                    <th scope="col">Nazwa</th>
+                                    <th scope="col" className={styles.quantityStyle}>Ilość</th>
+                                    <th scope="col" className={styles.quantityStyle}>Ilość Inw.</th>
+                                    <th scope="col">Właściciel</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {productsTable.length === 0 ? null : (
+                                    <>
+                                      {productsTable.map((product: any, index: any) => (
+                                        <tr key={index}>
+                                          <td>{product.qrCode}</td>
+                                          <td>{product.productName}</td>
+                                          <td className={styles.quantityStyle}>{product.quantity}</td>
+                                          <td className={styles.quantityStyle}>{product.newQuantity}</td>
+                                          <td>{product.ownerProduct}</td>
+                                          <td className={styles.sdButton} id={styles.colorBlue}>
+                                            <Popup className="mypopup" trigger={<button className={styles.qrButton}><i className="fa-solid fa-qrcode fa-lg"></i></button>} position="left center">
+                                              <div className={styles.popupdiv}>
+                                                <div className={styles.popupDiv}>
+                                                <QRCode value={product.qrCode} size={120} />
+                                                  <div className={styles.downloadButton}>
+                                                    {/* <button onClick={(_) => handleDownload(product._id)} id={styles.colorBlue} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
+                                                      <i className="fa-solid fa-download fa-lg"></i>
+                                                    </button> */}
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </Popup>
+                                          </td>
+                                          <td className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDelete(product._id)}><i className="fa-solid fa-trash fa-lg"></i></button></td>
+                                        </tr>
+                                      ))}
+                                      </>
+                                  )}
+                                </tbody>
+                              </Table>
+                            </div>
+                        </div>
+                    </div>
                     }
                 </div>
             </div>

@@ -81,9 +81,9 @@ const globalSchema = new mongoose.Schema({
           rooms: [ // pokoj
             {
               name: String,
-              ownerRoom: String,
+              roomOwners: [{id: String}],
               products: [{
-                ownerProduct: String,
+                productOwner: String,
                 qrCode: String,
                 name: String,
                 quantity: Number,

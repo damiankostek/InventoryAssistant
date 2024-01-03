@@ -72,7 +72,7 @@ async function addProduct(qrCode, name, quantity) {
 }
 
 async function removeProduct(id, idProduct){
-    db.Inventory.findById(new ObjectId(id)).products.findById(new ObjectId(idProduct))  // ogarnac to
+    db.Global.findById(new ObjectId(id)).products.findById(new ObjectId(idProduct))  // ogarnac to
     .then((test) => {
         console.log(test)
         return true;
@@ -113,29 +113,20 @@ async function addWarehouse(warehouseName) {
     return false;
 }
 
-async function addInstitution() {
-    // try {
-    //     const newSchema = new db.Global({ 
-    //         name: "Pcz",
-    //         halls:[{
-    //             name: "biblio",
-    //             sections:[{
-    //                 name: "pietro",
-    //                 rooms: [{
-    //                     name: "512",
-    //                     ownerRoom: "Łukasz Biś",
-    //                     productNumber: "aaaaaaaaa"
-    //                 }]
-    //             }]
-    //         }]
-    //     });
-    //     await newSchema.save();
-    //     console.log('Tabela została dodana do bazy danych.');
-    //     return true;
-    // } catch (error) {
-    //     console.error('Błąd podczas dodawania tabeli:', error);
-    // }
-    // return false;
+async function addInstitution(institutionName) {
+    try {
+        const newSchema = new db.Global({ 
+            name: institutionName,
+            type: "in",
+            halls:[]
+        });
+        await newSchema.save();
+        console.log('Instytucja został dodany do bazy danych.');
+        return true;
+    } catch (error) {
+        console.error('Błąd podczas dodawania magazynu:', error);
+    }
+    return false;
 }
 
 async function usernameUnique(arr, username) {
@@ -156,11 +147,166 @@ async function warehouseNameUnique(arr, warehouseName) {
     try {
         const newTable = await db.Global.findOne({ name: warehouseName }).exec();
         if(newTable){
-            return newTable._id;
+            arr.push("Magazyn o tej nazwie już istnieje.");
+            return true;
         }
         return false;
     } catch (error) {
         console.error('Błąd podczas sprawdzania unikalności nazwy tabeli:', error);
+        throw error;
+    }
+}
+
+async function institutionNameUnique(arr, institutionName) {
+    try {
+        const newTable = await db.Global.findOne({ name: institutionName }).exec();
+        if(newTable){
+            arr.push("Instytucja o tej nazwie już istnieje.");
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności nazwy tabeli:', error);
+        throw error;
+    }
+}
+
+async function hallNameUnique(arr, listName, hallName) {
+    try {
+      const existingInventory = await db.Global.findOne({ name: listName }).exec();
+  
+      if (existingInventory) {
+        const hallExists = existingInventory.halls.some(hall => hall.name === hallName);
+  
+        if (hallExists) {
+          arr.push("Już istnieje.");
+          return true;
+        }
+  
+        return false;
+      }
+  
+      return false;
+    } catch (error) {
+      console.error('Błąd podczas sprawdzania unikalności nazwy hali:', error);
+      throw error;
+    }
+  }
+
+async function sectionNameUnique(arr, listName, hallName, sectionName) {
+    try {
+        const existingInventory = await db.Global.findOne({ name: listName }).exec();
+
+        if (existingInventory) {
+        const hallExists = existingInventory.halls.some(hall => hall.name === hallName);
+
+        if (hallExists) {
+            const sectionExists = existingInventory.halls.some(hall => hall.name === hallName && hall.sections.some(section => section.name === sectionName));
+
+            if(sectionExists) {
+                arr.push("Już istnieje.");
+                return true;  
+            }
+        }
+
+        return false;
+        }
+
+        return false;
+    } catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności nazwy alejki:', error);
+        throw error;
+    }
+}
+
+async function rackNameUnique(arr, listName, hallName, sectionName, rackName) {
+    try {
+        const existingInventory = await db.Global.findOne({ name: listName }).exec();
+
+        if (existingInventory) {
+            const hallExists = existingInventory.halls.some(hall => hall.name === hallName);
+
+            if (hallExists) {
+                const sectionExists = existingInventory.halls.some(hall => hall.name === hallName && hall.sections.some(section => section.name === sectionName));
+
+                if (sectionExists) {
+                    const rackExists = existingInventory.halls.some(hall => hall.name === hallName && hall.sections.some(section => section.name === sectionName && section.racks.some(rack => rack.name === rackName)));
+
+                    if (rackExists) {
+                        arr.push("Już istnieje.");
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        return false;
+    } catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności nazwy alejki:', error);
+        throw error;
+    }
+}
+
+async function roomNameUnique(arr, listName, hallName, sectionName, roomName) {
+    try {
+        const existingInventory = await db.Global.findOne({ name: listName }).exec();
+
+        if (existingInventory) {
+            const hallExists = existingInventory.halls.some(hall => hall.name === hallName);
+
+            if (hallExists) {
+                const sectionExists = existingInventory.halls.some(hall => hall.name === hallName && hall.sections.some(section => section.name === sectionName));
+
+                if (sectionExists) {
+                    const roomExists = existingInventory.halls.some(hall => hall.name === hallName && hall.sections.some(section => section.name === sectionName && section.rooms.some(room => room.name === roomName)));
+
+                    if (roomExists) {
+                        arr.push("Już istnieje.");
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        return false;
+    } catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności nazwy alejki:', error);
+        throw error;
+    }
+}
+
+async function shelfNameUnique(arr, listName, hallName, sectionName, rackName, shelfName) {
+    try {
+        const existingInventory = await db.Global.findOne({ name: listName }).exec();
+
+        if (existingInventory) {
+            const hallExists = existingInventory.halls.some(hall => hall.name === hallName);
+
+            if (hallExists) {
+                const sectionExists = existingInventory.halls.some(hall => hall.name === hallName && hall.sections.some(section => section.name === sectionName));
+
+                if (sectionExists) {
+                    const rackExists = existingInventory.halls.some(hall => hall.name === hallName && hall.sections.some(section => section.name === sectionName && section.racks && section.racks.some(rack => rack.name === rackName)));
+
+                    if (rackExists) {
+                        const shelfExists = existingInventory.halls.some(hall => hall.name === hallName && hall.sections.some(section => section.name === sectionName && section.racks && section.racks.some(rack => rack.name === rackName && rack.shelfs && rack.shelfs.some(shelf => shelf.name === shelfName))));
+
+                        if (shelfExists) {
+                            arr.push("Już istnieje.");
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        return false;
+    } catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności nazwy półki:', error);
         throw error;
     }
 }
@@ -232,7 +378,7 @@ async function getTableById(id) {
     }
 }
 
-async function getAllProducts(name) {
+async function getAllProducts(name) {  //dopisac
     const pipeline = [
         {
             $unwind: { path: '$halls', preserveNullAndEmptyArrays: true }
@@ -338,6 +484,28 @@ async function addRack(listName, hallName, sectionName, rackName) {
     }
 }
 
+async function addRoom(listName, hallName, sectionName, roomName, roomOwners) {
+    try {
+        const tableName = await db.Global.findOne({ name: listName }).exec();
+        if(tableName) {
+            for (let index = 0; index < tableName.halls.length; index++) {
+                if(tableName.halls[index].name == hallName) {
+                    for (let i = 0; i < tableName.halls[index].sections.length; i++) {
+                        if(tableName.halls[index].sections[i].name == sectionName) {
+                            tableName.halls[index].sections[i].rooms.push({name: roomName, roomOwners: []});
+                            tableName.save();   
+                        }
+                    } 
+                }
+            } 
+           return true;     
+        }
+        return false;
+    }catch (error) {
+        throw error;
+    }
+}
+
 async function addShelf(listName, hallName, sectionName, rackName, shelfName) {
     try {
         const tableName = await db.Global.findOne({ name: listName }).exec();
@@ -364,4 +532,4 @@ async function addShelf(listName, hallName, sectionName, rackName, shelfName) {
     }
 }
 
-module.exports = { changePassword, add, addProduct, getAllProducts, updateProduct, addInstitution, removeProduct, addWarehouse, usernameUnique, warehouseNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTables, getWarehouseById, addHall, addSection, addRack, addShelf};
+module.exports = { changePassword, add, addProduct, getAllProducts, updateProduct, addInstitution, removeProduct, addWarehouse, usernameUnique, warehouseNameUnique, institutionNameUnique, hallNameUnique, sectionNameUnique, rackNameUnique, roomNameUnique, shelfNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTables, getWarehouseById, addHall, addSection, addRack, addRoom, addShelf};

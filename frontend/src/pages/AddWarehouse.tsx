@@ -10,10 +10,8 @@ let warehouseNameFeedback:string;
 const AddWarehouse: React.FC = () => {
     const [warehouseName, setWarehouseName] = useState('');
     
-    
     const [validatedWarehouseName, setValidatedWarehouseName] = useState(false);
 
-    
     const handleCreateWarehouse = () => {
       setValidatedWarehouseName(false);
 
@@ -49,54 +47,6 @@ const AddWarehouse: React.FC = () => {
                 }else{
                   setValidatedWarehouseName(false);
                 }
-                
-                // if(data.errors.qrCode.length != 0) {
-                //   setValidatedValues((prev) => ({
-                //       ...prev, 
-                //       qrCode: true
-                //   }));
-                //   setFeedbackValues((prev) => ({
-                //       ...prev, 
-                //       qrCode: data.errors.qrCode[0]
-                //   }));
-                // }else{
-                //   setValidatedValues((prev) => ({
-                //     ...prev, 
-                //     qrCode: false
-                //   }));
-                // }
-  
-                // if(data.errors.name.length != 0) {
-                //   setValidatedValues((prev) => ({
-                //       ...prev, 
-                //       name: true
-                //   }));
-                //   setFeedbackValues((prev) => ({
-                //       ...prev, 
-                //       name: data.errors.name[0]
-                //   }));
-                // }else{
-                //   setValidatedValues((prev) => ({
-                //     ...prev, 
-                //     name: false
-                //   }));
-                // }
-  
-                // if(data.errors.quantity != "") {
-                //   setValidatedValues((prev) => ({
-                //       ...prev, 
-                //       quantity: true
-                //   }));
-                //   setFeedbackValues((prev) => ({
-                //       ...prev, 
-                //       quantity: data.errors.quantity[0]
-                //   }));
-                // }else{
-                //   setValidatedValues((prev) => ({
-                //     ...prev, 
-                //     quantity: false
-                //   }));
-                // }
               }
           });
       };
