@@ -35,7 +35,6 @@ const token = require("./controllers/token");
 const admin = require("./controllers/admin");
 
 app.get('/', (req, res) => { 
-  admin.addGlobal();
   res.json("welcome to our server") 
 }); 
 
@@ -158,6 +157,17 @@ app.post('/userDetails', async (req, res) => {
   }
 });
 
+// POBRANIE DANYCH Z TABEL
+app.post('/tableDetails', async (req, res) => {
+  try{
+    let data = {}
+      data.details = (await admin.getTables());
+    return res.status(200).send(data);
+  }catch(error){
+    return res.status(500);
+  }
+});
+
 // POBRANIE DANYCH Z KONT PO ID
 app.post('/getAccountById', async (req, res) => {
   const id = req.body.id;
@@ -192,8 +202,9 @@ app.post('/getTableById', async (req, res) => {
       return res.status(200).send({fail: true});
     }
       const data = (await admin.getTableById(id));
+      const allProducts = await admin.getAllProducts(data.name);
       console.log("data: "+data)
-    return res.status(200).send(data);
+    return res.status(200).send({data: data, allProducts: allProducts});
   }catch(error){
     console.log(error);
     return res.status(500);
@@ -255,42 +266,167 @@ app.post('/setUserDetails', async (req,res) => {
   return res.status(200).json({ errors,updated });
 })
 
-// TWORZENIE TABELI
-app.post('/createTable', async (req, res) => {
-  const tableName = req.body.tableName;
+// DODAWANIE MAGAZYNU
+app.post('/createWarehouse', async (req, res) => {
+  const ctoken = req.body.token;
+  const warehouseName = req.body.warehouseName;
+  // const hallName = req.body.hallName;
+  // const sectionName = req.body.sectionName;
+  // const rackName = req.body.rackName;
+  // const shelfName = req.body.shelfName;
+  // const qrCode = req.body.qrCode;
+  // const name = req.body.name;
+  // const quantity = req.body.quantity;
 
-  {
-    let err = false;
-    let errors = {
-      tableName:[]
-    };
-    validation.check(errors.tableName,tableName);
-    validation.tableName(errors.tableName,tableName);
-    await admin.tableNameUnique(errors.tableName,tableName);
-    errors.tableName.length > 0?err=true:null;
-  
-    if (err){
-      res.status(200).json({ errors });
-      return;
-    }
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
   }
-
   try{
-    if(await admin.addTable(tableName)){
-      return res.status(200).json({ success: true });
-    }else {
-      errors.username.push("Nie można utworzyć tabeli")
-      return res.status(200).json({ errors });
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+        let err = false;
+        let errors = {
+          warehouseName:[],
+          // hallName:[],
+          // sectionName:[],
+          // rackName:[],
+          // shelfName:[],
+          // qrCode:[],
+          // name:[],
+          // quantity:[],
+        };
+        validation.check(errors.warehouseName,warehouseName);
+        validation.warehouseName(errors.warehouseName,warehouseName);
+        const warehouseId = await admin.warehouseNameUnique(warehouseName);
+        errors.warehouseName.length > 0?err=true:null;
+
+        // validation.check(errors.hallName,hallName);
+        // validation.warehouseName(errors.hallName,hallName);
+        // errors.hallName.length > 0?err=true:null;
+
+        // validation.check(errors.sectionName,sectionName);
+        // validation.warehouseName(errors.sectionName,sectionName);
+        // errors.sectionName.length > 0?err=true:null;
+
+        // validation.check(errors.rackName,rackName);
+        // validation.warehouseName(errors.rackName,rackName);
+        // errors.rackName.length > 0?err=true:null;
+
+        // validation.check(errors.shelfName,shelfName);
+        // validation.warehouseName(errors.shelfName,shelfName);
+        // errors.shelfName.length > 0?err=true:null;
+
+        // validation.check(errors.qrCode,qrCode);
+        // validation.qrCode(errors.qrCode,qrCode);
+        // await admin.qrCodeUnique(errors.qrCode,qrCode);
+        // errors.qrCode.length > 0?err=true:null;
+      
+        // validation.check(errors.name,name);
+        // validation.name(errors.name,name);
+        // await admin.nameUnique(errors.name,name);
+        // errors.name.length > 0?err=true:null;
+    
+        // validation.check(errors.quantity,quantity);
+        // validation.quantity(errors.quantity,quantity);
+        // errors.quantity.length > 0?err=true:null;
+      
+        if (err){
+          res.status(200).json({ errors });
+          return;
+        }
+      
+        try{
+          // const getWarehouse = await admin.getWarehouseById(warehouseId)
+          // console.log(getWarehouse.halls.sections)
+          // if(warehouseId) {
+          //   if(getWarehouse == 1) {
+          //     await admin.insertWarehouse(warehouseName,hallName,sectionName,rackName,shelfName,qrCode,name,quantity)
+          //   }else {
+          //     return res.status(200).json({ fail: "Zajęte miejsce"});
+          //   }
+              
+          // }else {
+            if(await admin.addWarehouse(warehouseName)){
+              return res.status(200).json({ success: true });
+            }else {
+              errors.username.push("Nie można utworzyć magazynu")
+              return res.status(200).json({ errors });
+            }
+          // }
+        }catch(error){
+          console.error(error)
+          return res.status(500);
+        }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
     }
   }catch(error){
-    console.error(error)
+    console.log(error)
     return res.status(500);
   }
 });
 
+// DODAWANIE HALI
+app.post('/addHall', async (req, res) => {
+  const listName = req.body.listName;
+  const hallName = req.body.hallName;
+
+  if(listName && hallName) {
+    await admin.addHall(listName, hallName);
+  }
+  return res.status(200).json({ success: "Dodano hale" });
+});
+
+// DODAWANIE ALEJKI
+app.post('/addSection', async (req, res) => {
+  const listName = req.body.listName;
+  const hallName = req.body.hallName;
+  const sectionName = req.body.sectionName;
+
+  if(listName && hallName && sectionName) {
+    await admin.addSection(listName, hallName, sectionName);
+  }
+  return res.status(200).json({ success: "Dodano alejke" });
+});
+
+// DODAWANIE REGAŁU
+app.post('/addRack', async (req, res) => {
+  const listName = req.body.listName;
+  const hallName = req.body.hallName;
+  const sectionName = req.body.sectionName;
+  const rackName = req.body.rackName;
+
+  if(listName && hallName && sectionName && rackName) {
+    await admin.addRack(listName, hallName, sectionName, rackName);
+  }
+  return res.status(200).json({ success: "Dodano regał" });
+});
+
+// DODAWANIE PÓŁKI
+app.post('/addShelf', async (req, res) => {
+  const listName = req.body.listName;
+  const hallName = req.body.hallName;
+  const sectionName = req.body.sectionName;
+  const rackName = req.body.rackName;
+  const shelfName = req.body.shelfName;
+
+  if(listName && hallName && sectionName && rackName && shelfName) {
+    await admin.addShelf(listName, hallName, sectionName, rackName, shelfName);
+  }
+  return res.status(200).json({ success: "Dodano półkę" });
+});
+
 // DODAWANIE PRODUKTÓW DO TABELI
 app.post('/addProduct', async (req, res) => {
-  const tableName = req.body.tableName;
   const qrCode = req.body.qrCode;
   const name = req.body.name;
   const quantity = req.body.quantity;
@@ -298,14 +434,9 @@ app.post('/addProduct', async (req, res) => {
   {
     let err = false;
     let errors = {
-      qrCode:[],
       name:[],
       quantity:[]
     };
-    validation.check(errors.qrCode,qrCode);
-    validation.qrCode(errors.qrCode,qrCode);
-    await admin.qrCodeUnique(errors.qrCode,qrCode);
-    errors.qrCode.length > 0?err=true:null;
   
     validation.check(errors.name,name);
     validation.name(errors.name,name);
@@ -323,7 +454,7 @@ app.post('/addProduct', async (req, res) => {
   }
 
   try{
-    if(await admin.addProduct(tableName, qrCode, name, quantity)){
+    if(await admin.addProduct(qrCode, name, quantity)){
       return res.status(200).json({ success: true });
     }else {
       errors.name.push("Nie można dodać produktu")

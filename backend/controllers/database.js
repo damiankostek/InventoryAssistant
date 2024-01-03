@@ -54,6 +54,7 @@ const User = mongoose.model('User', userSchema);
 
 const globalSchema = new mongoose.Schema({
   name: String, // magazyn lub instytucja
+  type: String,
   halls: [  // hala lub budynek
     {
       name: String,
@@ -66,6 +67,7 @@ const globalSchema = new mongoose.Schema({
               shelfs: [  // półka 
                 {
                   name: String,
+                  available: {type: Number, default: 0},
                   product: {
                     qrCode: String,
                     name: String,

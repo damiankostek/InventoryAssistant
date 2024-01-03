@@ -15,16 +15,7 @@ function username(arr, value) {
     return false;
 }
 
-function tableName(arr, value) {
-    const pattern = /^[0-9a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/;
-    if (!pattern.test(value)){
-        arr.push("Wartość może składać się tylko z liter i/lub cyfr.");
-        return true;
-    }
-    return false;
-}
-
-function qrCode(arr, value) {
+function warehouseName(arr, value) {
     const pattern = /^[0-9a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/;
     if (!pattern.test(value)){
         arr.push("Wartość może składać się tylko z liter i/lub cyfr.");
@@ -77,4 +68,4 @@ function max(arr, value, number) {
     return false;
 }
 
-module.exports = { check, username, tableName, qrCode, name, quantity, password, min, max };
+module.exports = { check, username, warehouseName, name, quantity, password, min, max };

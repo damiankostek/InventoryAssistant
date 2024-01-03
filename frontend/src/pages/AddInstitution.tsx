@@ -10,6 +10,7 @@ let warehouseNameFeedback:string;
 let hallNameFeedback:string;
 let sectionNameFeedback:string;
 let roomNameFeedback:string;
+let ownerRoomFeedback:string;
 
 var product:any = []
 
@@ -28,6 +29,7 @@ const AddWarehouse: React.FC = () => {
     const [hallName, setHallName] = useState('');
     const [sectionName, setSectionName] = useState('');
     const [roomName, setRoomName] = useState('');
+    const [ownerRoom, setOwnerRoom] = useState('');
     const [ownerProduct, setOwnerProduct] = useState('');
     const [qrCode, setQrCode] = useState<string>(generateRandomQRCode());
     const [qrCodeImage, setQRCodeImage] = useState<JSX.Element | null>(null);
@@ -53,6 +55,7 @@ const AddWarehouse: React.FC = () => {
     const [validatedHallName, setValidatedHallName] = useState(false);
     const [validatedSectionName, setValidatedSectionName] = useState(false);
     const [validatedRoomName, setValidatedRoomName] = useState(false);
+    const [validatedOwnerRoom, setValidatedOwnerRoom] = useState(false);
 
     useEffect( () => {
       // fetch
@@ -71,6 +74,7 @@ const AddWarehouse: React.FC = () => {
       setValidatedHallName(false);
       setValidatedSectionName(false);
       setValidatedRoomName(false);
+      setValidatedOwnerRoom(false);
 
       const isQRCodeExist = productsTable.some((product: any) => product.qrCode === qrCode);
 
@@ -271,6 +275,21 @@ const AddWarehouse: React.FC = () => {
                             />
                             <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
                                 {roomNameFeedback}
+                            </Form.Control.Feedback>
+                        </InputGroup>
+                    </div>
+                    <div className={styles.form_group}>
+                        <label htmlFor="ownerRoom">Właściciel/e pokoju:</label><br />
+                        <InputGroup className={styles.inputText} hasValidation>
+                            <Form.Control
+                            type="text"
+                            id="ownerRoom"
+                            value={ownerRoom}
+                            isInvalid={validatedOwnerRoom}
+                            onChange={(e) => setOwnerRoom(e.target.value)}
+                            />
+                            <Form.Control.Feedback className={styles.ErrorInput} type='invalid'>
+                                {ownerRoomFeedback}
                             </Form.Control.Feedback>
                         </InputGroup>
                     </div>

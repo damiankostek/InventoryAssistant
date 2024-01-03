@@ -2,6 +2,7 @@ const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 
 const db = require("./database.js");
+const { quantity, name } = require('./validation.js');
 
 async function changePassword(user, password) {
     try {
@@ -30,41 +31,30 @@ async function add(username, passwd) {
     return false;
 }
 
-async function addGlobal() {
+async function addProduct(qrCode, name, quantity) {
     try {
-        const newSchema = new db.Global({ 
-            name: "Pcz",
-            halls:[{
-                name: "biblio",
-                sections:[{
-                    name: "pietro",
-                    rooms: [{
-                        name: "512",
-                        ownerRoom: "Łukasz Biś",
-                        productNumber: "aaaaaaaaa"
-                    }]
-                }]
-            }]
-        });
-        await newSchema.save();
-        console.log('Tabela została dodana do bazy danych.');
-        return true;
-    } catch (error) {
-        console.error('Błąd podczas dodawania tabeli:', error);
-    }
-    return false;
-}
-
-async function addProduct(tableName, qrCode, name, quantity) {
-    try {
-        const existingInventory = await db.Inventory.findOne({ tableName });
+        const table = qrCode.split("-");
+        const existingInventory = await db.Global.findOne({ name: table[0] });
 
         if (existingInventory) {
-            existingInventory.products.push({
-                qrCode,
-                name,
-                quantity
-            });
+                for (let index = 0; index < existingInventory.halls.length; index++) {
+                    if(existingInventory.halls[index].name == table[1]) {
+                        for (let i = 0; i < existingInventory.halls[index].sections.length; i++) {
+                            if(existingInventory.halls[index].sections[i].name == table[2]) {
+                                for (let j = 0; j < existingInventory.halls[index].sections[i].racks.length; j++) {
+                                    if(existingInventory.halls[index].sections[i].racks[j].name == table[3]) {
+                                        for (let z = 0; z < existingInventory.halls[index].sections[i].racks[j].shelfs.length; z++) {
+                                            if(existingInventory.halls[index].sections[i].racks[j].shelfs[z].name == table[4]) {
+                                                existingInventory.halls[index].sections[i].racks[j].shelfs[z].product = {qrCode: qrCode, name: name, quantity: quantity};
+                                                existingInventory.halls[index].sections[i].racks[j].shelfs[z].available = 1;
+                                            }
+                                        } 
+                                    }
+                                } 
+                            }
+                        } 
+                    }
+                }
 
             existingInventory.updated_at = new Date();
 
@@ -72,7 +62,7 @@ async function addProduct(tableName, qrCode, name, quantity) {
             console.log('Produkt został dodany do istniejącej tabeli w bazie danych.');
             return true;
         } else {
-            console.error('Tabela o nazwie', tableName, 'nie istnieje.');
+            console.error('Tabela o nazwie', table, 'nie istnieje.');
         }
     } catch (error) {
         console.error('Błąd podczas dodawania produktu:', error);
@@ -107,18 +97,45 @@ async function updateProduct(product, newQuantity, newInventory, table){
       table.save();
 }
 
-async function addTable(tableName) {
+async function addWarehouse(warehouseName) {
     try {
-        const newTable = new db.Inventory({ 
-            tableName
+        const newSchema = new db.Global({ 
+            name: warehouseName,
+            type: "wh",
+            halls:[]
         });
-        await newTable.save();
-        console.log('Tabela została dodana do bazy danych.');
+        await newSchema.save();
+        console.log('Magazyn został dodany do bazy danych.');
         return true;
     } catch (error) {
-        console.error('Błąd podczas dodawania tabeli:', error);
+        console.error('Błąd podczas dodawania magazynu:', error);
     }
     return false;
+}
+
+async function addInstitution() {
+    // try {
+    //     const newSchema = new db.Global({ 
+    //         name: "Pcz",
+    //         halls:[{
+    //             name: "biblio",
+    //             sections:[{
+    //                 name: "pietro",
+    //                 rooms: [{
+    //                     name: "512",
+    //                     ownerRoom: "Łukasz Biś",
+    //                     productNumber: "aaaaaaaaa"
+    //                 }]
+    //             }]
+    //         }]
+    //     });
+    //     await newSchema.save();
+    //     console.log('Tabela została dodana do bazy danych.');
+    //     return true;
+    // } catch (error) {
+    //     console.error('Błąd podczas dodawania tabeli:', error);
+    // }
+    // return false;
 }
 
 async function usernameUnique(arr, username) {
@@ -135,12 +152,11 @@ async function usernameUnique(arr, username) {
     }
 }
 
-async function tableNameUnique(arr, tableName) {
+async function warehouseNameUnique(arr, warehouseName) {
     try {
-        const newTable = await db.Inventory.findOne({ tableName: tableName }).exec();
+        const newTable = await db.Global.findOne({ name: warehouseName }).exec();
         if(newTable){
-            arr.push("Tabela o tej nazwie już istnieje.");
-            return true;
+            return newTable._id;
         }
         return false;
     } catch (error) {
@@ -151,7 +167,7 @@ async function tableNameUnique(arr, tableName) {
 
 async function qrCodeUnique(arr, qrCode) {  // przerobic zeby sprawdzało tylko w jednej tabeli
     try {
-        const newQRCode = await db.Inventory.findOne({ qrCode: qrCode }).exec();
+        const newQRCode = await db.Global.findOne({ qrCode: qrCode }).exec();
         if(newQRCode){
             arr.push("Taki kod QR już istnieje.");
             return true;
@@ -165,7 +181,7 @@ async function qrCodeUnique(arr, qrCode) {  // przerobic zeby sprawdzało tylko 
 
 async function nameUnique(arr, name) {  // przerobic zeby sprawdzało tylko w jednej tabeli
     try {
-        const newName = await db.Inventory.findOne({ name: name }).exec();
+        const newName = await db.Global.findOne({ name: name }).exec();
         if(newName){
             arr.push("Taka nazwa produktu już istnieje.");
             return true;
@@ -190,18 +206,65 @@ async function getUserById(id) {
     }
 }
 
-// async function getTableById(id) {
-//     try {
-//         const tabeName = await db.Inventory.findById(new ObjectId(id)).exec();
-//         if(tabeName) {
-//             return tabeName;
-//         }
-//         return false;
-//     }catch (error) {
-//         console.error('Błąd podczas sprawdzania unikalności nazwy tabeli:', error);
-//         throw error;
-//     }
-// }
+async function getWarehouseById(id) {
+    try {
+        const tabeName = await db.Global.findById(new ObjectId(id));
+        if(tabeName) {
+            return tabeName;
+        }
+        return false;
+    }catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności nazwy tabeli:', error);
+        throw error;
+    }
+}
+
+async function getTableById(id) {
+    try {
+        const tabeName = await db.Global.findById(new ObjectId(id));
+        if(tabeName) {
+            return tabeName;
+        }
+        return false;
+    }catch (error) {
+        console.error('Błąd podczas sprawdzania unikalności nazwy tabeli:', error);
+        throw error;
+    }
+}
+
+async function getAllProducts(name) {
+    const pipeline = [
+        {
+            $unwind: { path: '$halls', preserveNullAndEmptyArrays: true }
+          },
+          {
+            $unwind: { path: '$halls.sections', preserveNullAndEmptyArrays: true }
+          },
+          {
+            $unwind: { path: '$halls.sections.racks', preserveNullAndEmptyArrays: true }
+          },
+          {
+            $unwind: { path: '$halls.sections.racks.shelfs', preserveNullAndEmptyArrays: true }
+          },
+          {
+            $match: { "name": name }
+          },
+        {
+          $project: {
+
+            _id: 0,
+            qrCode: '$halls.sections.racks.shelfs.product.qrCode',
+            productName: '$halls.sections.racks.shelfs.product.name',
+            quantity: '$halls.sections.racks.shelfs.product.quantity'
+            // dopisac newQuantity, os. odp.
+          }
+        }
+      ];
+      
+      const result = await db.Global.aggregate(pipeline);
+
+      return result;
+}
 
 async function getUsers(){
     try {
@@ -212,4 +275,93 @@ async function getUsers(){
     }
 }
 
-module.exports = { changePassword, add, addProduct, updateProduct, addGlobal, removeProduct, addTable, usernameUnique, tableNameUnique, qrCodeUnique, nameUnique, getUserById, getUsers };
+async function getTables(){
+    try {
+        return await db.Global.find();
+    } catch (error) {
+        console.error('Błąd podczas pobierania tabel:', error);
+        throw error;
+    }
+}
+
+async function addHall(listName, hallName) {
+    try {
+        const tableName = await db.Global.findOne({ name: listName }).exec();
+        if(tableName) {
+           tableName.halls.push({name: hallName, sections: []});
+           tableName.save();    
+           return true;     
+        }
+        return false;
+    }catch (error) {
+        throw error;
+    }
+}
+
+async function addSection(listName, hallName, sectionName) {
+    try {
+        const tableName = await db.Global.findOne({ name: listName }).exec();
+        if(tableName) {
+            for (let index = 0; index < tableName.halls.length; index++) {
+                if(tableName.halls[index].name == hallName) {
+                    tableName.halls[index].sections.push({name: sectionName, racks: []});
+                    tableName.save();   
+                }
+            } 
+           return true;     
+        }
+        return false;
+    }catch (error) {
+        throw error;
+    }
+}
+
+async function addRack(listName, hallName, sectionName, rackName) {
+    try {
+        const tableName = await db.Global.findOne({ name: listName }).exec();
+        if(tableName) {
+            for (let index = 0; index < tableName.halls.length; index++) {
+                if(tableName.halls[index].name == hallName) {
+                    for (let i = 0; i < tableName.halls[index].sections.length; i++) {
+                        if(tableName.halls[index].sections[i].name == sectionName) {
+                            tableName.halls[index].sections[i].racks.push({name: rackName, shelfs: []});
+                            tableName.save();   
+                        }
+                    } 
+                }
+            } 
+           return true;     
+        }
+        return false;
+    }catch (error) {
+        throw error;
+    }
+}
+
+async function addShelf(listName, hallName, sectionName, rackName, shelfName) {
+    try {
+        const tableName = await db.Global.findOne({ name: listName }).exec();
+        if(tableName) {
+            for (let index = 0; index < tableName.halls.length; index++) {
+                if(tableName.halls[index].name == hallName) {
+                    for (let i = 0; i < tableName.halls[index].sections.length; i++) {
+                        if(tableName.halls[index].sections[i].name == sectionName) {
+                            for (let j = 0; j < tableName.halls[index].sections[i].racks.length; j++) {
+                                if(tableName.halls[index].sections[i].racks[j].name == rackName) {
+                                    tableName.halls[index].sections[i].racks[j].shelfs.push({name: shelfName, product: {}});
+                                    tableName.save();   
+                                }
+                            } 
+                        }
+                    } 
+                }
+            } 
+           return true;     
+        }
+        return false;
+    }catch (error) {
+        throw error;
+    }
+}
+
+module.exports = { changePassword, add, addProduct, getAllProducts, updateProduct, addInstitution, removeProduct, addWarehouse, usernameUnique, warehouseNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTables, getWarehouseById, addHall, addSection, addRack, addShelf};
