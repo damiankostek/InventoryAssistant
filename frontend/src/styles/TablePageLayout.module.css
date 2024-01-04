@@ -191,12 +191,6 @@ hr {
   margin-right: 0.8em;
 }
 
-.searchStyle {
-  margin-left: 5em;
-  font-size: 1.2em;
-  font-weight: bold;
-}
-
 .id_styles {
     font-size: 1.5em;
     font-weight: bold;
@@ -378,6 +372,31 @@ table tbody tr td.sdButton button {
 
 }
 
+  .newRoom {
+    text-decoration: none;
+    color: rgb(63, 56, 56);
+    border: 2px solid white;
+    padding: 0.6em 0;
+    font-weight: 700;
+    width: 14.1vw;
+    background-color: rgba(255, 255, 255, 0);
+    cursor: pointer;
+    transition: border-color 0.25s;
+    float: left;
+  }
+
+  .tableStyle .newRoom:hover {
+    background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
+    background-size: 200% 200%;
+    animation: gradient 1s ease infinite;
+    color: white;
+  }
+  
+  .newRoom:focus,
+  .newRoom:focus-visible {
+      outline: 4px auto -webkit-focus-ring-color;
+  }
+
   .addRoom {
     text-decoration: none;
     color: rgb(63, 56, 56);
@@ -401,4 +420,22 @@ table tbody tr td.sdButton button {
   .addRoom:focus,
   .addRoom:focus-visible {
       outline: 4px auto -webkit-focus-ring-color;
+  }
+
+  .searchStyle {
+    margin-right: 5em;
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+
+  .inputTextSearch {
+    border-radius: 8px;
+    border-color: white;
+    margin-bottom: 0.6em;
+    padding: 0.3em 0.6em;
+  }
+
+  .headerTable {
+    display: flex;
+    justify-content: space-between;
   }

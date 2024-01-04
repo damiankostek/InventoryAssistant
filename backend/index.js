@@ -171,20 +171,12 @@ app.post('/tableDetails', async (req, res) => {
 // POBRANIE DANYCH Z KONT PO ID
 app.post('/getAccountById', async (req, res) => {
   const id = req.body.id;
-  // var dataInventoryId = null;
   try{
     if(!id){
       console.log("blad")
       return res.status(200).send({fail: true});
     }
       const data = (await admin.getUserById(id));
-      // if(data.inventoryId == "aaaaaaaaaaaaaaaaaaaaaaaa"){
-      //   dataInventoryId = "Brak tablicy";
-      // }else {
-      //   dataInventoryId = (await admin.getTableById(data.inventoryId));
-      // }
-      // console.log("data: "+data)
-      // console.log("dataInventoryId: "+dataInventoryId)
       
     return res.status(200).send({data});
   }catch(error){
@@ -203,8 +195,11 @@ app.post('/getTableById', async (req, res) => {
     }
       const data = (await admin.getTableById(id));
       const allProducts = await admin.getAllProducts(data.name);
+      const allPositions = await admin.getAllPositions(data.name);
       console.log("data: "+data)
-    return res.status(200).send({data: data, allProducts: allProducts});
+      console.log("allProducts: " + JSON.stringify(allProducts));
+      console.log("allPositions: " + JSON.stringify(allPositions));
+    return res.status(200).send({data: data, allProducts: allProducts, allPositions: allPositions});
   }catch(error){
     console.log(error);
     return res.status(500);

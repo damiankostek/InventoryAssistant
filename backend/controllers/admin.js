@@ -412,6 +412,38 @@ async function getAllProducts(name) {  //dopisac
       return result;
 }
 
+async function getAllPositions(name) {  //dopisac
+    const pipeline = [
+        {
+            $unwind: { path: '$halls', preserveNullAndEmptyArrays: true }
+          },
+          {
+            $unwind: { path: '$halls.sections', preserveNullAndEmptyArrays: true }
+          },
+          {
+            $unwind: { path: '$halls.sections.rooms', preserveNullAndEmptyArrays: true }
+          },
+          {
+            $match: { "name": name }
+          },
+        {
+          $project: {
+
+            _id: 0,
+            productOwner: '$halls.sections.rooms.products.productOwner',
+            qrCode: '$halls.sections.rooms.products.qrCode',
+            productName: '$halls.sections.rooms.products.name',
+            quantity: '$halls.sections.rooms.products.quantity'
+            // dopisac newQuantity
+          }
+        }
+      ];
+      
+      const result = await db.Global.aggregate(pipeline);
+
+      return result;
+}
+
 async function getUsers(){
     try {
         return await db.User.find({'role':'user'});
@@ -487,21 +519,24 @@ async function addRack(listName, hallName, sectionName, rackName) {
 async function addRoom(listName, hallName, sectionName, roomName, roomOwners) {
     try {
         const tableName = await db.Global.findOne({ name: listName }).exec();
-        if(tableName) {
+        if (tableName) {
             for (let index = 0; index < tableName.halls.length; index++) {
-                if(tableName.halls[index].name == hallName) {
+                if (tableName.halls[index].name == hallName) {
                     for (let i = 0; i < tableName.halls[index].sections.length; i++) {
-                        if(tableName.halls[index].sections[i].name == sectionName) {
-                            tableName.halls[index].sections[i].rooms.push({name: roomName, roomOwners: []});
-                            tableName.save();   
+                        if (tableName.halls[index].sections[i].name == sectionName) {
+                            tableName.halls[index].sections[i].rooms.push({
+                                name: roomName,
+                                roomOwners: roomOwners.map(ownerId => ({ id: ownerId })),
+                            });
+                            await tableName.save();
+                            return true;
                         }
-                    } 
+                    }
                 }
-            } 
-           return true;     
+            }
         }
         return false;
-    }catch (error) {
+    } catch (error) {
         throw error;
     }
 }
@@ -532,4 +567,4 @@ async function addShelf(listName, hallName, sectionName, rackName, shelfName) {
     }
 }
 
-module.exports = { changePassword, add, addProduct, getAllProducts, updateProduct, addInstitution, removeProduct, addWarehouse, usernameUnique, warehouseNameUnique, institutionNameUnique, hallNameUnique, sectionNameUnique, rackNameUnique, roomNameUnique, shelfNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTables, getWarehouseById, addHall, addSection, addRack, addRoom, addShelf};
+module.exports = { changePassword, add, addProduct, getAllProducts, getAllPositions, updateProduct, addInstitution, removeProduct, addWarehouse, usernameUnique, warehouseNameUnique, institutionNameUnique, hallNameUnique, sectionNameUnique, rackNameUnique, roomNameUnique, shelfNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTables, getWarehouseById, addHall, addSection, addRack, addRoom, addShelf};

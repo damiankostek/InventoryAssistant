@@ -82,6 +82,7 @@ const globalSchema = new mongoose.Schema({
             {
               name: String,
               roomOwners: [{id: String}],
+              // roomOwners: [{id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', get: id => id.toString() },}],
               products: [{
                 productOwner: String,
                 qrCode: String,
