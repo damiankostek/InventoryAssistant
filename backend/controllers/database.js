@@ -1,9 +1,5 @@
 const mongoose = require('mongoose');
 
-
-// const mongojs = require('mongojs')
-// const db = mongojs('mongodb+srv://dkostek:<password>@cluster0.zai7k7p.mongodb.net/', ['Inventory'])
-
 const dbHost = 'mongodb+srv://dkostek:haslo1234@cluster0.zai7k7p.mongodb.net/InventoryDB'; 
 
 mongoose.connect(dbHost, { useNewUrlParser: true, useUnifiedTopology: true }); 
@@ -38,7 +34,7 @@ const globalSchema = new mongoose.Schema({
   halls: [  // hala lub budynek
     {
       name: String,
-      sections: [  // alejka w magazynie lub pietro
+      sections: [  // alejka lub pietro
         {
           name: String,
           racks: [  // regał 
@@ -63,7 +59,7 @@ const globalSchema = new mongoose.Schema({
             {
               name: String,
               roomOwners: [{id: String}],
-              products: [{
+              products: [{   // lista pozycji w pokoju
                 productOwner: String,
                 qrCode: String,
                 name: String,
