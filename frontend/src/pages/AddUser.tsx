@@ -7,16 +7,12 @@ import api from "../assets/api.json";
 let usernameFeedback:string;
 let passwordFeedback:string;
 
-var user:any = []
-
 const AddUser: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     
     const [validatedUsername, setValidatedUsername] = useState(false);
     const [validatedPassword, setValidatedPassword] = useState(false);
-    
-    const [userTable, setUserTable] = useState(user)
     
     const handleRegistration = () => {
         setValidatedUsername(false);
@@ -47,32 +43,7 @@ const AddUser: React.FC = () => {
               console.log(data.errors);
               if(data.success){
                 console.log(data.success);
-                const apiUrl = 'http://'+api+':8080/userDetails';
-        
-                const requestBody = {         // ogarnac odswieżanie tu
-                    details: true,
-                };
-                console.log(requestBody)
-                fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                    'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody),
-                })
-                .then((response) => {
-                if (response.status == 500) {
-                    throw new Error('Błąd serwera');
-                }
-                return response.json();
-                })
-                .then((data) => {
-                setUserTable(data.details)
-                console.log("tabelka "+userTable)
-                })
-                .catch((error) => {
-                    console.log("Błąd"+error);
-                });
+                window.location.reload();
               }else{
                 if(data.errors.username != "") {
                 setValidatedUsername(true);

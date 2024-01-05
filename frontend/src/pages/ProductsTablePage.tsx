@@ -132,12 +132,10 @@ const ProductsTablePage: React.FC = () => {
                       <Table striped bordered>
                       <thead>
                           <tr>
-                          {/* Leg-H1-B-10-2 nie ma nic do tego */}
-                          <th scope="col" className={styles.location}>Lokalizacja</th> 
                           <th scope="col" className={styles.qrStyle}>Kod QR</th>
                           <th scope="col">Nazwa</th>
                           <th scope="col" className={styles.quantityStyle}>Ilość</th>
-                          <th scope="col" className={styles.inventoryStyle}>PoInw</th>
+                          <th scope="col" className={styles.inventoryStyle}>Ilość Inw.</th>
                           </tr>
                       </thead>
                       <tbody>
@@ -148,7 +146,7 @@ const ProductsTablePage: React.FC = () => {
                                   <td>{product.qrCode}</td>
                                   <td>{product.name}</td>
                                   <td className={styles.quantityStyle}>{product.quantity}</td>
-                                  <td className={styles.inventoryStyle}>{product.inventory}</td>
+                                  <td className={styles.quantityStyle}>{product.neqQuantity}</td>
                               </tr>
                               ))}
                           </>

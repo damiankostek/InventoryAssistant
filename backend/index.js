@@ -4,15 +4,14 @@ const app = express();
 const port = 8080;
 
 
-app.use(bodyParser.json()) // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // Adres klienta
+  res.setHeader('Access-Control-Allow-Origin', '*'); 
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Credentials', 'true'); // Włącz przekazywanie ciasteczek
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Obsługa preflight requests
   if (req.method === 'OPTIONS') {
     res.status(200).send();
   } else {
@@ -23,11 +22,11 @@ app.use((req, res, next) => {
 const cors=require("cors");
 const corsOptions ={
    origin:'*', 
-   credentials:true,   //access-control-allow-credentials:true
+   credentials:true,
    optionSuccessStatus:200,
 }
 
-app.use(cors(corsOptions)) // Use this after the variable declaration
+app.use(cors(corsOptions))
 
 const user = require("./controllers/user");
 const validation = require("./controllers/validation");
@@ -73,7 +72,6 @@ app.post("/login", async (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
 
-  console.log(username)
   try{
     const get_user = await user.checkUsername(username);
     if (!get_user) {
@@ -98,7 +96,6 @@ app.post("/login", async (req,res) => {
 // WYLOGOWYWANIE
 app.post('/logout', async (req, res) => {
   const ctoken = req.body.token;
-  console.log('token1 '+ctoken);
   if (ctoken){
       token.removeToken(ctoken);
       return res.send({success: "wylogowano"})
@@ -173,7 +170,6 @@ app.post('/getAccountById', async (req, res) => {
   const id = req.body.id;
   try{
     if(!id){
-      console.log("blad")
       return res.status(200).send({fail: true});
     }
       const data = (await admin.getUserById(id));
@@ -190,15 +186,14 @@ app.post('/getTableById', async (req, res) => {
   const id = req.body.id;
   try{
     if(!id){
-      console.log("blad")
       return res.status(200).send({fail: true});
     }
       const data = (await admin.getTableById(id));
       const allProducts = await admin.getAllProducts(data.name);
       const allPositions = await admin.getAllPositions(data.name);
-      console.log("data: "+data)
-      console.log("allProducts: " + JSON.stringify(allProducts));
-      console.log("allPositions: " + JSON.stringify(allPositions));
+      // console.log("data: "+data)
+      // console.log("allProducts: " + JSON.stringify(allProducts));
+      // console.log("allPositions: " + JSON.stringify(allPositions));
     return res.status(200).send({data: data, allProducts: allProducts, allPositions: allPositions});
   }catch(error){
     console.log(error);
@@ -232,7 +227,6 @@ app.post('/setUserDetails', async (req,res) => {
     validation.username(errors.username,username);
     await admin.usernameUnique(errors.username,username);
     if(errors.username.length == 0){
-      console.log("username update! ")
       get_user.username = username;
       await get_user.save()
       updated.username = true;
@@ -543,7 +537,7 @@ app.post('/addShelf', async (req, res) => {
   }
 });
 
-// DODAWANIE PRODUKTÓW DO TABELI
+// DODAWANIE PRODUKTÓW DO MAGAZYNU
 app.post('/addProduct', async (req, res) => {
   const qrCode = req.body.qrCode;
   const name = req.body.name;
@@ -552,9 +546,14 @@ app.post('/addProduct', async (req, res) => {
   {
     let err = false;
     let errors = {
+      qrCode:[],
       name:[],
       quantity:[]
     };
+
+
+    await admin.qrCodeUnique(errors.qrCode,qrCode);
+    errors.qrCode.length > 0?err=true:null;
   
     validation.check(errors.name,name);
     validation.name(errors.name,name);
@@ -584,23 +583,336 @@ app.post('/addProduct', async (req, res) => {
   }
 });
 
-// DODAWANIE PRODUKTÓW DO TABELI
-app.post('/productDelete', async (req, res) => {  // prowizorka
-  if (await admin.removeProduct(req.body.id, req.body.idProduct)) {
-    res.status(200).json({ success: "Pomyślnie usunięto produkt" });
-  } else {
-    res.status(200).json({ fail: "Nie udało się usunąć produktu" });
+// DODAWANIE PRODUKTÓW DO INSTYTUCJI
+app.post('/addProducts', async (req, res) => {
+  const qrCode = req.body.qrCode;
+  const name = req.body.name;
+  const productOwner = req.body.productOwner;
+  const quantity = req.body.quantity;
+
+  {
+    let err = false;
+    let errors = {
+      qrCode:[],
+      name:[],
+      quantity:[]
+    };
+
+
+    await admin.qrCodeUnique(errors.qrCode,qrCode);
+    errors.qrCode.length > 0?err=true:null;
+  
+    validation.check(errors.name,name);
+    validation.name(errors.name,name);
+    await admin.nameUnique(errors.name,name);
+    errors.name.length > 0?err=true:null;
+
+    validation.check(errors.quantity,quantity);
+    validation.quantity(errors.quantity,quantity);
+    errors.quantity.length > 0?err=true:null;
+  
+    if (err){
+      res.status(200).json({ errors });
+      return;
+    }
+  }
+
+  try{
+    if(await admin.addProducts(qrCode, name, productOwner, quantity)){
+      return res.status(200).json({ success: true });
+    }else {
+      errors.name.push("Nie można dodać produktu")
+      return res.status(200).json({ errors });
+    }
+  }catch(error){
+    console.error(error)
+    return res.status(500);
+  }
+});
+
+// USUWANIE PRODUKTÓW Z TABELI
+app.post('/productDelete', async (req, res) => { 
+  const ctoken = req.body.token;
+  const qrCode = req.body.qrCode;
+  const table = qrCode.split("-");
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+          if (await admin.removeProduct(qrCode)) {
+            const productsTable = await admin.getAllProducts(table[0]);
+            res.status(200).json({ success: "Pomyślnie usunięto produkt", productsTable });
+          } else {
+            res.status(200).json({ fail: "Nie udało się usunąć produktu" });
+          }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// USUWANIE POZYCJI Z INSTYTUCJI
+app.post('/positionDelete', async (req, res) => { 
+  const ctoken = req.body.token;
+  const qrCode = req.body.qrCode;
+  const table = qrCode.split("-");
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+          if (await admin.removePosition(qrCode)) {
+            const positionsTable = await admin.getAllPositions(table[0]);
+            res.status(200).json({ success: "Pomyślnie usunięto pozycję", positionsTable });
+          } else {
+            res.status(200).json({ fail: "Nie udało się usunąć pozycji" });
+          }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// USUWANIE PÓŁKI Z REGAŁU
+app.post('/shelfDelete', async (req, res) => { 
+  const ctoken = req.body.token;
+  const qrCode = req.body.qrCode;
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+          if (await admin.removeShelf(qrCode)) {
+            res.status(200).json({ success: "Pomyślnie usunięto półkę" });
+          } else {
+            res.status(200).json({ fail: "Nie udało się usunąć półki" });
+          }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// USUWANIE POKOJU Z SEKCJI
+app.post('/roomDelete', async (req, res) => { 
+  const ctoken = req.body.token;
+  const qrCode = req.body.qrCode;
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+          if (await admin.removeRoom(qrCode)) {
+            res.status(200).json({ success: "Pomyślnie usunięto pokój" });
+          } else {
+            res.status(200).json({ fail: "Nie udało się usunąć pokoju" });
+          }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// USUWANIE REGAŁÓW Z SEKCJI
+app.post('/rackDelete', async (req, res) => { 
+  const ctoken = req.body.token;
+  const qrCode = req.body.qrCode;
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+          if (await admin.removeRack(qrCode)) {
+            res.status(200).json({ success: "Pomyślnie usunięto regał" });
+          } else {
+            res.status(200).json({ fail: "Nie udało się usunąć regału" });
+          }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// USUWANIE SEKCJI Z HALI
+app.post('/sectionDelete', async (req, res) => { 
+  const ctoken = req.body.token;
+  const qrCode = req.body.qrCode;
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+          if (await admin.removeSection(qrCode)) {
+            res.status(200).json({ success: "Pomyślnie usunięto sekcję" });
+          } else {
+            res.status(200).json({ fail: "Nie udało się usunąć sekcji" });
+          }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// USUWANIE HALI Z TABELI
+app.post('/hallDelete', async (req, res) => { 
+  const ctoken = req.body.token;
+  const qrCode = req.body.qrCode;
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+          if (await admin.removeHall(qrCode)) {
+            res.status(200).json({ success: "Pomyślnie usunięto halę" });
+          } else {
+            res.status(200).json({ fail: "Nie udało się usunąć hali" });
+          }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// USUWANIE TABELI
+app.post('/tableDelete', async (req, res) => { 
+  const ctoken = req.body.token;
+  const tableName = req.body.tableName;
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+          if (await admin.removeTable(tableName)) {
+            res.status(200).json({ success: "Pomyślnie usunięto tabele" });
+          } else {
+            res.status(200).json({ fail: "Nie udało się usunąć tabeli" });
+          }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
   }
 });
 
 // POBRANIE INVENTORY ID DLA UŻYTKOwNIKA
-app.post('/getInventoryId', async (req, res) => {
+app.post('/getInventoryId', async (req, res) => {  //narazie nie potrzebne
   const ctoken = req.body.token;
 
   try{
     const userID = await token.getUserIDByToken(ctoken);
     const data = await admin.getUserById(userID);
-    console.log("inventoryId: "+data.inventoryId)
     return res.status(200).send(data);
   }catch(error){
     console.log(error)
@@ -609,7 +921,7 @@ app.post('/getInventoryId', async (req, res) => {
 });
 
 // WYSYŁANIE KODU QR
-app.post('/sendQrCode', async (req, res) => {
+app.post('/sendQrCode', async (req, res) => {  // przerobic
   const idTable = req.body.idTable;
   const qrCode = req.body.qrCode;
 
@@ -634,7 +946,7 @@ app.post('/sendQrCode', async (req, res) => {
 });
 
 // POBIERANIE PRODUKTU
-app.post('/getProduct', async (req, res) => {
+app.post('/getProduct', async (req, res) => {  // przerobic
   const id = req.body.id;
   const qr = req.body.qr;
 
@@ -660,7 +972,7 @@ app.post('/getProduct', async (req, res) => {
 });
 
 // AKTUALIZACJA ILOŚCI
-app.post('/setChangeQuantity', async (req, res) => {
+app.post('/setChangeQuantity', async (req, res) => {  // przerobic
   const idTable = req.body.idTable;
   const qrCode = req.body.qrCode;
   const quantity = req.body.quantity;
@@ -682,7 +994,6 @@ app.post('/setChangeQuantity', async (req, res) => {
     let updated = {};
       validation.quantity(errors.quantity,quantity);
       if(errors.quantity.length == 0){
-        console.log("quantity update! ")
         admin.updateProduct(product, quantity, inventory, table);
         updated.quantity = true;
       }

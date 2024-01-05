@@ -1,16 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from '../styles/AddInstitution.module.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, InputGroup } from 'react-bootstrap';
 import api from "../assets/api.json";
 import Cookies from "js-cookie";
+import QRCode from 'qrcode.react';
 
 let institutionNameFeedback:string;
 
 const AddInstitution: React.FC = () => {
     const [institutionName, setInstitutionName] = useState('');
+    const [qrCode, ] = useState('');
+    const [, setQRCodeImage] = useState<JSX.Element | null>(null);
 
     const [validatedInstitutionName, setValidatedInstitutionName] = useState(false);
+
+    useEffect( () => {
+
+      if (qrCode) {
+        setQRCodeImage(<QRCode value={qrCode} size={55} />);
+      }
+    }, [qrCode]);
 
     const handleCreateInstitution = () => {
       setValidatedInstitutionName(false);
@@ -41,6 +51,19 @@ const AddInstitution: React.FC = () => {
               console.log(data.errors);
               if(data.success){
                 console.log(data.success);
+                const canvas: any = document.getElementById(institutionName);
+                if(canvas) {
+                  const pngUrl = canvas
+                    .toDataURL("image/png")
+                    .replace("image/png", "image/octet-stream");
+                  let downloadLink = document.createElement("a");
+                  downloadLink.href = pngUrl
+                  downloadLink.download = institutionName+".png";
+                  document.body.appendChild(downloadLink);
+                  downloadLink.click();
+                  document.body.removeChild(downloadLink);
+                }
+                window.location.reload();
               }else{
                 if(data.errors.institutionName != "") {
                 setValidatedInstitutionName(true);
@@ -71,6 +94,7 @@ const AddInstitution: React.FC = () => {
                               {institutionNameFeedback}
                           </Form.Control.Feedback>
                       </InputGroup>
+                      <QRCode value={institutionName} size={120} id={institutionName}/>
                     </div>
                   </div>
               </div>

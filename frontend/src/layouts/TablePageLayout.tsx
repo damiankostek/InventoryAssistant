@@ -9,26 +9,6 @@ import QRCode from 'qrcode.react';
 import Popup from 'reactjs-popup';
 import api from "../assets/api.json";
 
-interface Product {
-  name: string;
-  quantity: number;
-}
-
-interface Room {
-  name: string;
-  products: Product[];
-}
-
-interface Section {
-  name: string;
-  rooms: Room[];
-}
-
-interface Hall {
-  sections: Section[];
-}
-
-
 var table:any = []
 var user:any = []
 
@@ -51,7 +31,7 @@ const generateRandomQRCode = () => {
 const TablePageLayout: React.FC = () => {
     const [showAddWarehouse, setShowAddWarehouse] = useState(false);
     const [showAddInstitution, setShowAddInstitution] = useState(false);
-    const [wh, setWh] = useState('');
+    const [listType, setListType] = useState('');
     const [id, setId] = useState('');
     const [tableName, setTableName] = useState('');
     const [hallName, setHallName] = useState('');
@@ -60,7 +40,7 @@ const TablePageLayout: React.FC = () => {
     const [shelfName, setShelfName] = useState('');
     const [roomName, setRoomName] = useState('');
     const [roomOwners, setRoomOwners] = useState<string[]>([]);
-    const [productOwner, setProductOwner] = useState<string>('');
+    const [productOwner, setProductOwner] = useState('');
     const [qrCode, setQrCode] = useState('');
     const [qrCodeImage, setQRCodeImage] = useState<JSX.Element | null>(null);
     const [name, setName] = useState('');
@@ -68,8 +48,8 @@ const TablePageLayout: React.FC = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [searchTermIN, setSearchTermIN] = useState('');
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [filteredPositions, setFilteredPositions] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState(table);
+    const [filteredPositions, setFilteredPositions] = useState(table);
 
     const [validatedHallName, setValidatedHallName] = useState(false);
     const [validatedSectionName, setValidatedSectionName] = useState(false);
@@ -99,6 +79,7 @@ const TablePageLayout: React.FC = () => {
     const [showCol2, setShowCol2] = useState(false);
     const [showCol3, setShowCol3] = useState(false);
     const [showCol4, setShowCol4] = useState(false);
+    const [showAddForm, setShowAddForm] = useState(false);
     const [newRoom, setNewRoom] = useState(false);
     const [productsTable, setProductsTable] = useState(table)
     const [positionsTable, setPositionsTable] = useState(table)
@@ -117,33 +98,41 @@ const TablePageLayout: React.FC = () => {
     setNewRoom(true);
 }
 
-const handleSearchWH = (event: React.ChangeEvent<HTMLInputElement>) => {
-  const { value } = event.target;
-  setSearchTerm(value);
-
+const filtrWH = (value: string) => {
   const filtered = productsTable.filter((product: any) => {
     return (
       product.qrCode.toLowerCase().includes(value.toLowerCase()) ||
-      product.productName.toLowerCase().includes(value.toLowerCase())
+      product.name.toLowerCase().includes(value.toLowerCase())
     );
   });
 
   setFilteredProducts(filtered);
 };
 
+const handleSearchWH = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const { value } = event.target;
+  setSearchTerm(value);
+
+  filtrWH(value);
+};
+
+const filtrIN = (value: string) => {
+  const filtered = positionsTable.filter((product: any) => {
+    return (
+      product.qrCode.toLowerCase().includes(value.toLowerCase()) ||
+      product.name.toLowerCase().includes(value.toLowerCase()) ||
+      product.productOwner.toLowerCase().includes(value.toLowerCase())
+    );
+  });
+
+  setFilteredPositions(filtered);
+};
+
 const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
   const { value } = event.target;
   setSearchTermIN(value);
 
-  // const filtered = positionsTable.filter((product: any) => {
-  //   return (
-  //     product.qrCode.toLowerCase().includes(value.toLowerCase()) ||
-  //     product.productName.toLowerCase().includes(value.toLowerCase()) ||
-  //     product.productOwner.toLowerCase().includes(value.toLowerCase())
-  //   );
-  // });
-
-  // setFilteredPositions(filtered);
+  filtrIN(value)
 };
 
     useEffect( () => {
@@ -164,7 +153,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
     })
     .then((data) => {
       setUserTable(data.details)
-      console.log(userTable)
     })
     .catch((error) => {
         console.log(error);
@@ -183,24 +171,7 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
         return response.json();
       })
       .then((data) => {
-        setInventoryTable(data.details)
-        console.log(inventoryTable)
-        
-        // nie dziala jednak 
-        if (data.halls && Array.isArray(data.halls)) {
-          const allPositions: Product[] = data.halls.reduce((acc: Product[], hall: Hall) => {
-            hall.sections.forEach((section: Section) => {
-              section.rooms.forEach((room: Room) => {
-                acc = [...acc, ...room.products];
-              });
-            });
-            return acc;
-          }, []);
-        
-          setPositionsTable(allPositions);
-        
-        console.log("test")
-        }
+        setInventoryTable(data.details);
       })
       .catch((error) => {
           console.log(error);
@@ -210,7 +181,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
         }
       }, [qrCode]);
 
-
   const handleAddProduct = () => {
     const apiUrl = 'http://'+api+':8080/addProduct';
 
@@ -219,8 +189,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
       name: name,
       quantity: quantity
     };
-
-    console.log(requestBody)
     fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -235,10 +203,30 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
         return response.json();
       })
       .then((data) => {
-          console.log(data.errors);
           if(data.success){
             console.log(data.success);
+            setProductsTable([...productsTable, requestBody]);
+            setSearchTerm('');
+            setFilteredProducts([...productsTable, requestBody]);
+            setName('');
+            setQuantity('');
           }else{
+              if(data.errors.qrCode.length != 0) {
+                setValidatedValues((prev) => ({
+                    ...prev, 
+                    qrCode: true
+                }));
+                setFeedbackValues((prev) => ({
+                    ...prev, 
+                    qrCode: data.errors.qrCode[0]
+                }));
+              }else{
+                setValidatedValues((prev) => ({
+                  ...prev, 
+                  qrCode: false
+                }));
+              }
+
               if(data.errors.name.length != 0) {
                 setValidatedValues((prev) => ({
                     ...prev, 
@@ -274,13 +262,26 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
       });
   };
 
-  const handleAddProducts = () => {  // zrobic backend
+  const handleAddProducts = () => { 
     const apiUrl = 'http://'+api+':8080/addProducts';
+
+    var productOwner_ = "";
+    if(productOwner == "") {
+      for (let i = 0; i < userTable.length; i++) {
+         if(userTable[i]._id == col4[0]._id) {
+            productOwner_ = userTable[i].username;
+         }
+      }
+    }else {
+      productOwner_ = productOwner;
+    }
+    
+    setProductOwner('');
 
     const requestBody = {
       qrCode: qrCode,
       name: name,
-      productOwner: productOwner,
+      productOwner: productOwner_,
       quantity: quantity
     };
 
@@ -299,10 +300,30 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
         return response.json();
       })
       .then((data) => {
-          console.log(data.errors);
           if(data.success){
             console.log(data.success);
+            setPositionsTable([...positionsTable, requestBody]);
+            setSearchTermIN('');
+            setFilteredPositions([...positionsTable, requestBody]);
+            setName('');
+            setQuantity('');
           }else{
+              if(data.errors.qrCode.length != 0) {
+                setValidatedValues((prev) => ({
+                    ...prev, 
+                    qrCode: true
+                }));
+                setFeedbackValues((prev) => ({
+                    ...prev, 
+                    qrCode: data.errors.qrCode[0]
+                }));
+              }else{
+                setValidatedValues((prev) => ({
+                  ...prev, 
+                  qrCode: false
+                }));
+              }
+
               if(data.errors.name.length != 0) {
                 setValidatedValues((prev) => ({
                     ...prev, 
@@ -338,19 +359,63 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
       });
   };
 
-  // const handleDownload = (idProduct: any) => {
-    
-  // };
+  const handleDownloadQR = (productQR: any) => {
+    const canvas: any = document.getElementById(productQR);
+    if(canvas) {
+      const pngUrl = canvas
+        .toDataURL("image/png")
+        .replace("image/png", "image/octet-stream");
+      let downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl
+      downloadLink.download = productQR+".png";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+  };
 
-  const handleDelete = (idProduct:any) => {
-    const apiUrl = 'http://'+api+':8080/productDelete';
+  const handleDeleteList = (tableName_:any) => {
+    const apiUrl = 'http://'+api+':8080/tableDelete';
     
     const token = Cookies.get('user');
 
     const requestBody = {
       token: token,
-      id: id,
-      idProduct: idProduct
+      tableName: tableName_
+    };
+
+    console.log(requestBody)
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
+      })
+      .then((data) => {
+          if(data.success){
+            console.log(data.success);
+            window.location.reload();
+          }else if(data.fail){
+          console.log(data.fail);
+        }
+      });
+  };
+
+  const handleDeleteHall = (hallQR:any) => {
+    const apiUrl = 'http://'+api+':8080/hallDelete';
+    
+    const token = Cookies.get('user');
+
+    const requestBody = {
+      token: token,
+      qrCode: hallQR
     };
 
     console.log(requestBody)
@@ -371,10 +436,219 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
           console.log(data.errors);
           if(data.success){
             console.log(data.success);
-            // product = data.success;  // ...
-            // setProductsTable(product);
+            handleGetTable(id);
           }else {
-          console.log("Nie działa usuwanie");
+          console.log(data.fail);
+        }
+      });
+  };
+
+  const handleDeleteSection = (sectionQR:any) => {
+    const apiUrl = 'http://'+api+':8080/sectionDelete';
+    
+    const token = Cookies.get('user');
+
+    const requestBody = {
+      token: token,
+      qrCode: sectionQR
+    };
+
+    console.log(requestBody)
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
+      })
+      .then((data) => {
+          console.log(data.errors);
+          if(data.success){
+            console.log(data.success);
+            handleGetTable(id);
+          }else {
+          console.log(data.fail);
+        }
+      });
+  };
+
+  const handleDeleteRack = (rackQR:any) => {
+    const apiUrl = 'http://'+api+':8080/rackDelete';
+    
+    const token = Cookies.get('user');
+
+    const requestBody = {
+      token: token,
+      qrCode: rackQR
+    };
+
+    console.log(requestBody)
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
+      })
+      .then((data) => {
+          console.log(data.errors);
+          if(data.success){
+            console.log(data.success);
+            handleGetTable(id);
+          }else {
+          console.log(data.fail);
+        }
+      });
+  };
+
+  const handleDeleteShelf = (shelfQR:any) => {
+    const apiUrl = 'http://'+api+':8080/shelfDelete';
+    
+    const token = Cookies.get('user');
+
+    const requestBody = {
+      token: token,
+      qrCode: shelfQR
+    };
+
+    console.log(requestBody)
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
+      })
+      .then((data) => {
+          console.log(data.errors);
+          if(data.success){
+            console.log(data.success);
+            handleGetTable(id);
+          }else {
+          console.log(data.fail);
+        }
+      });
+  };
+
+  const handleDeleteProduct = (productQR:any) => {
+    const apiUrl = 'http://'+api+':8080/productDelete';
+    
+    const token = Cookies.get('user');
+
+    const requestBody = {
+      token: token,
+      qrCode: productQR
+    };
+
+    console.log(requestBody)
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
+      })
+      .then((data) => {
+          console.log(data.errors);
+          if(data.success){
+            console.log(data.success);
+            setFilteredProducts(data.productsTable);
+          }else {
+          console.log(data.fail);
+        }
+      });
+  };
+
+  const handleDeleteRoom = (roomQR:any) => {
+    const apiUrl = 'http://'+api+':8080/roomDelete';
+    
+    const token = Cookies.get('user');
+
+    const requestBody = {
+      token: token,
+      qrCode: roomQR
+    };
+
+    console.log(requestBody)
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
+      })
+      .then((data) => {
+          console.log(data.errors);
+          if(data.success){
+            console.log(data.success);
+            handleGetTable(id);
+          }else {
+          console.log(data.fail);
+        }
+      });
+  };
+
+  const handleDeletePosition = (positionQR:any) => {
+    const apiUrl = 'http://'+api+':8080/positionDelete';
+    
+    const token = Cookies.get('user');
+
+    const requestBody = {
+      token: token,
+      qrCode: positionQR
+    };
+
+    console.log(requestBody)
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
+      })
+      .then((data) => {
+          console.log(data.errors);
+          if(data.success){
+            console.log(data.success);
+            setFilteredPositions(data.positionsTable);
+          }else {
+          console.log(data.fail);
         }
       });
   };
@@ -383,11 +657,8 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
     setId(idT);
     setShowAddWarehouse(true);
     setShowAddInstitution(true);
-    console.log("id: "+idT)
 
     const apiUrl = 'http://'+api+':8080/getTableById';
-    console.log("ID: "+id)
-    console.log(idT);
     const requestBody = {
         id: idT
     };
@@ -408,7 +679,7 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
         if(data.fail){
             console.log("Błąd pobierania tabeli");
         }else {
-            setWh(data.data.type)
+            setListType(data.data.type)
             setTableName(data.data.name);
             setQrCode(data.data.name);
             setCol1(data.data.halls);
@@ -420,9 +691,9 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
             setShowCol3(false);
             setShowCol4(false);
             setProductsTable(data.allProducts);  
+            setFilteredProducts(data.allProducts);
             setPositionsTable(data.allPositions);  
-            console.log(data.allProducts);   
-            console.log(data.allPositions);   
+            setFilteredPositions(data.allPositions);
         }        
       }
       )
@@ -430,27 +701,34 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
 
   const handleGetSections = (idH:any, name: string) => {
     setCol2(col1[idH].sections);
+    setCol3([]);
+    setCol4([]);
     setShowCol2(true);
     setShowCol3(false);
     setShowCol4(false);
     const QS = qrCode?.split("-")
     setQrCode(QS[0]+"-"+name);
+    setShowAddForm(false);
   }
 
   const handleGetRacks = (idS:any, name: string) => {
     setCol3(col2[idS].racks)
+    setCol4([]);
     setShowCol3(true);
     setShowCol4(false);
     const QS = qrCode?.split("-")
     setQrCode(QS[0]+"-"+QS[1]+"-"+name);
+    setShowAddForm(false);
   }
 
   const handleGetRooms = (idS:any, name: string) => {
     setCol3(col2[idS].rooms)
+    setCol4([]);
     setShowCol3(true);
     setShowCol4(false);
     const QS = qrCode?.split("-")
     setQrCode(QS[0]+"-"+QS[1]+"-"+name);
+    setShowAddForm(false);
   }
 
   const handleGetShelfs = (idR:any, name: string) => {
@@ -458,25 +736,32 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
     setShowCol4(true);
     const QS = qrCode?.split("-")
     setQrCode(QS[0]+"-"+QS[1]+"-"+QS[2]+"-"+name);
+    setShowAddForm(false);
   }
 
   const handleGetOwnerRoom = (idR:any, name: string) => {
-    setShowCol4(true);
     const QS = qrCode?.split("-")
     setQrCode(QS[0]+"-"+QS[1]+"-"+QS[2]+"-"+name+"-"+generateRandomQRCode());
     var tmp: any = [];
     for (let i = 0; i < userTable.length; i++) {
       for (let j = 0; j < col3[idR].roomOwners.length; j++) {
-        if(userTable[i]._id == col3[idR].roomOwners[j].id)
+        if(col3[idR].roomOwners[j].id){
+          if(userTable[i]._id == col3[idR].roomOwners[j].id)
           tmp = [...tmp, userTable[i]]
+        }else {
+          if(userTable[i]._id == col3[idR].roomOwners[j])
+          tmp = [...tmp, userTable[i]]
+        }        
       }
     }
     setCol4(tmp);
+    setShowAddForm(true);
   }
 
   const handleSetShelf = (name: string) => {
     const QS = qrCode?.split("-")
     setQrCode(QS[0]+"-"+QS[1]+"-"+QS[2]+"-"+QS[3]+"-"+name);
+    setShowAddForm(true);
   }
 
   const handleAddHall = () => {
@@ -489,7 +774,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
       listName: qrCode?.split("-")[0]
     };
 
-    console.log(requestBody)
     fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -504,9 +788,7 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
         return response.json();
       })
       .then((data) => {
-          console.log(data.errors);
           if(data.success){
-            console.log(data.success);
             setQrCode(qrCode+"-"+hallName);
             setCol1([...col1, {name: hallName, sections: []}]);
             setHallName('');
@@ -537,7 +819,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
       hallName: qrCode?.split("-")[1]
     };
 
-    console.log(requestBody)
     fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -552,11 +833,13 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
         return response.json();
       })
       .then((data) => {
-          console.log(data.errors);
           if(data.success){
-            console.log(data.success);
             setQrCode(qrCode+"-"+sectionName);
-            setCol2([...col2, {name: sectionName, racks: []}]);
+            if(listType == "wh") {
+              setCol2([...col2, {name: sectionName, racks: []}]);
+            }else if(listType == "in") {
+              setCol2([...col2, {name: sectionName, rooms: []}]);
+            }
             setSectionName('');
           }else{
             if(data.errors.sectionName != "") {
@@ -586,7 +869,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
       sectionName: qrCode?.split("-")[2]
     };
 
-    console.log(requestBody)
     fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -601,9 +883,7 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
         return response.json();
       })
       .then((data) => {
-          console.log(data.errors);
           if(data.success){
-            console.log(data.success);
             setQrCode(qrCode+"-"+rackName);
             setCol3([...col3, {name: rackName, shelfs: []}]);
             setRackName('');
@@ -636,7 +916,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
       sectionName: qrCode?.split("-")[2]
     };
 
-    console.log(requestBody)
     fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -652,9 +931,8 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
       })
       .then((data) => {
           if(data.success){
-            console.log(data.success);
             setQrCode(qrCode+"-"+roomName+"-"+generateRandomQRCode());
-            setCol3([...col3, {name: roomName, roomOwners: []}]);
+            setCol3([...col3, {name: roomName, roomOwners: roomOwners}]);
             setRoomName('');
             setNewRoom(false);
           }else{
@@ -686,7 +964,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
       rackName: qrCode?.split("-")[3]
     };
 
-    console.log(requestBody)
     fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -701,10 +978,8 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
         return response.json();
       })
       .then((data) => {
-          console.log(data.errors);
           if(data.success){
-            console.log(data.success);
-            setQrCode(qrCode+"-"+shelfName);
+            setQrCode(qrCode+"-"+shelfName+"-"+generateRandomQRCode());
             setCol4([...col4, {name: shelfName, product: {}}]);
             setShelfName('');
           }else{
@@ -747,23 +1022,24 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                 </div>
                 <div className={styles.details}>
                     {!showAddWarehouse ? <AddWarehouse /> : !showAddInstitution ? <AddInstitution /> : 
-                    wh == "wh" ?
+                    listType == "wh" ?
                         // MAGAZYN
                     <div className={styles.table_container}>
                       <div className={styles.tablesStyle}>
                           <div>
                                 <div className={styles.tableStyle}>
+                                  {showCol1 ? 
                                   <>
                                     <h2>Hala</h2>
                                       {col1.map((hall: any, index: any) => (
-                                        <div className={styles.form_group}>
-                                          <div className={styles.listOption} key={index} id={hall._id} onClick={() => handleGetSections(index, hall.name)}> 
+                                        <div className={styles.form_group} key={index}>
+                                          <div className={styles.listOption}  id={hall._id} onClick={() => handleGetSections(index, hall.name)}> 
                                             {hall.name}           
                                           </div>
-                                          <div className={styles.addOption}><i className="fa-solid fa-trash fa-lg"></i></div>
+                                          <div className={styles.addOption} onClick={() => handleDeleteHall(qrCode)}><i className="fa-solid fa-trash fa-lg"></i></div>
                                         </div>
                                       ))}
-                                      {showCol1 ? 
+                                      
                                       <div className={styles.form_group}>
                                         <InputGroup className={styles.inputTextTable} hasValidation>
                                             <Form.Control
@@ -779,21 +1055,23 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                         </InputGroup>
                                         <div className={styles.addOption} onClick={() => handleAddHall()}><i className="fa-solid fa-plus"></i></div>
                                     </div>
-                                    : null}
+                                    
                                   </>
+                                  : null}
                                 </div>
                                 <div className={styles.tableStyle}>
+                                  {showCol2 ? 
                                   <>
                                     <h2>Alejka</h2>
                                       {col2=="" ? null : col2.map((section: any, index: any) => (
-                                        <div className={styles.form_group}>
-                                          <div className={styles.listOption} key={index} id={section._id} onClick={() => handleGetRacks(index, section.name)}> 
+                                        <div className={styles.form_group} key={index}>
+                                          <div className={styles.listOption} id={section._id} onClick={() => handleGetRacks(index, section.name)}> 
                                           {section.name}           
                                         </div>
-                                          <div className={styles.addOption}><i className="fa-solid fa-trash fa-lg"></i></div>
+                                          <div className={styles.addOption} onClick={() => handleDeleteSection(qrCode)}><i className="fa-solid fa-trash fa-lg"></i></div>
                                         </div>
                                       ))}
-                                      {showCol2 ? 
+                                      
                                       <div className={styles.form_group}>
                                         <InputGroup className={styles.inputTextTable} hasValidation>
                                         <Form.Control
@@ -809,21 +1087,23 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                         </InputGroup>
                                         <div className={styles.addOption} onClick={() => handleAddSection()}><i className="fa-solid fa-plus"></i></div>
                                     </div>
-                                    : null}
+                                    
                                   </>
+                                  : null}
                                 </div>
                                 <div className={styles.tableStyle}>
+                                  {showCol3 ?
                                   <>
                                     <h2>Regał</h2>
                                       {col3=="" ? null : col3.map((rack: any, index: any) => (
-                                        <div className={styles.form_group}>
-                                          <div className={styles.listOption} key={index} id={rack._id} onClick={() => handleGetShelfs(index, rack.name)}> 
+                                        <div className={styles.form_group} key={index}>
+                                          <div className={styles.listOption} id={rack._id} onClick={() => handleGetShelfs(index, rack.name)}> 
                                           {rack.name}           
                                         </div>
-                                          <div className={styles.addOption}><i className="fa-solid fa-trash fa-lg"></i></div>
+                                          <div className={styles.addOption} onClick={() => handleDeleteRack(qrCode)}><i className="fa-solid fa-trash fa-lg"></i></div>
                                         </div>
                                       ))}
-                                      {showCol3 ?
+                                      
                                       <div className={styles.form_group}>
                                         <InputGroup className={styles.inputTextTable} hasValidation>
                                         <Form.Control
@@ -839,21 +1119,23 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                         </InputGroup>
                                         <div className={styles.addOption} onClick={() => handleAddRack()}><i className="fa-solid fa-plus"></i></div>
                                     </div>
-                                    : null}
+                                    
                                   </>
+                                  : null}
                                 </div>
                                 <div className={styles.tableStyle}>
+                                  {showCol4 ?
                                   <>
                                     <h2>Półka</h2>
                                       {col4=="" ? null : col4.map((shelf: any, index: any) => (
-                                        <div className={styles.form_group}>
-                                          <div className={styles.listOption} key={index} id={shelf._id} onClick={() => handleSetShelf(shelf.name)}> 
+                                        <div className={styles.form_group} key={index}>
+                                          <div className={styles.listOption} id={shelf._id} onClick={() => handleSetShelf(shelf.name)}> 
                                           {shelf.name}           
                                         </div>
-                                          <div className={styles.addOption}><i className="fa-solid fa-trash fa-lg"></i></div>
+                                          <div className={styles.addOption} onClick={() => handleDeleteShelf(qrCode)}><i className="fa-solid fa-trash fa-lg"></i></div>
                                         </div>
                                       ))}
-                                      {showCol4 ?
+                                      
                                       <div className={styles.form_group}>
                                         <InputGroup className={styles.inputTextTable} hasValidation>
                                         <Form.Control
@@ -869,13 +1151,15 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                         </InputGroup>
                                         <div className={styles.addOption} onClick={() => handleAddShelf()}><i className="fa-solid fa-plus"></i></div>
                                     </div>
-                                    : null}
                                   </>
+                                  : null}
                                 </div>
                             </div>
                         </div>
                         <div className={styles.tableContent}>
                             <hr />
+                            {showAddForm ? 
+                            <>
                           <div className={styles.addProducts}>
                               <h3>Dodaj pozycje</h3>
                               <div className={styles.addProduct}>
@@ -942,11 +1226,12 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                   </div>
                               </div>
                             </div>
-                            <hr />
+                           
+                            <hr /> </> :null}
                             <span className={styles.headerTable}>
                               <span>
                                 <span className={styles.tableNameStyle}>MAGAZYN: {tableName}</span> 
-                                <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} ><i className="fa-solid fa-trash fa-lg"></i></button></span>   
+                                <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDeleteList(tableName)}><i className="fa-solid fa-trash fa-lg"></i></button></span>   
                               </span>
                               <span className={styles.searchStyle}>
                                 <input className={styles.inputTextSearch} type="text" placeholder='Wyszukaj' value={searchTerm} onChange={handleSearchWH} />
@@ -975,17 +1260,17 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                       {filteredProducts.map((product: any, index: any) => (
                                         <tr key={index}>
                                           <td>{product.qrCode}</td>
-                                          <td>{product.productName}</td>
+                                          <td>{product.name}</td>
                                           <td className={styles.quantityStyle}>{product.quantity}</td>
                                           <td className={styles.quantityStyle}>{product.newQuantity}</td>
-                                          <td></td>
+                                          <td>{product.employee}</td>
                                           <td className={styles.sdButton} id={styles.colorBlue}>
                                             <Popup className="mypopup" trigger={<button className={styles.qrButton}><i className="fa-solid fa-qrcode fa-lg"></i></button>} position="left center">
                                               <div className={styles.popupdiv}>
                                                 <div className={styles.popupDiv}>
-                                                <QRCode value={product.qrCode} size={120} />
+                                                <QRCode value={product.qrCode} size={120} id={product.qrCode}/>
                                                   <div className={styles.downloadButton}>
-                                                    <button  id={styles.colorBlue} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
+                                                    <button  id={styles.colorBlue} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }} onClick={(_) => handleDownloadQR(product.qrCode)}>
                                                       <i className="fa-solid fa-download fa-lg"></i>
                                                     </button>
                                                   </div>
@@ -993,7 +1278,7 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                               </div>
                                             </Popup>
                                           </td>
-                                          <td className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDelete(product._id)}><i className="fa-solid fa-trash fa-lg"></i></button></td>
+                                          <td className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDeleteProduct(product.qrCode)}><i className="fa-solid fa-trash fa-lg"></i></button></td>
                                         </tr>
                                       ))}
                                     </>
@@ -1007,19 +1292,20 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                     <div className={styles.table_container}>
                       <div className={styles.tablesStyle}>
                             <div>
+                              {showCol1 ? 
                               <>
                                   <div className={styles.tableStyle}>
                                     
                                       <h2>Budynek</h2>
                                         {col1.map((hall: any, index: any) => (
-                                          <div className={styles.form_group}>
-                                            <div className={styles.listOption} key={index} id={hall._id} onClick={() => handleGetSections(index, hall.name)}> 
+                                          <div className={styles.form_group} key={index}>
+                                            <div className={styles.listOption} id={hall._id} onClick={() => handleGetSections(index, hall.name)}> 
                                               {hall.name}        
                                             </div>
-                                            <div className={styles.addOption}><i className="fa-solid fa-trash fa-lg"></i></div>
+                                            <div className={styles.addOption} onClick={() => handleDeleteHall(qrCode)}><i className="fa-solid fa-trash fa-lg"></i></div>
                                           </div>
                                         ))}
-                                        {showCol1 ? 
+                                        
                                         <div className={styles.form_group}>
                                           <InputGroup className={styles.inputTextTable} hasValidation>
                                               <Form.Control
@@ -1035,21 +1321,23 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                           </InputGroup>
                                           <div className={styles.addOption} onClick={() => handleAddHall()}><i className="fa-solid fa-plus"></i></div>
                                       </div>
-                                      : null}
+                                      
                                   </div>
                                 </>
+                                : null}
                                 <div className={styles.tableStyle}>
+                                  {showCol2 ? 
                                   <>
                                     <h2>Piętro</h2>
                                       {col2=="" ? null : col2.map((section: any, index: any) => (
-                                        <div className={styles.form_group}>
-                                          <div className={styles.listOption} key={index} id={section._id} onClick={() => handleGetRooms(index, section.name)}> 
+                                        <div className={styles.form_group} key={index}>
+                                          <div className={styles.listOption} id={section._id} onClick={() => handleGetRooms(index, section.name)}> 
                                           {section.name}           
                                         </div>
-                                          <div className={styles.addOption}><i className="fa-solid fa-trash fa-lg"></i></div>
+                                          <div className={styles.addOption} onClick={() => handleDeleteSection(qrCode)}><i className="fa-solid fa-trash fa-lg"></i></div>
                                         </div>
                                       ))}
-                                      {showCol2 ? 
+                                      
                                       <div className={styles.form_group}>
                                         <InputGroup className={styles.inputTextTable} hasValidation>
                                         <Form.Control
@@ -1065,21 +1353,22 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                         </InputGroup>
                                         <div className={styles.addOption} onClick={() => handleAddSection()}><i className="fa-solid fa-plus"></i></div>
                                     </div>
-                                    : null}
                                   </>
+                                  : null}
                                 </div>
                                 <div className={styles.tableStyle}>
+                                  {showCol3 ?
                                   <>
                                     <h2>Pokój</h2>
                                       {col3=="" ? null : col3.map((room: any, index: any) => (
-                                        <div className={styles.form_group}>
-                                          <div className={styles.listOption} key={index} id={room._id} onClick={() => handleGetOwnerRoom(index, room.name)}> 
+                                        <div className={styles.form_group} key={index}>
+                                          <div className={styles.listOption} id={room._id} onClick={() => handleGetOwnerRoom(index, room.name)}> 
                                           {room.name}           
                                         </div>
-                                          <div className={styles.addOption}><i className="fa-solid fa-trash fa-lg"></i></div>
+                                          <div className={styles.addOption} onClick={() => handleDeleteRoom(qrCode)}><i className="fa-solid fa-trash fa-lg"></i></div>
                                         </div>
                                       ))}
-                                      {showCol3 ?
+                                      
                                       <div>
                                         <button onClick={onForm} className={styles.newRoom}>Dodaj nowy pokój</button>
                                         {newRoom  ? 
@@ -1108,7 +1397,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                                   }
                                                 }
                                                 setRoomOwners(tmp);
-                                                console.log(roomOwners);
                                             }}>
                                               {userTable.map((user: any) => (
                                                 <option key={user._id} value={user._id}>{user.username}</option>
@@ -1119,13 +1407,16 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                         </div>
                                         : null}
                                       </div>
-                                    : null}
+                                    
                                   </>
+                                  : null}
                                 </div>
                             </div>
                         </div>
                         <div className={styles.tableContent}>
                             <hr />
+                            {showAddForm ?
+                            <>
                           <div className={styles.addProducts}>
                               <h3>Dodaj pozycje</h3>
                               <div className={styles.addProduct}>
@@ -1174,7 +1465,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                   <div className={styles.form_group}>
                                     <label className={styles.oneOwnerTitleStyle}>Właściciel:</label> <br />
                                     <select className={styles.oneOwner} id="productOwner" value={productOwner} onChange={(e) => setProductOwner(e.target.value)}>
-                                      <option value="">Brak</option>
                                       {col4=="" ? null : col4.map((user: any) => (
                                         <option key={user._id} value={user.id}>{user.username}</option>
                                       ))}
@@ -1203,11 +1493,11 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                   </div>
                               </div>
                             </div>
-                            <hr />
+                            <hr /> </> :null}
                             <span className={styles.headerTable}>
                               <span>
                                 <span className={styles.tableNameStyle}>INSTYTUCJA: {tableName}</span> 
-                                <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} ><i className="fa-solid fa-trash fa-lg"></i></button></span>   
+                                <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={() => handleDeleteList(tableName)}><i className="fa-solid fa-trash fa-lg"></i></button></span>   
                               </span>
                               <span className={styles.searchStyle}>
                                 <input className={styles.inputTextSearch} type="text" placeholder='Wyszukaj' value={searchTermIN} onChange={handleSearchIN} />
@@ -1225,12 +1515,12 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {positionsTable.length === 0 ? null : (
+                                  {filteredPositions.length === 0 ? null : (
                                     <>
-                                      {positionsTable.map((product: any, index: any) => (
+                                      {filteredPositions.map((product: any, index: any) => (
                                         <tr key={index}>
                                           <td>{product.qrCode}</td>
-                                          <td>{product.productName}</td>
+                                          <td>{product.name}</td>
                                           <td className={styles.quantityStyle}>{product.quantity}</td>
                                           <td className={styles.quantityStyle}>{product.newQuantity}</td>
                                           <td>{product.productOwner}</td>
@@ -1248,7 +1538,7 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                               </div>
                                             </Popup>
                                           </td>
-                                          <td className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDelete(product._id)}><i className="fa-solid fa-trash fa-lg"></i></button></td>
+                                          <td className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDeletePosition(product.qrCode)}><i className="fa-solid fa-trash fa-lg"></i></button></td>
                                         </tr>
                                       ))}
                                       </>

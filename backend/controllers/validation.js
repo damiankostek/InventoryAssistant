@@ -34,7 +34,7 @@ function institutionName(arr, value) {
 }
 
 function name(arr, value) {
-    const pattern = /^[0-9a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ ]+$/;
+    const pattern = /^[0-9a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ -]+$/;
     if (!pattern.test(value)){
         arr.push("Wartość może składać się tylko z liter i/lub cyfr.");
         return true;

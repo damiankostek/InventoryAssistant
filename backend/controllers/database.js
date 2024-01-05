@@ -27,30 +27,10 @@ const userSchema = new mongoose.Schema({
     role: {type: String, default: "user"},
     username: String,
     password: String,
-    // inventoryId: String,           ogranac id do stringa bo ObjectId musi miec 24 znaki
-    // inventoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Inventory', get: id => id.toString(), default: "aaaaaaaaaaaaaaaaaaaaaaaa" },
     created_at: {type: Date, default: new Date()},
     updated_at: {type: Date, default: new Date()},
 });
 const User = mongoose.model('User', userSchema);
-
-// const tableSchema = new mongoose.Schema({
-//   tableName: String,
-//   products: [
-//     {
-//       // ownerProduct: String,  //(nie jest wymagany)
-//       qrCode: String,
-//       name: String,
-//       // quantity: Number,
-//       // newQuantity: Number,
-//       // lokalizacja      Leg-H1-B-10-2
-//       inventory: {type: String, default: ""},
-//     }
-//   ],
-//   created_at: {type: Date, default: new Date()},
-//   updated_at: {type: Date, default: new Date()},
-// });
-// const Inventory = mongoose.model('Inventory', tableSchema);
 
 const globalSchema = new mongoose.Schema({
   name: String, // magazyn lub instytucja
@@ -73,6 +53,7 @@ const globalSchema = new mongoose.Schema({
                     name: String,
                     quantity: Number,
                     newQuantity: Number,
+                    employee: String,
                   },
                 }
               ],
@@ -82,7 +63,6 @@ const globalSchema = new mongoose.Schema({
             {
               name: String,
               roomOwners: [{id: String}],
-              // roomOwners: [{id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', get: id => id.toString() },}],
               products: [{
                 productOwner: String,
                 qrCode: String,

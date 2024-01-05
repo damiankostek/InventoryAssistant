@@ -2,7 +2,6 @@ const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 
 const db = require("./database.js");
-const { quantity, name } = require('./validation.js');
 
 async function changePassword(user, password) {
     try {
@@ -71,19 +70,279 @@ async function addProduct(qrCode, name, quantity) {
     return false;
 }
 
-async function removeProduct(id, idProduct){
-    db.Global.findById(new ObjectId(id)).products.findById(new ObjectId(idProduct))  // ogarnac to
-    .then((test) => {
-        console.log(test)
-        return true;
-    })
-    .catch((error) => {
-        console.error(error)
-        return false;
-    })
+async function addProducts(qrCode, name, productOwner, quantity) {
+    try {
+        const table = qrCode.split("-");
+        const existingInventory = await db.Global.findOne({ name: table[0] });
+
+        if (existingInventory) {
+                for (let index = 0; index < existingInventory.halls.length; index++) {
+                    if(existingInventory.halls[index].name == table[1]) {
+                        for (let i = 0; i < existingInventory.halls[index].sections.length; i++) {
+                            if(existingInventory.halls[index].sections[i].name == table[2]) {
+                                for (let j = 0; j < existingInventory.halls[index].sections[i].rooms.length; j++) {
+                                    if(existingInventory.halls[index].sections[i].rooms[j].name == table[3]) {
+                                        existingInventory.halls[index].sections[i].rooms[j].products = [...existingInventory.halls[index].sections[i].rooms[j].products, {
+                                                "productOwner": productOwner,
+                                                "qrCode": qrCode,
+                                                "name": name,
+                                                "quantity": quantity
+                                        }]
+                                    }
+                                } 
+                            }
+                        } 
+                    }
+                }
+
+            existingInventory.updated_at = new Date();
+
+            await existingInventory.save();
+            console.log('Produkt został dodany do istniejącej tabeli w bazie danych.');
+            return true;
+        } else {
+            console.error('Tabela o nazwie', table, 'nie istnieje.');
+        }
+    } catch (error) {
+        console.error('Błąd podczas dodawania produktu:', error);
+    }
+
+    return false;
 }
 
-async function updateProduct(product, newQuantity, newInventory, table){
+async function removeTable(nameToDelete) {
+    const filter = { name: nameToDelete };
+
+    try {
+    const result = await db.Global.deleteOne(filter);
+  
+      if (result.deletedCount > 0) {
+        console.log('Usunieto tabele');
+        return true;
+      } else {
+        console.log(`Nie znaleziono tabeli`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`Error removing table: ${error}`);
+      throw error;
+    }
+  }
+
+async function removeHall(qrCode) {
+  const table = qrCode.split("-");
+
+    const filter = {
+        'name': table[0],
+    };
+    
+    const update = {
+        $pull: {
+        'halls': { 'name': table[1] }
+        }
+    };
+
+      
+    try {
+      const result = await db.Global.updateOne(filter, update);
+  
+      if (result.modifiedCount > 0) {
+        console.log(`Hall with qrCode ${qrCode} removed successfully.`);
+        return true;
+      } else {
+        console.log(`Hall with qrCode ${qrCode} not found.`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`Error removing hall: ${error}`);
+      throw error;
+    }
+  }
+
+async function removeSection(qrCode) {
+    const table = qrCode.split("-");
+
+        const filter = {
+            'name': table[0],
+            'halls.name': table[1],
+        };
+        
+        const update = {
+            $pull: {
+            'halls.$[].sections': { 'name': table[2] }
+            }
+        };
+
+        
+        try {
+        const result = await db.Global.updateOne(filter, update);
+
+        if (result.modifiedCount > 0) {
+            console.log(`Section with qrCode ${qrCode} removed successfully.`);
+            return true;
+        } else {
+            console.log(`Section with qrCode ${qrCode} not found.`);
+            return false;
+        }
+        } catch (error) {
+        console.error(`Error removing section: ${error}`);
+        throw error;
+        }
+}
+
+async function removeRack(qrCode) {
+    const table = qrCode.split("-");
+
+        const filter = {
+            'name': table[0],
+            'halls.name': table[1],
+            'halls.sections.name': table[2]
+        };
+        
+        const update = {
+            $pull: {
+            'halls.$[].sections.$[].racks': { 'name': table[3] }
+            }
+        };
+        
+        try {
+        const result = await db.Global.updateOne(filter, update);
+
+        if (result.modifiedCount > 0) {
+            console.log(`Rack with qrCode ${qrCode} removed successfully.`);
+            return true;
+        } else {
+            console.log(`Rack with qrCode ${qrCode} not found.`);
+            return false;
+        }
+        } catch (error) {
+        console.error(`Error removing rack: ${error}`);
+        throw error;
+        }
+}
+
+async function removeRoom(qrCode) {
+    const table = qrCode.split("-");
+
+        const filter = {
+            'name': table[0],
+            'halls.name': table[1],
+            'halls.sections.name': table[2]
+        };
+        
+        const update = {
+            $pull: {
+            'halls.$[].sections.$[].rooms': { 'name': table[3] }
+            }
+        };
+        
+        try {
+        const result = await db.Global.updateOne(filter, update);
+
+        if (result.modifiedCount > 0) {
+            console.log(`Room with qrCode ${qrCode} removed successfully.`);
+            return true;
+        } else {
+            console.log(`Room with qrCode ${qrCode} not found.`);
+            return false;
+        }
+        } catch (error) {
+        console.error(`Error removing room: ${error}`);
+        throw error;
+        }
+}
+
+async function removeShelf(qrCode) {
+    const table = qrCode.split("-");
+
+        const filter = {
+            'name': table[0],
+            'halls.name': table[1],
+            'halls.sections.name': table[2],
+            'halls.sections.racks.name': table[3]
+        };
+        
+        const update = {
+            $pull: {
+            'halls.$[].sections.$[].racks.$[].shelfs': { 'name': table[4] }
+            }
+        };
+        
+        try {
+        const result = await db.Global.updateOne(filter, update);
+
+        if (result.modifiedCount > 0) {
+            console.log(`Shelf with qrCode ${qrCode} removed successfully.`);
+            return true;
+        } else {
+            console.log(`Shelf with qrCode ${qrCode} not found.`);
+            return false;
+        }
+        } catch (error) {
+        console.error(`Error removing shelf: ${error}`);
+        throw error;
+        }
+}
+
+async function removeProduct(qrCode) {
+    const filter = {
+        'halls.sections.racks.shelfs.product.qrCode': qrCode
+      };
+      
+      const update = {
+        $pull: {
+          'halls.$[].sections.$[].racks.$[].shelfs': {
+            'product.qrCode': qrCode
+          }
+        }
+      };
+      
+    try {
+      const result = await db.Global.updateOne(filter, update);
+  
+      if (result.modifiedCount > 0) {
+        console.log(`Product with qrCode ${qrCode} removed successfully.`);
+        return true;
+      } else {
+        console.log(`Product with qrCode ${qrCode} not found.`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`Error removing product: ${error}`);
+      throw error;
+    }
+  }
+
+  async function removePosition(qrCode) {
+    const filter = {
+        'halls.sections.rooms.products.qrCode': qrCode
+      };
+      
+      const update = {
+        $pull: {
+            'halls.$[].sections.$[].rooms.$[].products': {
+                'qrCode': qrCode
+            }
+        }
+    };
+      
+    try {
+      const result = await db.Global.updateOne(filter, update);
+  
+      if (result.modifiedCount > 0) {
+        console.log(`Position with qrCode ${qrCode} removed successfully.`);
+        return true;
+      } else {
+        console.log(`Position with qrCode ${qrCode} not found.`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`Error removing position: ${error}`);
+      throw error;
+    }
+  }
+
+async function updateProduct(product, newQuantity, newInventory, table){  // przerobic
     if (product.quantity !== newQuantity) {
         product.quantity = newQuantity;
       }
@@ -311,7 +570,7 @@ async function shelfNameUnique(arr, listName, hallName, sectionName, rackName, s
     }
 }
 
-async function qrCodeUnique(arr, qrCode) {  // przerobic zeby sprawdzało tylko w jednej tabeli
+async function qrCodeUnique(arr, qrCode) { 
     try {
         const newQRCode = await db.Global.findOne({ qrCode: qrCode }).exec();
         if(newQRCode){
@@ -325,7 +584,7 @@ async function qrCodeUnique(arr, qrCode) {  // przerobic zeby sprawdzało tylko 
     }
 }
 
-async function nameUnique(arr, name) {  // przerobic zeby sprawdzało tylko w jednej tabeli
+async function nameUnique(arr, name) {
     try {
         const newName = await db.Global.findOne({ name: name }).exec();
         if(newName){
@@ -347,20 +606,7 @@ async function getUserById(id) {
         }
         return false;
     }catch (error) {
-        console.error('Błąd podczas sprawdzania unikalności nazwy użytkownika:', error);
-        throw error;
-    }
-}
-
-async function getWarehouseById(id) {
-    try {
-        const tabeName = await db.Global.findById(new ObjectId(id));
-        if(tabeName) {
-            return tabeName;
-        }
-        return false;
-    }catch (error) {
-        console.error('Błąd podczas sprawdzania unikalności nazwy tabeli:', error);
+        console.error('Błąd podczas pobierania użytkownika:', error);
         throw error;
     }
 }
@@ -373,12 +619,12 @@ async function getTableById(id) {
         }
         return false;
     }catch (error) {
-        console.error('Błąd podczas sprawdzania unikalności nazwy tabeli:', error);
+        console.error('Błąd podczas pobierania tabeli:', error);
         throw error;
     }
 }
 
-async function getAllProducts(name) {  //dopisac
+async function getAllProducts(name) {
     const pipeline = [
         {
             $unwind: { path: '$halls', preserveNullAndEmptyArrays: true }
@@ -390,7 +636,7 @@ async function getAllProducts(name) {  //dopisac
             $unwind: { path: '$halls.sections.racks', preserveNullAndEmptyArrays: true }
           },
           {
-            $unwind: { path: '$halls.sections.racks.shelfs', preserveNullAndEmptyArrays: true }
+            $unwind: { path: '$halls.sections.racks.shelfs' }
           },
           {
             $match: { "name": name }
@@ -400,9 +646,10 @@ async function getAllProducts(name) {  //dopisac
 
             _id: 0,
             qrCode: '$halls.sections.racks.shelfs.product.qrCode',
-            productName: '$halls.sections.racks.shelfs.product.name',
-            quantity: '$halls.sections.racks.shelfs.product.quantity'
-            // dopisac newQuantity, os. odp.
+            name: '$halls.sections.racks.shelfs.product.name',
+            quantity: '$halls.sections.racks.shelfs.product.quantity',
+            newQuantity: '$halls.sections.racks.shelfs.product.newQuantity',
+            employee: '$halls.sections.racks.shelfs.product.employee'
           }
         }
       ];
@@ -412,7 +659,7 @@ async function getAllProducts(name) {  //dopisac
       return result;
 }
 
-async function getAllPositions(name) {  //dopisac
+async function getAllPositions(name) {
     const pipeline = [
         {
             $unwind: { path: '$halls', preserveNullAndEmptyArrays: true }
@@ -424,6 +671,9 @@ async function getAllPositions(name) {  //dopisac
             $unwind: { path: '$halls.sections.rooms', preserveNullAndEmptyArrays: true }
           },
           {
+            $unwind: { path: '$halls.sections.rooms.products'}
+          },
+          {
             $match: { "name": name }
           },
         {
@@ -432,9 +682,9 @@ async function getAllPositions(name) {  //dopisac
             _id: 0,
             productOwner: '$halls.sections.rooms.products.productOwner',
             qrCode: '$halls.sections.rooms.products.qrCode',
-            productName: '$halls.sections.rooms.products.name',
-            quantity: '$halls.sections.rooms.products.quantity'
-            // dopisac newQuantity
+            name: '$halls.sections.rooms.products.name',
+            quantity: '$halls.sections.rooms.products.quantity',
+            newQuantity: '$halls.sections.rooms.products.newQuantity'
           }
         }
       ];
@@ -472,6 +722,7 @@ async function addHall(listName, hallName) {
         }
         return false;
     }catch (error) {
+        console.error('Błąd podczas dodawania hali:', error);
         throw error;
     }
 }
@@ -490,6 +741,7 @@ async function addSection(listName, hallName, sectionName) {
         }
         return false;
     }catch (error) {
+        console.error('Błąd podczas dodawania sekcji:', error);
         throw error;
     }
 }
@@ -512,6 +764,7 @@ async function addRack(listName, hallName, sectionName, rackName) {
         }
         return false;
     }catch (error) {
+        console.error('Błąd podczas dodawania regału:', error);
         throw error;
     }
 }
@@ -537,6 +790,7 @@ async function addRoom(listName, hallName, sectionName, roomName, roomOwners) {
         }
         return false;
     } catch (error) {
+        console.error('Błąd podczas dodawania pokoju:', error);
         throw error;
     }
 }
@@ -563,8 +817,9 @@ async function addShelf(listName, hallName, sectionName, rackName, shelfName) {
         }
         return false;
     }catch (error) {
+        console.error('Błąd podczas dodawania półki:', error);
         throw error;
     }
 }
 
-module.exports = { changePassword, add, addProduct, getAllProducts, getAllPositions, updateProduct, addInstitution, removeProduct, addWarehouse, usernameUnique, warehouseNameUnique, institutionNameUnique, hallNameUnique, sectionNameUnique, rackNameUnique, roomNameUnique, shelfNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTables, getWarehouseById, addHall, addSection, addRack, addRoom, addShelf};
+module.exports = { changePassword, add, addProduct, addProducts, getAllProducts, getAllPositions, updateProduct, addInstitution, removeTable, removeHall, removeSection, removeRack, removeRoom, removeShelf, removeProduct, removePosition, addWarehouse, usernameUnique, warehouseNameUnique, institutionNameUnique, hallNameUnique, sectionNameUnique, rackNameUnique, roomNameUnique, shelfNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTables, getWarehouseById, addHall, addSection, addRack, addRoom, addShelf};
