@@ -40,7 +40,7 @@ const LoginPage: React.FC = () => {
                 if(data.admin){
                   document.location.href = '/admin';
                 }else {
-                  document.location.href = '/scan';
+                  document.location.href = '/scantable';
                 }
               }else {
                 Cookies.remove('user', { path: '/', domain: 'localhost' });
@@ -81,7 +81,7 @@ const LoginPage: React.FC = () => {
               if(data.admin){
                 document.location.href = '/admin';
               }else {
-                document.location.href = '/scan';
+                document.location.href = '/scantable';
               }
             }else {
               console.log(data.fail);

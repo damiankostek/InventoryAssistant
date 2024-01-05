@@ -439,3 +439,7 @@ table tbody tr td.sdButton button {
     display: flex;
     justify-content: space-between;
   }
+
+  .raportButton {
+    margin-left: 1em;
+  }

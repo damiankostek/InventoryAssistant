@@ -997,6 +997,14 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
           }
       });
   }
+  
+  const handleCreateRaportWH = (tableName: any) => {
+    
+  }
+
+  const handleCreateRaportIN = (tableName: any) => {
+
+  }
 
     return (
         <>
@@ -1231,7 +1239,8 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                             <span className={styles.headerTable}>
                               <span>
                                 <span className={styles.tableNameStyle}>MAGAZYN: {tableName}</span> 
-                                <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDeleteList(tableName)}><i className="fa-solid fa-trash fa-lg"></i></button></span>   
+                                <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDeleteList(tableName)}><i className="fa-solid fa-trash fa-lg"></i></button></span>  
+                                <span className={styles.raportButton}><button  onClick={() => handleCreateRaportWH(tableName)}><i className="fa-solid fa-check-to-slot"></i></button></span> 
                               </span>
                               <span className={styles.searchStyle}>
                                 <input className={styles.inputTextSearch} type="text" placeholder='Wyszukaj' value={searchTerm} onChange={handleSearchWH} />
@@ -1498,10 +1507,11 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                               <span>
                                 <span className={styles.tableNameStyle}>INSTYTUCJA: {tableName}</span> 
                                 <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={() => handleDeleteList(tableName)}><i className="fa-solid fa-trash fa-lg"></i></button></span>   
+                                <span className={styles.raportButton}><button  onClick={() => handleCreateRaportIN(tableName)}><i className="fa-solid fa-check-to-slot"></i></button></span>
                               </span>
                               <span className={styles.searchStyle}>
                                 <input className={styles.inputTextSearch} type="text" placeholder='Wyszukaj' value={searchTermIN} onChange={handleSearchIN} />
-                              </span>
+                              </span>   
                             </span>
                             <div className="table-responsive">
                               <Table striped bordered>

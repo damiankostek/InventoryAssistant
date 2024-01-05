@@ -313,6 +313,92 @@ async function removeProduct(qrCode) {
     }
   }
 
+async function findProduct(qrCode) {
+    const filter = {
+        $or: [
+            {'halls.sections.racks.shelfs.product.qrCode': qrCode},
+            {'halls.sections.racks.shelfs.product': {$elemMatch: {qrCode: qrCode}}}
+        ]
+    };
+
+    const projection = {
+        _id: 0 
+    };
+
+
+    try {
+        const result = await db.Global.findOne(filter, { projection });
+
+        if (result && result.halls) {
+            for (const hall of result.halls) {
+                for (const section of hall.sections) {
+                    for (const rack of section.racks) {
+                        for (const shelf of rack.shelfs) {
+                            const product = shelf.product;
+                            if (product && product.qrCode === qrCode) {
+                                console.log(`Product with qrCode ${qrCode} found. Data:`);
+                                return product;
+                            }
+                        }
+                    }
+                }
+            }
+
+            console.log(`Product with qrCode ${qrCode} not found.`);
+            return null;
+        } else {
+            console.log(`Product with qrCode ${qrCode} not found.`);
+            return null;
+        }
+    } catch (error) {
+        console.error(`Error getting product data: ${error}`);
+        throw error;
+    }
+}
+
+async function findPosition(qrCode) {
+    const filter = {
+        $or: [
+            {'halls.sections.rooms.products.qrCode': qrCode},
+            {'halls.sections.rooms.products': {$elemMatch: {qrCode: qrCode}}}
+        ]
+    };
+
+    const projection = {
+        _id: 0 
+    };
+
+
+    try {
+        const result = await db.Global.findOne(filter, { projection });
+
+        if (result && result.halls) {
+            for (const hall of result.halls) {
+                for (const section of hall.sections) {
+                    // Sprawdź produkty w pokojach
+                    for (const room of section.rooms) {
+                        for (const product of room.products) {
+                            if (product.qrCode === qrCode) {
+                                console.log(`Produkt o kodzie QR ${qrCode} znaleziony. Dane:`);
+                                return product;
+                            }
+                        }
+                    }
+                }
+            }
+
+            console.log(`Position with qrCode ${qrCode} not found.`);
+            return null;
+        } else {
+            console.log(`Position with qrCode ${qrCode} not found.`);
+            return null;
+        }
+    } catch (error) {
+        console.error(`Error getting position data: ${error}`);
+        throw error;
+    }
+}
+
   async function removePosition(qrCode) {
     const filter = {
         'halls.sections.rooms.products.qrCode': qrCode
@@ -342,18 +428,76 @@ async function removeProduct(qrCode) {
     }
   }
 
-async function updateProduct(product, newQuantity, newInventory, table){  // przerobic
-    if (product.quantity !== newQuantity) {
-        product.quantity = newQuantity;
-      }
-    
-      if (product.inventory !== newInventory) {
-        product.inventory = newInventory;
-      }
-    
-      table.updated_at = new Date();
-    
-      table.save();
+async function updateProduct(qrCode, newQuantity, user){ 
+    const filter = {
+        'halls.sections.racks.shelfs.product.qrCode': qrCode
+    };
+
+    const update = {
+        $set: {
+            'halls.$[].sections.$[].racks.$[].shelfs.$[shelf].product.newQuantity': newQuantity,
+            'halls.$[].sections.$[].racks.$[].shelfs.$[shelf].product.employee': user,
+            'halls.$[].sections.$[].racks.$[].shelfs.$[shelf].product.updated_at': new Date()
+        }
+    };
+
+    const arrayFilters = [
+        {
+            'shelf.product.qrCode': qrCode
+        }
+    ];
+
+    try {
+        const result = await db.Global.updateOne(filter, update, { arrayFilters });
+
+        if (result.modifiedCount > 0) {
+            console.log(`Product with qrCode ${qrCode} updated successfully.`);
+            return true;
+        } else {
+            console.log(`Product with qrCode ${qrCode} not found.`);
+            return false;
+        }
+    } catch (error) {
+        console.error(`Error updating product quantity: ${error}`);
+        throw error;
+    }
+}
+
+async function updatePosition(qrCode, newQuantity){ 
+    const filter = {
+        'halls.sections.rooms.products.qrCode': qrCode
+    };
+
+    const update = {
+        $set: {
+            'halls.$[].sections.$[].rooms.$[roomFilter].products.$[productFilter].newQuantity': newQuantity,
+            'halls.$[].sections.$[].rooms.$[roomFilter].products.$[productFilter].updated_at': new Date()
+        }
+    };
+
+    const arrayFilters = [
+        {
+            'roomFilter.products.qrCode': qrCode
+        },
+        {
+            'productFilter.qrCode': qrCode
+        }
+    ];
+
+    try {
+        const result = await db.Global.updateOne(filter, update, { arrayFilters });
+
+        if (result.modifiedCount > 0) {
+            console.log(`Position with qrCode ${qrCode} updated successfully.`);
+            return true;
+        } else {
+            console.log(`Position with qrCode ${qrCode} not found.`);
+            return false;
+        }
+    } catch (error) {
+        console.error(`Error updating position quantity: ${error}`);
+        throw error;
+    }
 }
 
 async function addWarehouse(warehouseName) {
@@ -624,6 +768,20 @@ async function getTableById(id) {
     }
 }
 
+async function getTableByName(qrCode){
+    try {
+        const existingTable =  await db.Global.findOne({ name: qrCode }).exec();
+        if(existingTable){
+            return existingTable;
+        }else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Błąd podczas pobierania tabeli:', error);
+        throw error;
+    }
+}
+
 async function getAllProducts(name) {
     const pipeline = [
         {
@@ -822,4 +980,4 @@ async function addShelf(listName, hallName, sectionName, rackName, shelfName) {
     }
 }
 
-module.exports = { changePassword, add, addProduct, addProducts, getAllProducts, getAllPositions, updateProduct, addInstitution, removeTable, removeHall, removeSection, removeRack, removeRoom, removeShelf, removeProduct, removePosition, addWarehouse, usernameUnique, warehouseNameUnique, institutionNameUnique, hallNameUnique, sectionNameUnique, rackNameUnique, roomNameUnique, shelfNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getUsers, getTables, getWarehouseById, addHall, addSection, addRack, addRoom, addShelf};
+module.exports = { changePassword, add, addProduct, addProducts, findPosition, getAllProducts, getAllPositions, updateProduct, updatePosition, addInstitution, removeTable, removeHall, removeSection, removeRack, removeRoom, removeShelf, removeProduct, findProduct, removePosition, addWarehouse, usernameUnique, warehouseNameUnique, institutionNameUnique, hallNameUnique, sectionNameUnique, rackNameUnique, roomNameUnique, shelfNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getTableByName, getUsers, getTables, addHall, addSection, addRack, addRoom, addShelf};

@@ -32,6 +32,7 @@ const user = require("./controllers/user");
 const validation = require("./controllers/validation");
 const token = require("./controllers/token");
 const admin = require("./controllers/admin");
+const e = require('express');
 
 app.get('/', (req, res) => { 
   res.json("welcome to our server") 
@@ -906,36 +907,15 @@ app.post('/tableDelete', async (req, res) => {
   }
 });
 
-// POBRANIE INVENTORY ID DLA UŻYTKOwNIKA
-app.post('/getInventoryId', async (req, res) => {  //narazie nie potrzebne
-  const ctoken = req.body.token;
-
-  try{
-    const userID = await token.getUserIDByToken(ctoken);
-    const data = await admin.getUserById(userID);
-    return res.status(200).send(data);
-  }catch(error){
-    console.log(error)
-    return res.status(500);
-  }
-});
-
-// WYSYŁANIE KODU QR
-app.post('/sendQrCode', async (req, res) => {  // przerobic
-  const idTable = req.body.idTable;
+// WYSYŁANIE KODU QR TABELI
+app.post('/sendTableQrCode', async (req, res) => { 
   const qrCode = req.body.qrCode;
 
   try{
-    const inventory = await admin.getTableById(idTable);
+    const table = await admin.getTableByName(qrCode);
 
-    if (inventory) {
-      const product = inventory.products.find(p => p.qrCode === qrCode);
-
-      if (product) {
-        return res.status(200).send({ success: "Znaleziono produkt" });
-      } else {
-        return res.status(200).send({ fail: "Nie znaleziono produktu z takim kodem QR" });
-      }
+    if (table) {
+      return res.status(200).send({ success: "Znaleziono tabele" });
     } else {
       return res.status(200).send({ fail: "Nie znaleziono tabeli o podanym ID" });
     }
@@ -945,25 +925,17 @@ app.post('/sendQrCode', async (req, res) => {  // przerobic
   }
 });
 
-// POBIERANIE PRODUKTU
-app.post('/getProduct', async (req, res) => {  // przerobic
-  const id = req.body.id;
-  const qr = req.body.qr;
+// POBIERANIE TABELI PO QR 
+app.post('/getTableByQrCode', async (req, res) => { 
+  const qrCode = req.body.qrCode;
 
   try{
-    const table = await admin.getTableById(id);
-    const tableName = table.tableName;
+    const table = await admin.getTableByName(qrCode);
 
     if (table) {
-      const product = table.products.find(p => p.qrCode === qr);
-      const data = {product, tableName}
-      if (product) {
-        return res.status(200).send({ data });
-      } else {
-        return res.status(200).send({ error: "Nie znaleziono produktu z takim kodem QR" });
-      }
+      return res.status(200).send( table );
     } else {
-      return res.status(200).send({ error: "Nie znaleziono tabeli o podanym ID" });
+      return res.status(200).send({ fail: "Nie znaleziono tabeli o podanym ID" });
     }
   }catch(error){
   console.log(error)
@@ -971,33 +943,127 @@ app.post('/getProduct', async (req, res) => {  // przerobic
   }
 });
 
-// AKTUALIZACJA ILOŚCI
-app.post('/setChangeQuantity', async (req, res) => {  // przerobic
-  const idTable = req.body.idTable;
+// WYSYŁANIE KODU QR WH
+app.post('/sendQrCode', async (req, res) => { 
   const qrCode = req.body.qrCode;
-  const quantity = req.body.quantity;
-  const inventory = req.body.inventory;
 
   try{
-    const table = await admin.getTableById(idTable);
-    if(!table){
-      return res.status(200).send({ error: "Nie znaleziono tabeli o podanym ID" });
+    const existProduct = await admin.findProduct(qrCode);
+    if(existProduct) {
+      res.status(200).json({ success: "Znaleziono produkt"});  
     }
-    const product = table.products.find(p => p.qrCode === qrCode);
-    if(!product){
-      return res.status(200).send({ error: "Nie znaleziono produktu z takim kodem QR" });
-    }
+    res.status(200).json({ fail: "Nie znaleziono produktu" });        
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
 
-    let errors = {
-      quantity:[]
-    };
-    let updated = {};
-      validation.quantity(errors.quantity,quantity);
-      if(errors.quantity.length == 0){
-        admin.updateProduct(product, quantity, inventory, table);
-        updated.quantity = true;
+// WYSYŁANIE KODU QR IN
+app.post('/sendQrCodeIN', async (req, res) => { 
+  const qrCode = req.body.qrCode;
+
+  try{
+    const existPosition = await admin.findPosition(qrCode);
+    if(existPosition) {
+      res.status(200).json({ success: "Znaleziono pozycje"});  
+    }
+    res.status(200).json({ fail: "Nie znaleziono pozycji" });        
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// POBIERANIE PRODUKTU
+app.post('/getProduct', async (req, res) => { 
+  const qrCode = req.body.qrCode;
+
+  try{
+    const existProduct = await admin.findProduct(qrCode);
+    if(existProduct) {
+      res.status(200).json( existProduct );  
+    } else {
+      res.status(200).json({ fail: "Nie znaleziono produktu" });    
+    }    
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// POBIERANIE POZYCJI
+app.post('/getPosition', async (req, res) => { 
+  const qrCode = req.body.qrCode;
+
+  try{
+    const existPosition = await admin.findPosition(qrCode);
+    if(existPosition) {
+      res.status(200).json( existPosition );  
+    } else {
+      res.status(200).json({ fail: "Nie znaleziono pozycji" });    
+    }    
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// AKTUALIZACJA ILOŚCI W MAGAZYNIE
+app.post('/setChangeQuantity', async (req, res) => {  
+  const ctoken = req.body.token;
+  const qrCode = req.body.qrCode;
+  const newQuantity = req.body.newQuantity;
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
       }
-    return res.status(200).json({ errors,updated });
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      let errors = {
+        quantity:[]
+      };
+      let updated = {};
+        validation.quantity(errors.quantity,newQuantity);
+        if(errors.quantity.length == 0){
+          admin.updateProduct(qrCode, newQuantity, get_user.username);
+          updated.quantity = true;
+        }
+      return res.status(200).json({ errors,updated });
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+  console.log(error)
+  return res.status(500);
+  }
+});
+
+// AKTUALIZACJA ILOŚCI W INSTYTUCJI
+app.post('/setChangeQuantityIN', async (req, res) => {  
+  const qrCode = req.body.qrCode;
+  const newQuantity = req.body.newQuantity;
+
+  try{
+      let errors = {
+        quantity:[]
+      };
+      let updated = {};
+        validation.quantity(errors.quantity,newQuantity);
+        if(errors.quantity.length == 0){
+          admin.updatePosition(qrCode, newQuantity);
+          updated.quantity = true;
+        }
+      return res.status(200).json({ errors,updated });
+    
   }catch(error){
   console.log(error)
   return res.status(500);

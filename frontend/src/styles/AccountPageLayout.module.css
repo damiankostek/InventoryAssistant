@@ -197,30 +197,31 @@ animation: gradient 1s ease infinite;
   margin-top: 3em;
 }
 
-/* .buttonAdds {
-  float: left !important;
+.listTable {
+  overflow-y: scroll;
+  max-height: 54vh;
 }
 
-.buttonAdd {
-  all: unset;
+.listOption {
   text-decoration: none;
-  margin-top: 1em;
   color: rgb(63, 56, 56);
   border: 2px solid white;
-  border-radius: 8px;
-  padding: 0.6em 1.2em;
+  padding: 0.7em 0;
   font-weight: 700;
+  width: 14.1vw;
   background-color: rgba(255, 255, 255, 0);
   cursor: pointer;
   transition: border-color 0.25s;
 }
-.buttonAdds .buttonAdd:hover {
+
+.listTable .listOption:hover {
   background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
-background-size: 200% 200%;
-animation: gradient 1s ease infinite;
-   color: white;
+  background-size: 200% 200%;
+  animation: gradient 1s ease infinite;
+  color: white;
 }
- .buttonAdd :focus,
-.buttonAdd :focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-} */
+
+.listOption:focus,
+.listOption:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+}

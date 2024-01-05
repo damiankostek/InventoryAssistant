@@ -3,20 +3,13 @@ import styles from '../styles/ScanPage.module.css';
 import { useEffect, useState } from 'react';
 import { Html5QrcodeScanner } from "html5-qrcode";
 import Cookies from "js-cookie";
-import { Link } from 'react-router-dom';
 import api from "../assets/api.json";
 
 {/* <script src="html5-qrcode.min.js"></script> */}
 
 // ogarnac zeby wysylalo request po wlaczeniu aparatu !!!!!!
 
-const ScanPage: React.FC = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const qrCodeTable = urlParams.get('qrCode');
-    // const qrCodeTable = qrCodeParam;
-    const [listType, setListType] = useState('');
-    // const [id, setId] = useState('');
-    const [tableName, setTableName] = useState('');
+const ScanTable: React.FC = () => {
     const [qrCode, setQRCode] = useState('');
     const [validatedQRCode, setValidatedQRCode] = useState(false);
     const [aparatClicked, setAparatClicked] = useState(false);
@@ -59,7 +52,7 @@ const ScanPage: React.FC = () => {
         })
         .then((data) => {
           if(data.success) {
-            getTableByQrCode();
+            console.log(data.success);
           }else {
             Cookies.remove('user', { path: '/', domain: 'localhost' });
           }
@@ -70,44 +63,12 @@ const ScanPage: React.FC = () => {
     }
   }, []);
 
-  const getTableByQrCode = () => {
-    const apiUrl = 'http://'+api+':8080/getTableByQrCode';
-
-    const requestBody = {
-        qrCode: qrCodeTable
-      };
-      fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Login failed');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if(data) {
-          setListType(data.type);
-          setTableName(data.name);
-        }else if(data.fail){
-          console.log(data.fail);
-        }
-      }).catch((error) => {
-        console.error(error);
-      });
-}
-
-  const sendQrCodeWH = () => {
-      const apiUrl = 'http://'+api+':8080/sendQrCode'; 
+  const sendTableQrCode = () => {
+      const apiUrl = 'http://'+api+':8080/sendTableQrCode';
 
       const requestBody = {
           qrCode: qrCode
         };
-        console.log(requestBody)
         fetch(apiUrl, {
           method: 'POST',
           headers: {
@@ -122,10 +83,9 @@ const ScanPage: React.FC = () => {
           return response.json();
         })
         .then((data) => {
-          console.log(data)
           if(data.success) {
             setValidatedQRCode(false);
-            document.location.href = '/product?qrCode='+qrCode;
+            document.location.href = '/scan?qrCode='+qrCode;
           }else if(data.fail){
             console.log(data.fail);
           }
@@ -133,49 +93,14 @@ const ScanPage: React.FC = () => {
           console.error(error);
         });
   }
-
-  const sendQrCodeIN = () => {
-    const apiUrl = 'http://'+api+':8080/sendQrCodeIN'; 
-
-    const requestBody = {
-        qrCode: qrCode
-      };
-      console.log(requestBody)
-      fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Login failed');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data)
-        if(data.success) {
-          setValidatedQRCode(false);
-          document.location.href = '/product?qrCode='+qrCode;
-        }else if(data.fail){
-          console.log(data.fail);
-        }
-      }).catch((error) => {
-        console.error(error);
-      });
-}
-  
     
+
     return (
         <>
             <div className={styles.scanContainer}>
                 <div>
-                  <div>
-                  {listType == "wh" ? <h2>Magazyn: {tableName}</h2> : listType == "in" ? <h2>Instytucja: {tableName}</h2> : null}
-                  </div><br />
                     <h1>Zeskanuj kod QR</h1>
+                    <h2>magazynu lub instytucji</h2>
                     <div>
                         {!aparatClicked && (
                             <button onClick={onAparat} className={styles.onAparat}>Włącz aparat</button>
@@ -200,23 +125,11 @@ const ScanPage: React.FC = () => {
                     </InputGroup>
                     </div>
                 </div>
-                {listType == "wh" ? 
-                <div className={styles.buttonStyle}>
-                    <button onClick={sendQrCodeWH} className={styles.check}>Sprawdź</button>
-                </div>
-                : listType == "in" ? 
-                <div className={styles.buttonStyle}>
-                    <button onClick={sendQrCodeIN} className={styles.check}>Sprawdź</button>
-                </div>
-                : null}
-                
-                <Link to={{ pathname: '/productsTable', search: `?qrCodeTable=${qrCodeTable}` }}>
-                  <button className={styles.check}>Szczegóły</button>
-                </Link>
+                <button onClick={sendTableQrCode} className={styles.check}>Sprawdź</button>
             </div>
         </>
     
     );
   };
 
-export default ScanPage;
+export default ScanTable;

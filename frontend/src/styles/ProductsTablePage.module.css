@@ -50,3 +50,16 @@ body.ProductsTable {
     width: 4em;
     text-align: center;
   }
+
+  .searchStyle {
+    margin-top: 0.5em;
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+  
+  .inputTextSearch {
+    border-radius: 8px;
+    border-color: white;
+    margin-bottom: 0.6em;
+    padding: 0.3em 0.6em;
+  }

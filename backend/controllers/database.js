@@ -50,6 +50,8 @@ const globalSchema = new mongoose.Schema({
                     quantity: Number,
                     newQuantity: Number,
                     employee: String,
+                    created_at: {type: Date, default: new Date()},
+                    updated_at: {type: Date, default: new Date()},
                   },
                 }
               ],
@@ -65,6 +67,8 @@ const globalSchema = new mongoose.Schema({
                 name: String,
                 quantity: Number,
                 newQuantity: Number,
+                created_at: {type: Date, default: new Date()},
+                updated_at: {type: Date, default: new Date()},
               }],
             }
           ],

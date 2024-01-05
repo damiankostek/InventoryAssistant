@@ -49,10 +49,11 @@ async function getTokenByUserID(userID) {
         const findToken = await db.Token.findOne({ userID: userID }).exec();
         if (findToken){
             console.log('Znaleziony token:', findToken.token);
+            return findToken.token;
         }else{
             console.log('Nie znaleziono tokenu dla: ', userID);
+            return false;
         }
-        return findToken.token;
     } catch (error) {
         console.error('Błąd podczas wyszukiwania tokenu:', error);
     }
@@ -62,10 +63,11 @@ async function getUserIDByToken(token) {
         const findUserID = await db.Token.findOne({ token: token }).exec();
         if (findUserID){
             console.log('Znaleziony userID:', findUserID.userID);
+            return findUserID.userID;
         }else{
             console.log('Nie znaleziono userID dla: ', token);
+            return false;
         }
-        return findUserID.userID;
     } catch (error) {
         console.error('Błąd podczas wyszukiwania userID:', error);
     }

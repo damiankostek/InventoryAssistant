@@ -29,7 +29,6 @@ const AccountPageLayout: React.FC = () => {
         setShowAddUser(false);
     };
 
-
     useEffect( () => {
         const apiUrl = 'http://'+api+':8080/userDetails';
         
@@ -53,6 +52,40 @@ const AccountPageLayout: React.FC = () => {
             console.log(error);
         });
   }, []);
+
+  const handleGetAccount = (idT:any) => {
+    setId(idT);
+
+    setShowAddUser(true);
+                                
+    const apiUrl = 'http://'+api+':8080/getAccountById';
+    const requestBody = {
+      id: idT
+    };
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("data: "+data);
+        if(data.fail){
+            setShowAddUser(false);
+            console.log("Błąd pobierania użytkownika");
+        }else {
+            setUsername(data.data.username);
+        }
+      }
+      )
+  }
 
     const handleChangeUserDetails = () => {
         const apiUrl = 'http://'+api+':8080/setUserDetails';
@@ -161,44 +194,13 @@ const AccountPageLayout: React.FC = () => {
                         </button>
                         <hr />
                         <h4>Lista kont</h4>
-                        <select className={styles.userButton} id="user" onChange={(e) =>{
-                                setId(e.target.value);
-                                setShowAddUser(true);
-                                
-                                const apiUrl = 'http://'+api+':8080/getAccountById';
-                                console.log("ID: "+id)
-                                console.log(e.target.value);
-                                const requestBody = {
-                                    id: e.target.value
-                                };
-                                fetch(apiUrl, {
-                                    method: 'POST',
-                                    headers: {
-                                      'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify(requestBody),
-                                  })
-                                  .then((response) => {
-                                    if (response.status == 500) {
-                                      throw new Error('Błąd serwera');
-                                    }
-                                    return response.json();
-                                  })
-                                  .then((data) => {
-                                    console.log("data: "+data);
-                                    if(data.fail){
-                                        setShowAddUser(false);
-                                        console.log("Błąd pobierania użytkownika");
-                                    }else {
-                                        setUsername(data.data.username);
-                                    }
-                                  }
-                                  )
-                            }}>
-                            {userTable.map((user: any) => (
-                            <option key={user._id} value={user._id}>{user.username}</option>
-                            ))}
-                        </select>
+                        <div className={styles.listTable}>
+                          {userTable.map((user: any, index: any) => (
+                          <div className={styles.listOption} key={index} id={user._id} onClick={() => handleGetAccount(user._id)}> 
+                            {user.username}                           
+                          </div>
+                          ))}
+                        </div>
                     </div>
                 </div>
                 <div className={styles.details}>
