@@ -32,6 +32,7 @@ const user = require("./controllers/user");
 const validation = require("./controllers/validation");
 const token = require("./controllers/token");
 const admin = require("./controllers/admin");
+const pdf = require("./controllers/pdf");
 const e = require('express');
 
 app.get('/', (req, res) => { 
@@ -1067,6 +1068,41 @@ app.post('/setChangeQuantityIN', async (req, res) => {
   }catch(error){
   console.log(error)
   return res.status(500);
+  }
+});
+
+// TWORZENIE RAPORTU Z INWENTARYZACJI MAGAZYNU
+app.get('/createRaportWH', async (req, res) => { 
+  const ctoken = req.query.token;
+  const tableName = req.query.tableName;
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+          // if (await pdf.createRaportWH(tableName, res)) {
+            await pdf.createRaportWH(tableName, res)
+            // res.status(200).json({ success: "Pomyślnie utworzono raport dla magazynu" });
+          // } else {
+          //   res.status(200).json({ fail: "Nie udało się stworzyć raportu dla magazynu" });
+          // }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
   }
 });
 

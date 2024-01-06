@@ -1,6 +1,6 @@
 import { Table } from 'react-bootstrap';
 import styles from '../styles/ProductsTablePage.module.css';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Cookies from "js-cookie";
 import api from "../assets/api.json";

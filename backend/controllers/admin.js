@@ -807,7 +807,8 @@ async function getAllProducts(name) {
             name: '$halls.sections.racks.shelfs.product.name',
             quantity: '$halls.sections.racks.shelfs.product.quantity',
             newQuantity: '$halls.sections.racks.shelfs.product.newQuantity',
-            employee: '$halls.sections.racks.shelfs.product.employee'
+            employee: '$halls.sections.racks.shelfs.product.employee',
+            updated_at: '$halls.sections.racks.shelfs.product.updated_at'
           }
         }
       ];
@@ -842,7 +843,8 @@ async function getAllPositions(name) {
             qrCode: '$halls.sections.rooms.products.qrCode',
             name: '$halls.sections.rooms.products.name',
             quantity: '$halls.sections.rooms.products.quantity',
-            newQuantity: '$halls.sections.rooms.products.newQuantity'
+            newQuantity: '$halls.sections.rooms.products.newQuantity',
+            updated_at: '$halls.sections.rooms.products.updated_at'
           }
         }
       ];

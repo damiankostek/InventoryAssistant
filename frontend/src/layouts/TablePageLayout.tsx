@@ -29,6 +29,7 @@ const generateRandomQRCode = () => {
 };
 
 const TablePageLayout: React.FC = () => {
+    const [ctoken, setCtoken] = useState<string | undefined>('');
     const [showAddWarehouse, setShowAddWarehouse] = useState(false);
     const [showAddInstitution, setShowAddInstitution] = useState(false);
     const [listType, setListType] = useState('');
@@ -138,6 +139,8 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
     useEffect( () => {
       const userApiUrl = 'http://'+api+':8080/userDetails';
       const apiUrl = 'http://'+api+':8080/tableDetails';
+      const token = Cookies.get('user');
+      setCtoken(token);
 
       fetch(userApiUrl, {
         method: 'POST',
@@ -997,14 +1000,9 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
           }
       });
   }
-  
-  const handleCreateRaportWH = (tableName: any) => {
-    
-  }
 
-  const handleCreateRaportIN = (tableName: any) => {
-
-  }
+  // po pobraniu pliku .pdf -> przypisuje newQuantity do quantity i czyści newQuantity i employee
+  // dodac ifa na przycisk
 
     return (
         <>
@@ -1240,7 +1238,7 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                               <span>
                                 <span className={styles.tableNameStyle}>MAGAZYN: {tableName}</span> 
                                 <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDeleteList(tableName)}><i className="fa-solid fa-trash fa-lg"></i></button></span>  
-                                <span className={styles.raportButton}><button  onClick={() => handleCreateRaportWH(tableName)}><i className="fa-solid fa-check-to-slot"></i></button></span> 
+                                <span className={styles.raportButton}><a href={`http://${api}:8080/createRaportWH?tableName=${tableName}&token=${ctoken}`}><button><i className="fa-solid fa-check-to-slot"></i></button></a></span> 
                               </span>
                               <span className={styles.searchStyle}>
                                 <input className={styles.inputTextSearch} type="text" placeholder='Wyszukaj' value={searchTerm} onChange={handleSearchWH} />
@@ -1507,7 +1505,7 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                               <span>
                                 <span className={styles.tableNameStyle}>INSTYTUCJA: {tableName}</span> 
                                 <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={() => handleDeleteList(tableName)}><i className="fa-solid fa-trash fa-lg"></i></button></span>   
-                                <span className={styles.raportButton}><button  onClick={() => handleCreateRaportIN(tableName)}><i className="fa-solid fa-check-to-slot"></i></button></span>
+                                <span className={styles.raportButton}><a href={`http://${api}:8080/createRaportIN?tableName=${tableName}&token=${ctoken}`}><button><i className="fa-solid fa-check-to-slot"></i></button></a></span> 
                               </span>
                               <span className={styles.searchStyle}>
                                 <input className={styles.inputTextSearch} type="text" placeholder='Wyszukaj' value={searchTermIN} onChange={handleSearchIN} />
