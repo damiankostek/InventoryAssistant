@@ -768,8 +768,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
   }
 
   const handleAddHall = () => {
-    // setCol1([...col1, {name: hallName, sections: []}]);
-    
     const apiUrl = 'http://'+api+':8080/addHall'; 
 
     const requestBody = {
@@ -812,8 +810,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
   }
 
   const handleAddSection = () => {
-    // setCol2([...col2, {name: sectionName, racks: []}]);
-    
     const apiUrl = 'http://'+api+':8080/addSection'; 
 
     const requestBody = {
@@ -861,8 +857,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
   }
 
   const handleAddRack = () => {
-    // setCol3([...col3, {name: rackName, shelfs: []}]);
-    
     const apiUrl = 'http://'+api+':8080/addRack'; 
 
     const requestBody = {
@@ -907,8 +901,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
   }
 
   const handleAddRoom= () => {
-    // setCol3([...col3, {name: roomName, roomOwners: []}]);
-    
     const apiUrl = 'http://'+api+':8080/addRoom';
 
     const requestBody = {
@@ -955,8 +947,6 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
   }
 
   const handleAddShelf = () => {
-    // setCol4([...col4, {name: shelfName, product: {}}]);
-    
     const apiUrl = 'http://'+api+':8080/addShelf'; 
 
     const requestBody = {
@@ -1001,8 +991,63 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
       });
   }
 
-  // po pobraniu pliku .pdf -> przypisuje newQuantity do quantity i czyści newQuantity i employee
-  // dodac ifa na przycisk
+  const handleRefreshProduct = () => {
+    const apiUrl = 'http://'+api+':8080/getProducts';
+
+    const requestBody = {
+      nameT: tableName
+    };
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+        .then((response) => {
+          if (response.status == 500) {
+            throw new Error('Błąd serwera');
+          }
+          return response.json();
+        })
+        .then((data) => {
+            if(data){
+              setProductsTable(data.allProducts);
+              setFilteredProducts(data.allProducts);
+            }else{
+              console.log("Błąd podczas odświeżania")
+            }
+        });
+  };
+
+  const handleRefreshPosition = () => {
+    const apiUrl = 'http://'+api+':8080/getPositions';
+
+    const requestBody = {
+      nameT: tableName
+    };
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      })
+        .then((response) => {
+          if (response.status == 500) {
+            throw new Error('Błąd serwera');
+          }
+          return response.json();
+        })
+        .then((data) => {
+            if(data){
+              setPositionsTable(data.allPositions);
+              setFilteredPositions(data.allPositions);
+            }else{
+              console.log("Błąd podczas odświeżania")
+            }
+        });
+  };
 
     return (
         <>
@@ -1238,7 +1283,14 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                               <span>
                                 <span className={styles.tableNameStyle}>MAGAZYN: {tableName}</span> 
                                 <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={(_) => handleDeleteList(tableName)}><i className="fa-solid fa-trash fa-lg"></i></button></span>  
-                                <span className={styles.raportButton}><a href={`http://${api}:8080/createRaportWH?tableName=${tableName}&token=${ctoken}`}><button><i className="fa-solid fa-check-to-slot"></i></button></a></span> 
+                                {filteredProducts.length > 0 && filteredProducts.every((product: any) => product.newQuantity !== undefined && product.newQuantity !== null && product.newQuantity !== '') ? (
+                                  <span className={styles.raportButton}>
+                                    <a href={`http://${api}:8080/createRaportWH?tableName=${tableName}&token=${ctoken}`}>
+                                      <button><i className="fa-solid fa-check-to-slot"></i></button>
+                                    </a>
+                                  </span>
+                                ) : null}
+                                <span className={styles.raportButton}><button onClick={(_) => handleRefreshProduct()}><i className="fa-solid fa-arrows-rotate"></i></button></span> 
                               </span>
                               <span className={styles.searchStyle}>
                                 <input className={styles.inputTextSearch} type="text" placeholder='Wyszukaj' value={searchTerm} onChange={handleSearchWH} />
@@ -1505,7 +1557,14 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                               <span>
                                 <span className={styles.tableNameStyle}>INSTYTUCJA: {tableName}</span> 
                                 <span className={styles.sdButton} id={styles.colorRed}><button className={styles.deleteButton} onClick={() => handleDeleteList(tableName)}><i className="fa-solid fa-trash fa-lg"></i></button></span>   
-                                <span className={styles.raportButton}><a href={`http://${api}:8080/createRaportIN?tableName=${tableName}&token=${ctoken}`}><button><i className="fa-solid fa-check-to-slot"></i></button></a></span> 
+                                {filteredPositions.length > 0 && filteredPositions.every((product: any) => product.newQuantity !== undefined && product.newQuantity !== null && product.newQuantity !== '') ? (
+                                  <span className={styles.raportButton}>
+                                    <a href={`http://${api}:8080/createRaportIN?tableName=${tableName}&token=${ctoken}`}>
+                                      <button><i className="fa-solid fa-check-to-slot"></i></button>
+                                    </a>
+                                  </span>
+                                ) : null}
+                                <span className={styles.raportButton}><button onClick={(_) => handleRefreshPosition()}><i className="fa-solid fa-arrows-rotate"></i></button></span> 
                               </span>
                               <span className={styles.searchStyle}>
                                 <input className={styles.inputTextSearch} type="text" placeholder='Wyszukaj' value={searchTermIN} onChange={handleSearchIN} />

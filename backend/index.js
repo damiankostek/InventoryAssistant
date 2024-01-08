@@ -1105,6 +1105,33 @@ app.post('/setChangeQuantityIN', async (req, res) => {
   }
 });
 
+// ODŚWIEŻANIE LISTY PRODUKTÓW
+app.post('/getProducts', async(req, res) => {
+  const tableName = req.body.nameT;
+  
+  try{
+    const allProducts = await admin.getAllProducts(tableName); 
+    return res.status(200).send({allProducts});
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// ODŚWIEŻANIE LISTY POZYCJI
+app.post('/getPositions', async(req, res) => {
+  console.log(req.query)
+  const tableName = req.body.nameT;
+  
+  try{
+    const allPositions = await admin.getAllPositions(tableName); 
+    return res.status(200).send({allPositions});
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
 // TWORZENIE RAPORTU Z INWENTARYZACJI MAGAZYNU
 app.get('/createRaportWH', async (req, res) => { 
   const ctoken = req.query.token;
@@ -1124,7 +1151,9 @@ app.get('/createRaportWH', async (req, res) => {
         return res.status(200).send({fail:"Użytkownik nie istnieje"});
       }
       if(get_user.role == "admin") {
-            await pdf.createRaportWH(tableName, res)
+            if(await pdf.createRaportWH(tableName, res)) {
+              await admin.updateWH(tableName);
+            }
       }
     }else{
       return res.status(200).send({fail:"Niepoprawne dane"});
@@ -1154,7 +1183,9 @@ app.get('/createRaportIN', async (req, res) => {
         return res.status(200).send({fail:"Użytkownik nie istnieje"});
       }
       if(get_user.role == "admin") {
-            await pdf.createRaportIN(tableName, res)
+            if(await pdf.createRaportIN(tableName, res)) {
+              await admin.updateIN(tableName);
+            }
       }
     }else{
       return res.status(200).send({fail:"Niepoprawne dane"});

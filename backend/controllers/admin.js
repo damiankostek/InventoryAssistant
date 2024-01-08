@@ -519,6 +519,67 @@ async function updatePosition(qrCode, newQuantity){
     }
 }
 
+async function updateWH(tableToUpdate) {
+    try {
+    const document = await db.Global.findOne({ 'name': tableToUpdate });
+
+    document.halls.forEach(hall => {
+      hall.sections.forEach(section => {
+        section.racks.forEach(rack => {
+          rack.shelfs.forEach(shelf => {
+            shelf.product.quantity = shelf.product.newQuantity;
+          });
+        });
+      });
+    });
+
+    await db.Global.replaceOne({ 'name': tableToUpdate }, document);
+      console.log('Replace successful' );
+      await db.Global.updateMany(
+        { 'name': tableToUpdate },
+        {
+          $set: {
+            'halls.$[].sections.$[].racks.$[].shelfs.$[].product.newQuantity': null,
+            'halls.$[].sections.$[].racks.$[].shelfs.$[].product.employee': ''
+          }
+        }
+      );
+      console.log('Update successful' );
+      return true;
+    } catch (error) {
+      console.error('Error updating document:', error);
+      throw error;
+    }
+  }
+
+async function updateIN(tableToUpdate){ 
+    try {
+        const document = await db.Global.findOne({ 'name': tableToUpdate });
+
+        document.halls.forEach(hall => {
+            hall.sections.forEach(section => {
+                section.rooms.forEach(room => {
+                  room.products.forEach(product => {
+                    if (product && product.newQuantity !== undefined) {
+                      product.quantity = product.newQuantity;
+                      product.newQuantity = null;
+                    }
+                  });
+                });
+            });
+          });
+    
+        await db.Global.replaceOne({ 'name': tableToUpdate }, document);
+          console.log('Replace successful' );
+          
+          console.log('Update successful' );
+          return true;
+        } catch (error) {
+          console.error('Error updating document:', error);
+          throw error;
+        }
+      }
+
 async function addWarehouse(warehouseName) {
     try {
         const newSchema = new db.Global({ 
@@ -1001,4 +1062,4 @@ async function addShelf(listName, hallName, sectionName, rackName, shelfName) {
     }
 }
 
-module.exports = { changePassword, add, removeUser, addProduct, addProducts, findPosition, getAllProducts, getAllPositions, updateProduct, updatePosition, addInstitution, removeTable, removeHall, removeSection, removeRack, removeRoom, removeShelf, removeProduct, findProduct, removePosition, addWarehouse, usernameUnique, warehouseNameUnique, institutionNameUnique, hallNameUnique, sectionNameUnique, rackNameUnique, roomNameUnique, shelfNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getTableByName, getUsers, getTables, addHall, addSection, addRack, addRoom, addShelf};
+module.exports = { changePassword, add, removeUser, addProduct, addProducts, findPosition, getAllProducts, getAllPositions, updateProduct, updatePosition, updateWH, updateIN, addInstitution, removeTable, removeHall, removeSection, removeRack, removeRoom, removeShelf, removeProduct, findProduct, removePosition, addWarehouse, usernameUnique, warehouseNameUnique, institutionNameUnique, hallNameUnique, sectionNameUnique, rackNameUnique, roomNameUnique, shelfNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getTableByName, getUsers, getTables, addHall, addSection, addRack, addRoom, addShelf};

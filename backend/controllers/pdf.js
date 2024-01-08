@@ -150,6 +150,8 @@ async function createRaportWH(nameWH,res) {
                 .catch((error) => {
                     console.error('Błąd generowania PDF:', error);
                 });
+                
+                return true;
     } catch (error) {
       console.error(`Error removing table: ${error}`);
       throw error;
@@ -303,6 +305,7 @@ async function createRaportWH(nameWH,res) {
                 .catch((error) => {
                     console.error('Błąd generowania PDF:', error);
                 });
+                return true;
     } catch (error) {
       console.error(`Error removing table: ${error}`);
       throw error;
