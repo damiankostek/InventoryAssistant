@@ -183,6 +183,39 @@ const AccountPageLayout: React.FC = () => {
           }
         });
       };
+      const handleDeleteAccount = (username_:any) => {
+        const apiUrl = 'http://'+api+':8080/accountDelete';
+        
+        const token = Cookies.get('user');
+    
+        const requestBody = {
+          token: token,
+          username: username_
+        };
+    
+        console.log(requestBody)
+        fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        })
+          .then((response) => {
+            if (response.status == 500) {
+              throw new Error('Błąd serwera');
+            }
+            return response.json();
+          })
+          .then((data) => {
+              if(data.success){
+                console.log(data.success);
+                window.location.reload();
+              }else if(data.fail){
+              console.log(data.fail);
+            }
+          });
+      };
 
     return (
         <>
@@ -210,6 +243,7 @@ const AccountPageLayout: React.FC = () => {
                                 {userTable.map((user: any) => (
                                     user.username == username ? <span key={user._id}>ID: {user._id}</span> : null
                                 ))}
+                                <span className={styles.sdButton} id={styles.colorRed}><button className={styles.dButton} onClick={(_) => handleDeleteAccount(username)}><i className="fa-solid fa-trash "></i></button></span>  
                             </div>
                             <hr />
                         <div className={styles.content_container}>

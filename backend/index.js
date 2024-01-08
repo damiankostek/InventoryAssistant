@@ -257,6 +257,40 @@ app.post('/setUserDetails', async (req,res) => {
   return res.status(200).json({ errors,updated });
 })
 
+// USUWANIE KONTA
+app.post('/accountDelete', async (req, res) => { 
+  const ctoken = req.body.token;
+  const username = req.body.username;
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+          if (await admin.removeUser(username)) {
+            res.status(200).json({ success: "Pomyślnie usunięto konto" });
+          } else {
+            res.status(200).json({ fail: "Nie udało się usunąć konta" });
+          }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
 // DODAWANIE MAGAZYNU
 app.post('/createWarehouse', async (req, res) => {
   const ctoken = req.body.token;
@@ -1090,12 +1124,37 @@ app.get('/createRaportWH', async (req, res) => {
         return res.status(200).send({fail:"Użytkownik nie istnieje"});
       }
       if(get_user.role == "admin") {
-          // if (await pdf.createRaportWH(tableName, res)) {
             await pdf.createRaportWH(tableName, res)
-            // res.status(200).json({ success: "Pomyślnie utworzono raport dla magazynu" });
-          // } else {
-          //   res.status(200).json({ fail: "Nie udało się stworzyć raportu dla magazynu" });
-          // }
+      }
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
+  }catch(error){
+    console.log(error)
+    return res.status(500);
+  }
+});
+
+// TWORZENIE RAPORTU Z INWENTARYZACJI INSTYTUCJI
+app.get('/createRaportIN', async (req, res) => { 
+  const ctoken = req.query.token;
+  const tableName = req.query.tableName;
+
+  if (!ctoken){
+    return res.status(200).send({fail:"Niepoprawne dane"});
+  }
+  try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
+      if(get_user.role == "admin") {
+            await pdf.createRaportIN(tableName, res)
       }
     }else{
       return res.status(200).send({fail:"Niepoprawne dane"});

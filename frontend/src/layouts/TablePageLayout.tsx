@@ -1536,9 +1536,9 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                             <Popup className="mypopup" trigger={<button className={styles.qrButton}><i className="fa-solid fa-qrcode fa-lg"></i></button>} position="left center">
                                               <div className={styles.popupdiv}>
                                                 <div className={styles.popupDiv}>
-                                                <QRCode value={product.qrCode} size={120} />
-                                                  <div className={styles.downloadButton}>
-                                                    <button id={styles.colorBlue} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
+                                                <QRCode value={product.qrCode} size={120} id={product.qrCode}/>
+                                                <div className={styles.downloadButton}>
+                                                    <button  id={styles.colorBlue} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }} onClick={(_) => handleDownloadQR(product.qrCode)}>
                                                       <i className="fa-solid fa-download fa-lg"></i>
                                                     </button>
                                                   </div>

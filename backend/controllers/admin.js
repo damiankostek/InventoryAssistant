@@ -30,6 +30,25 @@ async function add(username, passwd) {
     return false;
 }
 
+async function removeUser(usernameToDelete) {
+    const filter = { username: usernameToDelete };
+
+    try {
+    const result = await db.User.deleteOne(filter);
+  
+      if (result.deletedCount > 0) {
+        console.log('Usunieto konto');
+        return true;
+      } else {
+        console.log(`Nie znaleziono konta`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`Error removing account: ${error}`);
+      throw error;
+    }
+  }
+
 async function addProduct(qrCode, name, quantity) {
     try {
         const table = qrCode.split("-");
@@ -982,4 +1001,4 @@ async function addShelf(listName, hallName, sectionName, rackName, shelfName) {
     }
 }
 
-module.exports = { changePassword, add, addProduct, addProducts, findPosition, getAllProducts, getAllPositions, updateProduct, updatePosition, addInstitution, removeTable, removeHall, removeSection, removeRack, removeRoom, removeShelf, removeProduct, findProduct, removePosition, addWarehouse, usernameUnique, warehouseNameUnique, institutionNameUnique, hallNameUnique, sectionNameUnique, rackNameUnique, roomNameUnique, shelfNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getTableByName, getUsers, getTables, addHall, addSection, addRack, addRoom, addShelf};
+module.exports = { changePassword, add, removeUser, addProduct, addProducts, findPosition, getAllProducts, getAllPositions, updateProduct, updatePosition, addInstitution, removeTable, removeHall, removeSection, removeRack, removeRoom, removeShelf, removeProduct, findProduct, removePosition, addWarehouse, usernameUnique, warehouseNameUnique, institutionNameUnique, hallNameUnique, sectionNameUnique, rackNameUnique, roomNameUnique, shelfNameUnique, qrCodeUnique, nameUnique, getUserById, getTableById, getTableByName, getUsers, getTables, addHall, addSection, addRack, addRoom, addShelf};

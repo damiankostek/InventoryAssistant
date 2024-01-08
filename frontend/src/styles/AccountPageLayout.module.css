@@ -225,3 +225,15 @@ animation: gradient 1s ease infinite;
 .listOption:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
+
+#colorRed :hover{
+  color: rgb(255, 0, 0);
+}
+
+.sdButton {
+  margin-left: 1em;
+}
+
+.dButton {
+  width: 2em;
+}
