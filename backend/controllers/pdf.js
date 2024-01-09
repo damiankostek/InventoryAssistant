@@ -276,6 +276,7 @@ async function createRaportWH(nameWH,res) {
                         <th >Ilość</th>
                         <th >Ilość Inw.</th>
                         <th >Właściciel</th>
+                        <th >Pracownik</th>
                         <th >Data i godzina</th>
                     </tr>`;
                     get_positions.forEach((element, index) => {
@@ -287,6 +288,7 @@ async function createRaportWH(nameWH,res) {
                             <td style="text-align: center;">${element.quantity}</td>
                             <td style="text-align: center;">${element.newQuantity}</td>
                             <td style="text-align: center;">${element.productOwner}</td>
+                            <td style="text-align: center;">${element.employee}</td>
                             <td style="text-align: center;">${position_data}</td>
                             </tr>`
                     })

@@ -71,3 +71,9 @@
     background-color: #940d0d;
     width: 7em;
 }
+
+.productInfo {
+    border: 2px solid rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    padding: 0.6em 0.6em;
+}

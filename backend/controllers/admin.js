@@ -394,7 +394,6 @@ async function findPosition(qrCode) {
         if (result && result.halls) {
             for (const hall of result.halls) {
                 for (const section of hall.sections) {
-                    // Sprawdź produkty w pokojach
                     for (const room of section.rooms) {
                         for (const product of room.products) {
                             if (product.qrCode === qrCode) {
@@ -482,7 +481,8 @@ async function updateProduct(qrCode, newQuantity, user){
     }
 }
 
-async function updatePosition(qrCode, newQuantity){ 
+async function updatePosition(qrCode, newQuantity, user){ 
+    console.log(user)
     const filter = {
         'halls.sections.rooms.products.qrCode': qrCode
     };
@@ -490,6 +490,7 @@ async function updatePosition(qrCode, newQuantity){
     const update = {
         $set: {
             'halls.$[].sections.$[].rooms.$[roomFilter].products.$[productFilter].newQuantity': newQuantity,
+            'halls.$[].sections.$[].rooms.$[roomFilter].products.$[productFilter].employee': user,
             'halls.$[].sections.$[].rooms.$[roomFilter].products.$[productFilter].updated_at': new Date()
         }
     };
@@ -563,6 +564,7 @@ async function updateIN(tableToUpdate){
                     if (product && product.newQuantity !== undefined) {
                       product.quantity = product.newQuantity;
                       product.newQuantity = null;
+                      product.employee = '';
                     }
                   });
                 });
@@ -924,6 +926,7 @@ async function getAllPositions(name) {
             name: '$halls.sections.rooms.products.name',
             quantity: '$halls.sections.rooms.products.quantity',
             newQuantity: '$halls.sections.rooms.products.newQuantity',
+            employee: '$halls.sections.rooms.products.employee',
             updated_at: '$halls.sections.rooms.products.updated_at'
           }
         }

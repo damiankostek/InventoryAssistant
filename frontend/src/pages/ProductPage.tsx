@@ -182,7 +182,6 @@ const ProductPage: React.FC = () => {
           qrCode: qrCode,
           newQuantity: newQuantity
       };
-          console.log(requestBody)
           fetch(apiUrl, {
             method: 'POST',
             headers: {
@@ -228,8 +227,10 @@ const ProductPage: React.FC = () => {
 
     const setChangeQuantityIN = () => {
       const apiUrl = 'http://'+api+':8080/setChangeQuantityIN';
+      const token = Cookies.get('user');
 
       const requestBody = {
+        token: token,
         qrCode: qrCode,
         newQuantity: newQuantity
     };
@@ -282,20 +283,20 @@ const ProductPage: React.FC = () => {
             <div className={styles.productContainer}>
                 <div className={styles.contentContainer}>
                     <span className={styles.tableNameStyle}>
-                    {listType == "wh" ? <h2>Magazyn: {tableName}</h2> : listType == "in" ? <h2>Instytucja: {tableName}</h2> : null}
-                    </span>
+                    {listType == "wh" ? <span><h2><i>Magazyn:</i></h2> <h3 className={styles.productInfo}>{tableName}</h3></span> : listType == "in" ? <span><h2><i>Instytucja:</i></h2>  <h3 className={styles.productInfo}>{tableName}</h3></span>: null}
+                    </span><br />
                     <span className={styles.qrCodeStyle}>
-                        <h2 className={styles.h2Style}>Kod QR produktu:</h2>
-                        <p>{qrCode}</p>
-                    </span>
+                        <h2 className={styles.h2Style}><i>Kod QR produktu:</i></h2>
+                        <h3 className={styles.productInfo}>{qrCode}</h3>
+                    </span><br />
                     <span className={styles.nameProduct}>
-                        <h2 className={styles.h2Style}>Nazwa:</h2>
-                        <p>{name}</p>
+                        <h2 className={styles.h2Style}><i>Nazwa:</i></h2>
+                        <h3 className={styles.productInfo}>{name}</h3>
                     </span>
                 </div>
                 <div className={styles.quantityStyle}>
                 <div className={styles.form_group}>
-                    <label htmlFor="newQuantity">Ilość</label>
+                    <label htmlFor="newQuantity"><i>Ilość</i></label>
                     <InputGroup className={styles.inputText} hasValidation>
                         <Form.Control
                         type="number"

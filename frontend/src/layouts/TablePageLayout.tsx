@@ -1579,6 +1579,7 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                     <th scope="col" className={styles.quantityStyle}>Ilość</th>
                                     <th scope="col" className={styles.quantityStyle}>Ilość Inw.</th>
                                     <th scope="col">Właściciel</th>
+                                    <th scope="col">Os. odp.</th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -1591,6 +1592,7 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                           <td className={styles.quantityStyle}>{product.quantity}</td>
                                           <td className={styles.quantityStyle}>{product.newQuantity}</td>
                                           <td>{product.productOwner}</td>
+                                          <td>{product.employee}</td>
                                           <td className={styles.sdButton} id={styles.colorBlue}>
                                             <Popup className="mypopup" trigger={<button className={styles.qrButton}><i className="fa-solid fa-qrcode fa-lg"></i></button>} position="left center">
                                               <div className={styles.popupdiv}>

@@ -985,9 +985,11 @@ app.post('/sendQrCode', async (req, res) => {
   try{
     const existProduct = await admin.findProduct(qrCode);
     if(existProduct) {
-      res.status(200).json({ success: "Znaleziono produkt"});  
+      res.status(200).json({ success: "Znaleziono produkt"});
+      return true;  
     }
-    res.status(200).json({ fail: "Nie znaleziono produktu" });        
+    res.status(200).json({ fail: "Nie znaleziono produktu" });     
+    return false;   
   }catch(error){
     console.log(error)
     return res.status(500);
@@ -1002,8 +1004,10 @@ app.post('/sendQrCodeIN', async (req, res) => {
     const existPosition = await admin.findPosition(qrCode);
     if(existPosition) {
       res.status(200).json({ success: "Znaleziono pozycje"});  
+      return true;
     }
-    res.status(200).json({ fail: "Nie znaleziono pozycji" });        
+    res.status(200).json({ fail: "Nie znaleziono pozycji" });    
+    return false;    
   }catch(error){
     console.log(error)
     return res.status(500);
@@ -1084,26 +1088,39 @@ app.post('/setChangeQuantity', async (req, res) => {
 
 // AKTUALIZACJA ILOŚCI W INSTYTUCJI
 app.post('/setChangeQuantityIN', async (req, res) => {  
+  const ctoken = req.body.token;
   const qrCode = req.body.qrCode;
   const newQuantity = req.body.newQuantity;
 
   try{
+    if (await token.checkToken(ctoken)){
+      const userID = await token.getUserIDByToken(ctoken);
+      if (!userID){
+        return res.status(200).send({fail:"Niepoprawne dane"});
+      }
+      const get_user = await admin.getUserById(userID);
+      if(!get_user){
+        return res.status(200).send({fail:"Użytkownik nie istnieje"});
+      }
       let errors = {
         quantity:[]
       };
       let updated = {};
         validation.quantity(errors.quantity,newQuantity);
         if(errors.quantity.length == 0){
-          admin.updatePosition(qrCode, newQuantity);
+          admin.updatePosition(qrCode, newQuantity, get_user.username);
           updated.quantity = true;
         }
       return res.status(200).json({ errors,updated });
-    
+    }else{
+      return res.status(200).send({fail:"Niepoprawne dane"});
+    }
   }catch(error){
   console.log(error)
   return res.status(500);
   }
 });
+
 
 // ODŚWIEŻANIE LISTY PRODUKTÓW
 app.post('/getProducts', async(req, res) => {
