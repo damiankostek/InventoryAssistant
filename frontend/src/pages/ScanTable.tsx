@@ -5,10 +5,6 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 import Cookies from "js-cookie";
 import api from "../assets/api.json";
 
-{/* <script src="html5-qrcode.min.js"></script> */}
-
-// ogarnac zeby wysylalo request po wlaczeniu aparatu !!!!!!
-
 const ScanTable: React.FC = () => {
     const [qrCode, setQRCode] = useState('');
     const [validatedQRCode, setValidatedQRCode] = useState(false);

@@ -128,7 +128,7 @@ async function createRaportWH(nameWH,res) {
                         html += `<tr>
                             <td style="text-align: center;">`+(index+1)+`</td>
                             <td style="text-align: center;">${element.qrCode}</td>
-                            <td style="text-align: center;">${element.name}</td>
+                            <td>${element.name}</td>
                             <td style="text-align: center;">${element.quantity}</td>
                             <td style="text-align: center;">${element.newQuantity}</td>
                             <td style="text-align: center;">${element.employee}</td>
@@ -284,7 +284,7 @@ async function createRaportWH(nameWH,res) {
                         html += `<tr>
                             <td style="text-align: center;">`+(index+1)+`</td>
                             <td style="text-align: center;">${element.qrCode}</td>
-                            <td style="text-align: center;">${element.name}</td>
+                            <td>${element.name}</td>
                             <td style="text-align: center;">${element.quantity}</td>
                             <td style="text-align: center;">${element.newQuantity}</td>
                             <td style="text-align: center;">${element.productOwner}</td>
