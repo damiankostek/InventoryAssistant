@@ -6,16 +6,10 @@ import Cookies from "js-cookie";
 import { Link } from 'react-router-dom';
 import api from "../assets/api.json";
 
-{/* <script src="html5-qrcode.min.js"></script> */}
-
-// ogarnac zeby wysylalo request po wlaczeniu aparatu !!!!!!
-
 const ScanPage: React.FC = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const qrCodeTable = urlParams.get('qrCode');
-    // const qrCodeTable = qrCodeParam;
     const [listType, setListType] = useState('');
-    // const [id, setId] = useState('');
     const [tableName, setTableName] = useState('');
     const [qrCode, setQRCode] = useState('');
     const [validatedQRCode, setValidatedQRCode] = useState(false);
