@@ -44,39 +44,11 @@ span.optionsButton a img {
     all: unset
 }
 
-/* .layoutButton{
-    all: unset;
-    text-decoration: none;
-    color: white;
-    border: 2px solid white;
-    border-radius: 12px;
-    padding: 0.4em 0.7em;
-    font-weight: 500;
-    margin: 1em;
-    width: 6em;
-} */
-
 .adminContent {
     background-color: rgba(255, 255, 255, 0.4);
     min-height: 75vh;
     border-radius: 20px 20px 20px 20px;
 }
-
-/* .menuAdmin {
-    background-color: rgba(255, 255, 255, 0.45);
-    float: left;
-    min-height: 75vh;
-    width: 15vw;
-    border-radius: 20px 0px 0px 20px;
-}
-
-.details {
-    float: left;
-    min-height: 75vh;
-    width: 65vw;
-    border-radius: 0px 20px 20px 0px;
-} */
-
 
 .layoutButton {
     all: unset;
@@ -96,8 +68,6 @@ span.optionsButton a img {
     background: linear-gradient(-45deg,  #c26d3b, #af2e60, #1b6da3, #08e069);
 	background-size: 200% 200%;
 	animation: gradient 1s ease infinite;
-    /* color: white;
-    border: 2px dashed white; */
   }
    .layoutButton :focus,
   .layoutButton :focus-visible {
