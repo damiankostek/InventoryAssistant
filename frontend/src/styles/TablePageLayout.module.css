@@ -444,3 +444,58 @@ table tbody tr td.sdButton button {
   .raportButton {
     margin-left: 1em;
   }
+
+  .confirmationBox {
+  box-shadow: 0px 0px 25px 5px rgb(34, 32, 32);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ffffffef;
+  color: black;
+  padding: 20px;
+  border: 3px solid rgb(255, 0, 0);
+  border-radius: 8px;
+  text-align: center;
+  z-index: 1000;
+}
+
+.confirmationBox p {
+  margin: 10px 0;
+}
+
+.infoDialog {
+  color: red;
+}
+
+.confirmationBoxYes {
+  margin: 0 10px;
+  width: 5em;
+  padding: 8px 16px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  border: 2px solid #044b97;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.confirmationBoxNo {
+  margin: 0 10px;
+  width: 5em;
+  padding: 8px 16px;
+  cursor: pointer;
+  background-color: #828486;
+  color: #fff;
+  border: 2px solid #4a4e52;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.confirmationBoxYes:hover {
+  background-color: #044b97;
+}
+
+.confirmationBoxNo:hover {
+  background-color: #4a4e52;
+}

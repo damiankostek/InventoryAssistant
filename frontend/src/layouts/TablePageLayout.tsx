@@ -82,8 +82,18 @@ const TablePageLayout: React.FC = () => {
     const [showCol4, setShowCol4] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
     const [newRoom, setNewRoom] = useState(false);
-    const [productsTable, setProductsTable] = useState(table)
-    const [positionsTable, setPositionsTable] = useState(table)
+    const [productsTable, setProductsTable] = useState(table);
+    const [positionsTable, setPositionsTable] = useState(table);
+
+    const [showConfirmation, setShowConfirmation] = useState(false);
+
+    const handleButtonClick = () => {
+      setShowConfirmation(true);
+    };
+
+    const handleButtonClickOff = () => {
+      setShowConfirmation(false);
+    };
 
     const handleAddWarehouseClick = () => {
         setShowAddInstitution(true);
@@ -991,62 +1001,120 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
       });
   }
 
-  const handleRefreshProduct = () => {
-    const apiUrl = 'http://'+api+':8080/getProducts';
+  const handleUpdateWH = (tableName_:any) => {
+    const apiUrl = 'http://'+api+':8080/updateWH';
+    const refreshApiUrl = 'http://'+api+':8080/getProducts';
+    
+    const token = Cookies.get('user');
 
     const requestBody = {
-      nameT: tableName
+      token: token,
+      tableName: tableName_
     };
-      fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
+
+    console.log(requestBody)
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
       })
-        .then((response) => {
-          if (response.status == 500) {
-            throw new Error('Błąd serwera');
-          }
-          return response.json();
-        })
-        .then((data) => {
-            if(data){
-              setProductsTable(data.allProducts);
-              setFilteredProducts(data.allProducts);
-            }else{
-              console.log("Błąd podczas odświeżania")
-            }
-        });
+      .then((data) => {
+          if(data.success){
+            console.log(data.success);
+            const requestBodyT = {
+              nameT: tableName
+            };
+              fetch(refreshApiUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBodyT),
+              })
+                .then((response) => {
+                  if (response.status == 500) {
+                    throw new Error('Błąd serwera');
+                  }
+                  return response.json();
+                })
+                .then((data) => {
+                    if(data){
+                      setProductsTable(data.allProducts);
+                      setFilteredProducts(data.allProducts);
+                    }else{
+                      console.log("Błąd podczas odświeżania")
+                    }
+                });
+          }else if(data.fail){
+          console.log(data.fail);
+        }
+      });
   };
 
-  const handleRefreshPosition = () => {
-    const apiUrl = 'http://'+api+':8080/getPositions';
+  const handleUpdateIN = (tableName_:any) => {
+    const apiUrl = 'http://'+api+':8080/updateIN';
+    const refreshApiUrl = 'http://'+api+':8080/getPositions';
+    
+    const token = Cookies.get('user');
 
     const requestBody = {
-      nameT: tableName
+      token: token,
+      tableName: tableName_
     };
-      fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
+
+    console.log(requestBody)
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => {
+        if (response.status == 500) {
+          throw new Error('Błąd serwera');
+        }
+        return response.json();
       })
-        .then((response) => {
-          if (response.status == 500) {
-            throw new Error('Błąd serwera');
-          }
-          return response.json();
-        })
-        .then((data) => {
-            if(data){
-              setPositionsTable(data.allPositions);
-              setFilteredPositions(data.allPositions);
-            }else{
-              console.log("Błąd podczas odświeżania")
-            }
-        });
+      .then((data) => {
+          if(data.success){
+            console.log(data.success);
+            const requestBodyT = {
+              nameT: tableName
+            };
+            fetch(refreshApiUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBodyT),
+            })
+              .then((response) => {
+                if (response.status == 500) {
+                  throw new Error('Błąd serwera');
+                }
+                return response.json();
+              })
+              .then((data) => {
+                  if(data){
+                    setPositionsTable(data.allPositions);
+                    setFilteredPositions(data.allPositions);
+                  }else{
+                    console.log("Błąd podczas odświeżania")
+                  }
+              });
+          }else if(data.fail){
+          console.log(data.fail);
+        }
+      });
   };
 
     return (
@@ -1288,9 +1356,18 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                     <a href={`http://${api}:8080/createRaportWH?tableName=${tableName}&token=${ctoken}`}>
                                       <button><i className="fa-solid fa-check-to-slot"></i></button>
                                     </a>
+                                    {showConfirmation && (
+                                  <div className={styles.confirmationBox}>
+                                      <p>Czy na pewno chcesz przeliczyć stan magazynowy?</p>
+                                      <p className={styles.infoDialog}>* Procesu nie można cofnąć</p>
+                                      <button onClick={(_) => handleUpdateWH(tableName)} className={styles.confirmationBoxYes}>TAK</button>
+                                      <button onClick={handleButtonClickOff} className={styles.confirmationBoxNo}>NIE</button>
+                                    </div>
+                                  )}
                                   </span>
                                 ) : null}
-                                <span className={styles.raportButton}><button onClick={(_) => handleRefreshProduct()}><i className="fa-solid fa-arrows-rotate"></i></button></span> 
+                                <span className={styles.raportButton}><button onClick={handleButtonClick}><i className="fa-solid fa-arrows-rotate"></i></button></span> 
+                                
                               </span>
                               <span className={styles.searchStyle}>
                                 <input className={styles.inputTextSearch} type="text" placeholder='Wyszukaj' value={searchTerm} onChange={handleSearchWH} />
@@ -1562,9 +1639,16 @@ const handleSearchIN = (event: React.ChangeEvent<HTMLInputElement>) => {
                                     <a href={`http://${api}:8080/createRaportIN?tableName=${tableName}&token=${ctoken}`}>
                                       <button><i className="fa-solid fa-check-to-slot"></i></button>
                                     </a>
+                                    {showConfirmation && (
+                                    <div className={styles.confirmationBox}>
+                                        <p>Czy na pewno chcesz przeliczyć stan magazynowy?</p>
+                                        <p className={styles.infoDialog}>* Procesu nie można cofnąć</p>
+                                        <button onClick={(_) => handleUpdateIN(tableName)} className={styles.confirmationBoxYes}>TAK</button>
+                                        <button onClick={handleButtonClickOff} className={styles.confirmationBoxNo}>NIE</button>
+                                      </div>
+                                    )}
                                   </span>
                                 ) : null}
-                                <span className={styles.raportButton}><button onClick={(_) => handleRefreshPosition()}><i className="fa-solid fa-arrows-rotate"></i></button></span> 
                               </span>
                               <span className={styles.searchStyle}>
                                 <input className={styles.inputTextSearch} type="text" placeholder='Wyszukaj' value={searchTermIN} onChange={handleSearchIN} />
